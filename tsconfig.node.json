@@ -1,0 +1,27 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
+  "include": [
+    "electron.vite.config.*",
+    "src/main/**/*",
+    "src/main/env.d.ts",
+    "src/preload/**/*",
+    "packages/shared/**/*"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@main/*": ["./src/main/*"],
+      "@preload/*": ["./src/preload/src/*"],
+      "@renderer/*": ["./src/renderer/*"],
+      "@shared/*": ["./packages/shared/*"],
+      "@db/*": ["./src/main/services/DatabaseService/*"],
+      "@server/*": ["./src/main/services/FastifyService/*"],
+      "@logger": ["./src/main/services/LoggerService"],
+      "@pkg": ["./package.json"]
+    },
+    "composite": true,
+    "types": [
+      "electron-vite/node"
+    ]
+  }
+}
