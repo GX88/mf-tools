@@ -1,3 +1,4 @@
+#!/bin/sh
 case "$(uname -a)" in
   *MINGW64*) exit 0 ;;
 esac

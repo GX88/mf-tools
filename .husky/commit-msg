@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$OS" = "Windows_NT" ]; then
   npx.cmd --no-install commitlint -e $GIT_PARAMS
 else
