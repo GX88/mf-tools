@@ -203,7 +203,7 @@ export const hmac = {
    * HMAC-MD5-16位算法
    * @param options HMAC选项
    * @returns 16位HMAC-MD5值
-   * @example hmac['md5-16']({ src: 'this is an example', key: 'zy' }) => 'ec8e0c400f4a2207'
+   * @example hmac['md5-16']({ src: 'this is an example', key: 'mf' }) => 'ec8e0c400f4a2207'
    */
   'md5-16': (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => {
@@ -216,7 +216,7 @@ export const hmac = {
    * HMAC-MD5-32位算法
    * @param options HMAC选项
    * @returns 32位HMAC-MD5值
-   * @example hmac['md5-32']({ src: 'this is an example', key: 'zy' }) => 'fe4c3df9ec8e0c400f4a2207124f36cc'
+   * @example hmac['md5-32']({ src: 'this is an example', key: 'mf' }) => 'fe4c3df9ec8e0c400f4a2207124f36cc'
    */
   'md5-32': (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => CryptoJS.HmacMD5(srcBuffer, keyBuffer))
@@ -226,7 +226,7 @@ export const hmac = {
    * HMAC-SHA1算法
    * @param options HMAC选项
    * @returns HMAC-SHA1值
-   * @example hmac.sha1({ src: 'this is an example', key: 'zy' }) => 'd68a1c8607443eced2b9ddd106019c9df371c550'
+   * @example hmac.sha1({ src: 'this is an example', key: 'mf' }) => 'd68a1c8607443eced2b9ddd106019c9df371c550'
    */
   sha1: (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => CryptoJS.HmacSHA1(srcBuffer, keyBuffer))
@@ -236,7 +236,7 @@ export const hmac = {
    * HMAC-SHA224算法
    * @param options HMAC选项
    * @returns HMAC-SHA224值
-   * @example hmac.sha224({ src: 'this is an example', key: 'zy' }) => '97285486cefddaf30d1cd3c82e8954a8711f726a3b0413f3d93c8028'
+   * @example hmac.sha224({ src: 'this is an example', key: 'mf' }) => '97285486cefddaf30d1cd3c82e8954a8711f726a3b0413f3d93c8028'
    */
   sha224: (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => CryptoJS.HmacSHA224(srcBuffer, keyBuffer))
@@ -246,7 +246,7 @@ export const hmac = {
    * HMAC-SHA256算法
    * @param options HMAC选项
    * @returns HMAC-SHA256值
-   * @example hmac.sha256({ src: 'this is an example', key: 'zy' }) => '4ac4435d831ecf3f472969e0fd892c01890041dc80f087ec8baa67ea31d66731'
+   * @example hmac.sha256({ src: 'this is an example', key: 'mf' }) => '4ac4435d831ecf3f472969e0fd892c01890041dc80f087ec8baa67ea31d66731'
    */
   sha256: (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => CryptoJS.HmacSHA256(srcBuffer, keyBuffer))
@@ -256,7 +256,7 @@ export const hmac = {
    * HMAC-SHA3算法
    * @param options HMAC选项
    * @returns HMAC-SHA3值
-   * @example hmac.sha3({ src: 'this is an example', key: 'zy' }) => '3c58d36a563637fd4d1c437c52b42cce007db422ef04485cc2bffe8c0e2fcd833408762ffbc140617aab73b9e4fc7b7139b1927dbb1b9d0f473f8f6295fbe6ef'
+   * @example hmac.sha3({ src: 'this is an example', key: 'mf' }) => '3c58d36a563637fd4d1c437c52b42cce007db422ef04485cc2bffe8c0e2fcd833408762ffbc140617aab73b9e4fc7b7139b1927dbb1b9d0f473f8f6295fbe6ef'
    */
   sha3: (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => CryptoJS.HmacSHA3(srcBuffer, keyBuffer))
@@ -266,7 +266,7 @@ export const hmac = {
    * HMAC-SHA384算法
    * @param options HMAC选项
    * @returns HMAC-SHA384值
-   * @example hmac.sha384({ src: 'this is an example', key: 'zy' }) => '843b0c90c009370b4947cbb2fa0ed023a1fd0b68e00554927a31cd419ac2fdfb5c47d7a0c4768a06b895499c7b6925f4'
+   * @example hmac.sha384({ src: 'this is an example', key: 'mf' }) => '843b0c90c009370b4947cbb2fa0ed023a1fd0b68e00554927a31cd419ac2fdfb5c47d7a0c4768a06b895499c7b6925f4'
    */
   sha384: (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => CryptoJS.HmacSHA384(srcBuffer, keyBuffer))
@@ -276,7 +276,7 @@ export const hmac = {
    * HMAC-SHA512算法
    * @param options HMAC选项
    * @returns HMAC-SHA512值
-   * @example hmac.sha512({ src: 'this is an example', key: 'zy' }) => 'd7d752e9477327133df026a74e4fe5df488906f5f7e7a12aa21075c09498f6b5dc00659dd08f35eafa7028aff818f4166dd979ee9b9690f495be4fe93ec3125a'
+   * @example hmac.sha512({ src: 'this is an example', key: 'mf' }) => 'd7d752e9477327133df026a74e4fe5df488906f5f7e7a12aa21075c09498f6b5dc00659dd08f35eafa7028aff818f4166dd979ee9b9690f495be4fe93ec3125a'
    */
   sha512: (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) => CryptoJS.HmacSHA512(srcBuffer, keyBuffer))
@@ -285,7 +285,7 @@ export const hmac = {
    * HMAC-SHA512/224算法
    * @param options HMAC选项
    * @returns HMAC-SHA512/224值
-   * @example hmac['sha512-224']({ src: 'this is an example', key: 'zy' }) => 'b2fe57483a595bd575ad5b69f4ec1f223566500c9f39b5c1d9c92f00'
+   * @example hmac['sha512-224']({ src: 'this is an example', key: 'mf' }) => 'b2fe57483a595bd575ad5b69f4ec1f223566500c9f39b5c1d9c92f00'
    */
   'sha512-224': (options: HmacOptions): string => {
     const {
@@ -309,7 +309,7 @@ export const hmac = {
    * HMAC-SHA512/256算法
    * @param options HMAC选项
    * @returns HMAC-SHA512/256值
-   * @example hmac['sha512-256']({ src: 'this is an example', key: 'zy' }) => 'd6ae99f22346f65342fab4cf9e40adf8aa88cec4bc32f30a023a14e1c5dbc919'
+   * @example hmac['sha512-256']({ src: 'this is an example', key: 'mf' }) => 'd6ae99f22346f65342fab4cf9e40adf8aa88cec4bc32f30a023a14e1c5dbc919'
    */
   'sha512-256': (options: HmacOptions): string => {
     const {
@@ -333,7 +333,7 @@ export const hmac = {
    * HMAC-RIPEMD160算法
    * @param options HMAC选项
    * @returns HMAC-RIPEMD160值
-   * @example hmac.ripemd160({ src: 'this is an example', key: 'zy' }) => 'fe022aff0043dca6497a18d21779f396296db1dd'
+   * @example hmac.ripemd160({ src: 'this is an example', key: 'mf' }) => 'fe022aff0043dca6497a18d21779f396296db1dd'
    */
   ripemd160: (options: HmacOptions): string => {
     return processHmac(options, (srcBuffer, keyBuffer) =>
@@ -345,7 +345,7 @@ export const hmac = {
    * HMAC-SM3算法
    * @param options HMAC选项
    * @returns HMAC-SM3值
-   * @example hmac.sm3({ src: 'this is an example', key: 'zy' }) => '063f083039a56c7440de518c62b6d9cfb8e0275440c7d55dcdbd9034af127f46'
+   * @example hmac.sm3({ src: 'this is an example', key: 'mf' }) => '063f083039a56c7440de518c62b6d9cfb8e0275440c7d55dcdbd9034af127f46'
    */
   sm3: (options: HmacOptions): string => {
     const {

@@ -157,7 +157,7 @@ const setupApp = async () => {
 const setupReady = () => {
   app.whenReady().then(async () => {
     // [Windows] 设置 App User Model ID，确保系统通知 / 任务栏行为正常
-    electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID || 'com.github.zyfun')
+    electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID || 'com.mf.faith')
 
     // 设置 DoH（DNS over HTTPS），提升 DNS 安全性：仅在配置为 HTTPS 地址时开启
     const hostResolver = configManager.dns
