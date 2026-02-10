@@ -1,4 +1,3 @@
-// commit-lint config
 export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
