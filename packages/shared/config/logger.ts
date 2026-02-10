@@ -1,15 +1,18 @@
 export interface LogSourceWithContext {
-  process: 'main' | 'renderer';
-  window?: string; // only for renderer process
-  module?: string;
-  context?: Record<string, any>;
+  process: 'main' | 'renderer'
+  window?: string // only for renderer process
+  module?: string
+  context?: Record<string, any>
 }
 
-type NullableObject = object | undefined | null;
+type NullableObject = object | undefined | null
 
-export type LogContextData = [] | [Error | NullableObject] | [Error | NullableObject, ...NullableObject[]];
+export type LogContextData =
+  | []
+  | [Error | NullableObject]
+  | [Error | NullableObject, ...NullableObject[]]
 
-export type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'verbose' | 'silly' | 'none';
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'verbose' | 'silly' | 'none'
 
 export const LEVEL = {
   ERROR: 'error',
@@ -18,8 +21,8 @@ export const LEVEL = {
   DEBUG: 'debug',
   VERBOSE: 'verbose',
   SILLY: 'silly',
-  NONE: 'none',
-} satisfies Record<string, LogLevel>;
+  NONE: 'none'
+} satisfies Record<string, LogLevel>
 
 export const LEVEL_MAP: Record<LogLevel, number> = {
   [LEVEL.ERROR]: 10,
@@ -28,8 +31,8 @@ export const LEVEL_MAP: Record<LogLevel, number> = {
   [LEVEL.DEBUG]: 4,
   [LEVEL.VERBOSE]: 2,
   [LEVEL.SILLY]: 0,
-  [LEVEL.NONE]: -1,
-};
+  [LEVEL.NONE]: -1
+}
 
 export enum LOG_MODULE {
   MAIN = 'Main',
@@ -70,10 +73,10 @@ export enum LOG_MODULE {
 
   PLUGIN = 'Plugin',
 
-  I18N = 'I18n',
+  I18N = 'I18n'
 }
 
-export type ILogModuleType = `${LOG_MODULE}`;
+export type ILogModuleType = `${LOG_MODULE}`
 
 export const ANSICOLORS = {
   RED: '\x1B[31m',
@@ -86,8 +89,8 @@ export const ANSICOLORS = {
   END: '\x1B[0m',
   BOLD: '\x1B[1m',
   ITALIC: '\x1B[3m',
-  UNDERLINE: '\x1B[4m',
-};
+  UNDERLINE: '\x1B[4m'
+}
 
 export const LEVEL_COLOR_MAP: Record<LogLevel, keyof typeof ANSICOLORS> = {
   [LEVEL.ERROR]: 'RED',
@@ -96,5 +99,5 @@ export const LEVEL_COLOR_MAP: Record<LogLevel, keyof typeof ANSICOLORS> = {
   [LEVEL.DEBUG]: 'CYAN',
   [LEVEL.VERBOSE]: 'END',
   [LEVEL.SILLY]: 'END',
-  [LEVEL.NONE]: 'END',
-};
+  [LEVEL.NONE]: 'END'
+}

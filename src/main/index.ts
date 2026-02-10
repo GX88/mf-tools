@@ -20,15 +20,13 @@ import { runAsyncFunction } from '@shared/modules/function'
 import { isBoolean, isHttp } from '@shared/modules/validate'
 import { APP_NAME, APP_NAME_PROTOCOL } from '@shared/config/appinfo'
 
-
-
 const logger = loggerService.withContext(LOG_MODULE.MAIN)
 
 // 启用本地崩溃报告，仅将信息写入本地，不上报服务器
 crashReporter.start({
   productName: APP_NAME,
   submitURL: '',
-  uploadToServer: false,
+  uploadToServer: false
 })
 
 /**
@@ -72,7 +70,9 @@ const setupEnv = () => {
 const setupApp = async () => {
   // 根据配置选择是否关闭硬件加速
   const dbHardwareAcceleration = configManager.hardwareAcceleration
-  const disableHardwareAcceleration = isBoolean(dbHardwareAcceleration) ? !dbHardwareAcceleration : false
+  const disableHardwareAcceleration = isBoolean(dbHardwareAcceleration)
+    ? !dbHardwareAcceleration
+    : false
   if (disableHardwareAcceleration) {
     app.disableHardwareAcceleration()
   }
@@ -119,7 +119,7 @@ const setupApp = async () => {
     'VaapiVideoDecoder', // VA-API 视频解码器
     'UseMultiPlaneFormatForHardwareVideo', // 修复硬件视频帧池相关问题
     'VaapiIgnoreDriverChecks', // 忽略 VA-API 驱动兼容性检查
-    'CanvasOopRasterization', // Canvas OOP 光栅化，提高渲染性能
+    'CanvasOopRasterization' // Canvas OOP 光栅化，提高渲染性能
   ]
   app.commandLine.appendSwitch('enable-features', enableFeatures.join(','))
   // 下列开关用于简化调试与抓包场景：关闭证书校验 / 同源策略 / HTTP 缓存
@@ -138,7 +138,7 @@ const setupApp = async () => {
     'OutOfBlinkCors',
     'SameSiteByDefaultCookies',
     'CookiesWithoutSameSiteMustBeSecure',
-    'BlockInsecurePrivateNetworkRequests',
+    'BlockInsecurePrivateNetworkRequests'
   ]
   app.commandLine.appendSwitch('disable-features', disableFeatures.join(','))
 }
@@ -165,7 +165,7 @@ const setupReady = () => {
       logger.info(`Using secure dns: ${hostResolver}`)
       app.configureHostResolver({
         secureDnsMode: 'secure',
-        secureDnsServers: [hostResolver],
+        secureDnsServers: [hostResolver]
       })
     }
 
@@ -184,7 +184,9 @@ const setupReady = () => {
     if (isDev) {
       // 开发模式下自动安装 Vue Devtools，方便调试渲染进程
       installExtension([VUEJS_DEVTOOLS])
-        .then(([...args]) => logger.info(`Added devtool extensions: ${args.map((arg) => arg.name).join(', ')}`))
+        .then(([...args]) =>
+          logger.info(`Added devtool extensions: ${args.map((arg) => arg.name).join(', ')}`)
+        )
         .catch((error) => logger.error('An error occurred: ', error))
     }
   })

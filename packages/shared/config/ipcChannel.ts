@@ -20,6 +20,9 @@ export enum IPC_CHANNEL {
   // binary
   BINARY_INSTALL = 'binary:install',
 
+  // device
+  DEVICE_ID = 'device:id',
+
   // business
   BROWSER_NAVIGATE = 'business:browser-navigate',
 
@@ -117,5 +120,5 @@ export enum IPC_CHANNEL {
   WINDOW_STATUS = 'window:status',
 
   WINDOW_MAIN = 'window:main',
-  WINDOW_BROWSER = 'window:browser',
+  WINDOW_BROWSER = 'window:browser'
 }

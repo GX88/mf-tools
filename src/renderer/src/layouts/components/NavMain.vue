@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight } from "lucide-vue-next"
+import { ChevronRight } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { allRoutes } from '@renderer/src/router'
@@ -7,7 +7,7 @@ import * as LucideIcons from 'lucide-vue-next'
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+  CollapsibleTrigger
 } from '@renderer/src/components/ui/collapsible'
 import {
   SidebarGroup,
@@ -17,7 +17,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
+  SidebarMenuSubItem
 } from '@renderer/src/components/ui/sidebar'
 
 const route = useRoute()
@@ -37,7 +37,7 @@ const menuItems = computed(() => {
       // 为子路由添加父路径前缀（如果需要）
       // 在这里，Root 的 path 是 /，子路由 path 是 dashboard
       // 最终路径应该是 /dashboard
-      const children = route.children.map(child => ({
+      const children = route.children.map((child) => ({
         ...child,
         path: child.path.startsWith('/') ? child.path : `/${child.path}`
       }))
@@ -48,16 +48,23 @@ const menuItems = computed(() => {
   })
 
   return menuRoutes
-    .filter(route => !route.meta?.hidden && route.children && route.children.some(child => !child.meta?.hidden))
-    .map(r => ({
+    .filter(
+      (route) =>
+        !route.meta?.hidden && route.children && route.children.some((child) => !child.meta?.hidden)
+    )
+    .map((r) => ({
       title: r.meta?.title || r.name,
       url: r.path,
       icon: getIcon(r.meta?.icon),
       isActive: route.path.startsWith(r.path), // 简单的激活状态判断
-      items: r.children?.filter(child => !child.meta?.hidden).map(child => ({
-        title: child.meta?.title || child.name,
-        url: child.path.startsWith('/') ? child.path : `${r.path}/${child.path}`.replace(/\/+/g, '/')
-      }))
+      items: r.children
+        ?.filter((child) => !child.meta?.hidden)
+        .map((child) => ({
+          title: child.meta?.title || child.name,
+          url: child.path.startsWith('/')
+            ? child.path
+            : `${r.path}/${child.path}`.replace(/\/+/g, '/')
+        }))
     }))
 })
 </script>
@@ -67,17 +74,15 @@ const menuItems = computed(() => {
     <SidebarGroupLabel>菜单</SidebarGroupLabel>
     <SidebarMenu>
       <template v-for="item in menuItems" :key="item.title">
-        <Collapsible
-          as-child
-          :default-open="item.isActive"
-          class="group/collapsible"
-        >
+        <Collapsible as-child :default-open="item.isActive" class="group/collapsible">
           <SidebarMenuItem>
             <CollapsibleTrigger as-child>
               <SidebarMenuButton :tooltip="item.title">
                 <component :is="item.icon" v-if="item.icon" />
                 <span>{{ item.title }}</span>
-                <ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                <ChevronRight
+                  class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+                />
               </SidebarMenuButton>
             </CollapsibleTrigger>
             <CollapsibleContent>

@@ -1,12 +1,12 @@
-import { md, pki } from 'node-forge';
+import { md, pki } from 'node-forge'
 
-import type { RsaOptions } from '../../type';
-import { arrayToBytes as forgeArrayToBytes, stringify as forgeStringify } from '../../utils/forge';
-import { parse as wordArrayParse, wordArrayToArray } from '../../utils/wordArray';
+import type { RsaOptions } from '../../type'
+import { arrayToBytes as forgeArrayToBytes, stringify as forgeStringify } from '../../utils/forge'
+import { parse as wordArrayParse, wordArrayToArray } from '../../utils/wordArray'
 
-const PUB_REGEX = /^-----BEGIN PUBLIC KEY-----[\s\S]+?-----END PUBLIC KEY-----[\s\S]*$/;
+const PUB_REGEX = /^-----BEGIN PUBLIC KEY-----[\s\S]+?-----END PUBLIC KEY-----[\s\S]*$/
 const PRI_REGEX =
-  /^-----BEGIN (?:RSA |ENCRYPTED )?PRIVATE KEY-----[\s\S]+?-----END (?:RSA |ENCRYPTED )?PRIVATE KEY-----[\s\S]*$/;
+  /^-----BEGIN (?:RSA |ENCRYPTED )?PRIVATE KEY-----[\s\S]+?-----END (?:RSA |ENCRYPTED )?PRIVATE KEY-----[\s\S]*$/
 
 const getPad = (pad: string) => {
   switch (pad.toLowerCase()) {
@@ -16,14 +16,14 @@ const getPad = (pad: string) => {
     case 'rsa-oaep-sha384':
     case 'rsa-oaep-sha512':
     case 'rsa-oaep-md5':
-      return 'RSA-OAEP';
+      return 'RSA-OAEP'
     case 'rsaes-pkcs1-v1_5':
-      return 'RSAES-PKCS1-V1_5';
+      return 'RSAES-PKCS1-V1_5'
     case 'nopadding':
     default:
-      return 'RAW';
+      return 'RAW'
   }
-};
+}
 
 /**
  * RSA 加密/解密工具对象
@@ -73,85 +73,92 @@ export const rsa = {
       pad = 'rsaes-pkcs1-v1_5',
       passphraseEncode = 'utf8',
       inputEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (!src || !key) return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (!src || !key) return ''
 
-    let rsaKey: pki.rsa.PublicKey | pki.rsa.PrivateKey;
+    let rsaKey: pki.rsa.PublicKey | pki.rsa.PrivateKey
     if (type === 0) {
-      if (!PUB_REGEX.test(key)) throw new Error('Key is not a valid public key');
+      if (!PUB_REGEX.test(key)) throw new Error('Key is not a valid public key')
 
-      rsaKey = pki.publicKeyFromPem(key);
+      rsaKey = pki.publicKeyFromPem(key)
     } else if (type === 1) {
-      if (!PRI_REGEX.test(key)) throw new Error('Key is not a valid private key');
+      if (!PRI_REGEX.test(key)) throw new Error('Key is not a valid private key')
 
       if (key.includes('ENCRYPTED')) {
-        if (!passphrase) throw new Error('Passphrase is required for encrypted private key');
+        if (!passphrase) throw new Error('Passphrase is required for encrypted private key')
 
-        const passphraseBuffer = wordArrayParse[passphraseEncode](passphrase);
-        rsaKey = pki.decryptRsaPrivateKey(key, forgeArrayToBytes(wordArrayToArray(passphraseBuffer)).getBytes());
+        const passphraseBuffer = wordArrayParse[passphraseEncode](passphrase)
+        rsaKey = pki.decryptRsaPrivateKey(
+          key,
+          forgeArrayToBytes(wordArrayToArray(passphraseBuffer)).getBytes()
+        )
       } else {
-        rsaKey = pki.privateKeyFromPem(key);
+        rsaKey = pki.privateKeyFromPem(key)
       }
     }
 
-    const srcBuffer = wordArrayParse[inputEncode](src);
+    const srcBuffer = wordArrayParse[inputEncode](src)
 
-    const padding = getPad(pad);
-    let schemeOptions = {};
+    const padding = getPad(pad)
+    let schemeOptions = {}
     if (padding === 'RSA-OAEP' && pad.toLowerCase() !== 'rsa-oaep') {
-      const algorithm = pad.toLowerCase().replace('rsa-oaep-', '') || 'sha1';
+      const algorithm = pad.toLowerCase().replace('rsa-oaep-', '') || 'sha1'
       if (!['md5', 'sha1', 'sha256', 'sha384', 'sha512'].includes(algorithm)) {
-        throw new Error(`Unsupported RSA-OAEP algorithm: ${algorithm}`);
+        throw new Error(`Unsupported RSA-OAEP algorithm: ${algorithm}`)
       }
 
       schemeOptions = {
         md: md[algorithm].create(),
         mgf1: {
-          md: md[algorithm].create(),
-        },
-      };
+          md: md[algorithm].create()
+        }
+      }
     }
 
-    let encrypted = '';
+    let encrypted = ''
     if (long) {
-      const chunks = wordArrayToArray(srcBuffer);
-      const chunkLength = chunks.length;
-      let offSet = 0;
+      const chunks = wordArrayToArray(srcBuffer)
+      const chunkLength = chunks.length
+      let offSet = 0
 
       // 根据RSA密钥长度和填充方式确定最大加密块大小
       // 对于2048位密钥，PKCS#1 v1.5填充最大为245字节，OAEP填充最大为214字节
       // 这里根据填充方式动态调整块大小
-      const MAX_ENCRYPT_BLOCK = padding === 'RSA-OAEP' ? 117 : 117;
+      const MAX_ENCRYPT_BLOCK = padding === 'RSA-OAEP' ? 117 : 117
 
-      const encryptedChunks: string[] = [];
+      const encryptedChunks: string[] = []
 
       while (offSet < chunkLength) {
-        let end = offSet + MAX_ENCRYPT_BLOCK;
+        let end = offSet + MAX_ENCRYPT_BLOCK
         if (end > chunkLength) {
-          end = chunkLength;
+          end = chunkLength
         }
 
-        const chunk = chunks.slice(offSet, end);
+        const chunk = chunks.slice(offSet, end)
 
-        const encryptedChunk = rsaKey.encrypt(forgeArrayToBytes(chunk).getBytes(), padding as any, schemeOptions);
-        encryptedChunks.push(encryptedChunk);
+        const encryptedChunk = rsaKey.encrypt(
+          forgeArrayToBytes(chunk).getBytes(),
+          padding as any,
+          schemeOptions
+        )
+        encryptedChunks.push(encryptedChunk)
 
-        offSet += MAX_ENCRYPT_BLOCK;
+        offSet += MAX_ENCRYPT_BLOCK
       }
 
-      encrypted = encryptedChunks.join('');
+      encrypted = encryptedChunks.join('')
     } else {
       encrypted = rsaKey.encrypt(
         forgeArrayToBytes(wordArrayToArray(srcBuffer)).getBytes(),
         padding as any,
-        schemeOptions,
-      );
+        schemeOptions
+      )
     }
 
-    return forgeStringify[outputEncode](encrypted);
+    return forgeStringify[outputEncode](encrypted)
   },
 
   /**
@@ -217,86 +224,89 @@ export const rsa = {
       pad = 'rsaes-pkcs1-v1_5',
       passphraseEncode = 'utf8',
       inputEncode = 'base64',
-      outputEncode = 'utf8',
-    } = options;
+      outputEncode = 'utf8'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (!src || !key) return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (!src || !key) return ''
 
-    let rsaKey: pki.rsa.PublicKey | pki.rsa.PrivateKey;
+    let rsaKey: pki.rsa.PublicKey | pki.rsa.PrivateKey
     if (type === 0) {
-      if (!PUB_REGEX.test(key)) throw new Error('Key is not a valid public key');
+      if (!PUB_REGEX.test(key)) throw new Error('Key is not a valid public key')
 
-      rsaKey = pki.publicKeyFromPem(key);
+      rsaKey = pki.publicKeyFromPem(key)
     } else if (type === 1) {
-      if (!PRI_REGEX.test(key)) throw new Error('Key is not a valid private key');
+      if (!PRI_REGEX.test(key)) throw new Error('Key is not a valid private key')
 
       if (key.includes('ENCRYPTED')) {
-        if (!passphrase) throw new Error('Passphrase is required for encrypted private key');
+        if (!passphrase) throw new Error('Passphrase is required for encrypted private key')
 
-        const passphraseBuffer = wordArrayParse[passphraseEncode](passphrase);
-        rsaKey = pki.decryptRsaPrivateKey(key, forgeArrayToBytes(wordArrayToArray(passphraseBuffer)).getBytes());
+        const passphraseBuffer = wordArrayParse[passphraseEncode](passphrase)
+        rsaKey = pki.decryptRsaPrivateKey(
+          key,
+          forgeArrayToBytes(wordArrayToArray(passphraseBuffer)).getBytes()
+        )
       } else {
-        rsaKey = pki.privateKeyFromPem(key);
+        rsaKey = pki.privateKeyFromPem(key)
       }
     }
 
-    const srcBuffer = wordArrayParse[inputEncode](src);
+    const srcBuffer = wordArrayParse[inputEncode](src)
 
-    const padding = getPad(pad);
-    let schemeOptions = {};
+    const padding = getPad(pad)
+    let schemeOptions = {}
     if (padding === 'RSA-OAEP' && pad.toLowerCase() !== 'rsa-oaep') {
-      const algorithm = pad.toLowerCase().replace('rsa-oaep-', '') || 'sha1';
+      const algorithm = pad.toLowerCase().replace('rsa-oaep-', '') || 'sha1'
       if (!['md5', 'sha1', 'sha256', 'sha384', 'sha512'].includes(algorithm)) {
-        throw new Error(`Unsupported RSA-OAEP algorithm: ${algorithm}`);
+        throw new Error(`Unsupported RSA-OAEP algorithm: ${algorithm}`)
       }
 
       schemeOptions = {
         md: md[algorithm].create(),
         mgf1: {
-          md: md[algorithm].create(),
-        },
-      };
+          md: md[algorithm].create()
+        }
+      }
     }
 
-    let decryptedBytes = '';
+    let decryptedBytes = ''
 
     if (long) {
-      const bytes = forgeArrayToBytes(wordArrayToArray(srcBuffer)).getBytes();
+      const bytes = forgeArrayToBytes(wordArrayToArray(srcBuffer)).getBytes()
 
       // 对于RSA解密，块大小固定为密钥长度
       // 例如：2048位RSA密钥对应256字节的块大小
-      const keySize = rsaKey.n.bitLength() / 8; // 获取密钥长度（字节）
-      const MAX_DECRYPT_BLOCK = keySize || 256; // 如果无法获取密钥长度，默认使用256字节（适用于2048位密钥）
+      const keySize = rsaKey.n.bitLength() / 8 // 获取密钥长度（字节）
+      const MAX_DECRYPT_BLOCK = keySize || 256 // 如果无法获取密钥长度，默认使用256字节（适用于2048位密钥）
 
-      const byteLength = bytes.length;
-      let offSet = 0;
+      const byteLength = bytes.length
+      let offSet = 0
 
-      const decryptedChunks: string[] = [];
+      const decryptedChunks: string[] = []
 
       while (offSet < byteLength) {
-        let end = offSet + MAX_DECRYPT_BLOCK;
+        let end = offSet + MAX_DECRYPT_BLOCK
         if (end > byteLength) {
-          end = byteLength;
+          end = byteLength
         }
 
-        const chunk = bytes.substring(offSet, end);
+        const chunk = bytes.substring(offSet, end)
 
-        const decryptedChunk = rsaKey.decrypt(chunk, padding, schemeOptions);
-        decryptedChunks.push(decryptedChunk);
+        const decryptedChunk = rsaKey.decrypt(chunk, padding, schemeOptions)
+        decryptedChunks.push(decryptedChunk)
 
-        offSet += MAX_DECRYPT_BLOCK;
+        offSet += MAX_DECRYPT_BLOCK
       }
 
-      decryptedBytes = decryptedChunks.join('');
+      decryptedBytes = decryptedChunks.join('')
     } else {
       decryptedBytes = rsaKey.decrypt(
         forgeArrayToBytes(wordArrayToArray(srcBuffer)).getBytes(),
         padding,
-        schemeOptions,
-      );
+        schemeOptions
+      )
     }
 
-    return forgeStringify[outputEncode](decryptedBytes);
-  },
-};
+    return forgeStringify[outputEncode](decryptedBytes)
+  }
+}

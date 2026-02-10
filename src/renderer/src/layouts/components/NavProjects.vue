@@ -8,7 +8,7 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarMenuItem
 } from '@renderer/src/components/ui/sidebar'
 
 const getIcon = (iconName?: string) => {
@@ -23,7 +23,7 @@ const projects = computed(() => {
   // 处理 Root 路由，将 children 提升
   routes.forEach((route: any) => {
     if (route.path === '/' && route.children) {
-      const children = route.children.map(child => ({
+      const children = route.children.map((child) => ({
         ...child,
         path: child.path.startsWith('/') ? child.path : `/${child.path}`
       }))
@@ -35,11 +35,11 @@ const projects = computed(() => {
 
   // 筛选出没有子集且未隐藏的路由
   return menuRoutes
-    .filter(route => !route.meta?.hidden && (!route.children || route.children.length === 0))
-    .map(route => ({
+    .filter((route) => !route.meta?.hidden && (!route.children || route.children.length === 0))
+    .map((route) => ({
       name: route.meta?.title || route.name,
       url: route.path,
-      icon: getIcon(route.meta?.icon),
+      icon: getIcon(route.meta?.icon)
     }))
 })
 </script>

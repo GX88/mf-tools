@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ChevronsUpDown, Plus, AudioWaveform, Command, GalleryVerticalEnd } from "lucide-vue-next"
-import { ref } from "vue"
+import { ChevronsUpDown, Plus, GalleryVerticalEnd } from 'lucide-vue-next'
+import { ref, onMounted, computed, watch } from 'vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,36 +8,43 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@renderer/src/components/ui/dropdown-menu"
+  DropdownMenuTrigger
+} from '@renderer/src/components/ui/dropdown-menu'
 
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
-} from "@renderer/src/components/ui/sidebar"
+  useSidebar
+} from '@renderer/src/components/ui/sidebar'
+import { useHospitalStore } from '@renderer/src/store/modules/hospital'
 
-const teams = [
-  {
-    name: "山西省人民医院",
+const hospitalStore = useHospitalStore()
+
+onMounted(() => {
+  hospitalStore.getHospitalList()
+})
+
+const teams = computed(() => {
+  return hospitalStore.hospitalList.map((item) => ({
+    name: item.hospitalName,
     logo: GalleryVerticalEnd,
-    plan: "Hospital",
-  },
-  {
-    name: "山西医科大学第一医院",
-    logo: AudioWaveform,
-    plan: "Startup",
-  },
-  {
-    name: "山西白求恩医院",
-    logo: Command,
-    plan: "Free",
-  },
-]
+    plan: item.hospitalCode
+  }))
+})
 
 const { isMobile } = useSidebar()
-const activeTeam = ref(teams[0])
+const activeTeam = ref<{ name: string; logo: any; plan: string } | undefined>(undefined)
+
+watch(
+  teams,
+  (newTeams) => {
+    if (newTeams && newTeams.length > 0 && !activeTeam.value) {
+      activeTeam.value = newTeams[0]
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -49,14 +56,16 @@ const activeTeam = ref(teams[0])
             size="lg"
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-              <component :is="activeTeam.logo" class="size-4" />
+            <div
+              class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
+            >
+              <component :is="activeTeam?.logo" class="size-4" v-if="activeTeam?.logo" />
             </div>
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-medium">
-                {{ activeTeam.name }}
+                {{ activeTeam?.name || '选择医院' }}
               </span>
-              <span class="truncate text-xs">{{ activeTeam.plan }}</span>
+              <span class="truncate text-xs">{{ activeTeam?.plan || '' }}</span>
             </div>
             <ChevronsUpDown class="ml-auto" />
           </SidebarMenuButton>
@@ -67,9 +76,7 @@ const activeTeam = ref(teams[0])
           :side="isMobile ? 'bottom' : 'right'"
           :side-offset="4"
         >
-          <DropdownMenuLabel class="text-xs text-muted-foreground">
-            Teams
-          </DropdownMenuLabel>
+          <DropdownMenuLabel class="text-xs text-muted-foreground"> Teams </DropdownMenuLabel>
           <DropdownMenuItem
             v-for="(team, index) in teams"
             :key="team.name"
@@ -87,9 +94,7 @@ const activeTeam = ref(teams[0])
             <div class="flex size-6 items-center justify-center rounded-md border bg-transparent">
               <Plus class="size-4" />
             </div>
-            <div class="font-medium text-muted-foreground">
-              添加客户
-            </div>
+            <div class="font-medium text-muted-foreground">添加客户</div>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

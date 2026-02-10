@@ -1,7 +1,6 @@
-
 export enum PROXY_TYPE {
   CUSTOM = 'custom',
   DIRECT = 'direct',
-  SYSTEM = 'system',
+  SYSTEM = 'system'
 }
-export type IProxyType = `${PROXY_TYPE}`;
+export type IProxyType = `${PROXY_TYPE}`

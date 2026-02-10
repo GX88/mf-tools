@@ -1,6 +1,6 @@
-import { t } from '@main/services/AppLocale';
-import type { MenuItemConstructorOptions } from 'electron';
-import { Menu } from 'electron';
+import { t } from '@main/services/AppLocale'
+import type { MenuItemConstructorOptions } from 'electron'
+import { Menu } from 'electron'
 
 /**
  * 全局右键菜单管理类
@@ -24,24 +24,24 @@ class ContextMenu {
    */
   public contextMenu(w: Electron.WebContents) {
     w.on('context-menu', (_event, properties) => {
-      const template: MenuItemConstructorOptions[] = this.createEditMenuItems(properties);
-      const filtered = template.filter((item) => item.visible !== false);
+      const template: MenuItemConstructorOptions[] = this.createEditMenuItems(properties)
+      const filtered = template.filter((item) => item.visible !== false)
       if (filtered.length > 0) {
-        let template = [...filtered, ...this.createInspectMenuItems(w)];
-        const dictionarySuggestions = this.createDictionarySuggestions(properties, w);
+        let template = [...filtered, ...this.createInspectMenuItems(w)]
+        const dictionarySuggestions = this.createDictionarySuggestions(properties, w)
         if (dictionarySuggestions.length > 0) {
           template = [
             ...dictionarySuggestions,
             { type: 'separator' },
             this.createSpellCheckMenuItem(properties, w),
             { type: 'separator' },
-            ...template,
-          ];
+            ...template
+          ]
         }
-        const menu = Menu.buildFromTemplate(template);
-        menu.popup();
+        const menu = Menu.buildFromTemplate(template)
+        menu.popup()
       }
-    });
+    })
   }
 
   /**
@@ -58,13 +58,13 @@ class ContextMenu {
         id: 'inspect',
         label: t('system.contextMenu.inspect'),
         click: () => {
-          w.toggleDevTools();
+          w.toggleDevTools()
         },
-        enabled: true,
-      },
-    ];
+        enabled: true
+      }
+    ]
 
-    return template;
+    return template
   }
 
   /**
@@ -77,9 +77,11 @@ class ContextMenu {
    * - 仅在可编辑区域或存在选中文本时展示对应菜单项
    * - 对 disabled 的菜单项清除 role，避免 Electron 在某些版本中的已知问题
    */
-  private createEditMenuItems(properties: Electron.ContextMenuParams): MenuItemConstructorOptions[] {
-    const hasText = properties.selectionText.trim().length > 0;
-    const can = (type: string) => properties.editFlags[`can${type}`] && hasText;
+  private createEditMenuItems(
+    properties: Electron.ContextMenuParams
+  ): MenuItemConstructorOptions[] {
+    const hasText = properties.selectionText.trim().length > 0
+    const can = (type: string) => properties.editFlags[`can${type}`] && hasText
 
     const template: MenuItemConstructorOptions[] = [
       {
@@ -87,33 +89,33 @@ class ContextMenu {
         label: t('system.edit.copy'),
         role: 'copy',
         enabled: can('Copy'),
-        visible: properties.isEditable || hasText,
+        visible: properties.isEditable || hasText
       },
       {
         id: 'paste',
         label: t('system.edit.paste'),
         role: 'paste',
         enabled: properties.editFlags.canPaste,
-        visible: properties.isEditable,
+        visible: properties.isEditable
       },
       {
         id: 'cut',
         label: t('system.edit.cut'),
         role: 'cut',
         enabled: can('Cut'),
-        visible: properties.isEditable,
-      },
-    ];
+        visible: properties.isEditable
+      }
+    ]
 
     // remove role from items that are not enabled
     // https://github.com/electron/electron/issues/13554
     template.forEach((item) => {
       if (item.enabled === false) {
-        item.role = undefined;
+        item.role = undefined
       }
-    });
+    })
 
-    return template;
+    return template
   }
 
   /**
@@ -127,18 +129,18 @@ class ContextMenu {
    */
   private createSpellCheckMenuItem(
     properties: Electron.ContextMenuParams,
-    w: Electron.WebContents,
+    w: Electron.WebContents
   ): MenuItemConstructorOptions {
-    const hasText = properties.selectionText.length > 0;
+    const hasText = properties.selectionText.length > 0
 
     return {
       id: 'learnSpelling',
       label: '&Learn Spelling',
       visible: Boolean(properties.isEditable && hasText && properties.misspelledWord),
       click: () => {
-        w.session.addWordToSpellCheckerDictionary(properties.misspelledWord);
-      },
-    };
+        w.session.addWordToSpellCheckerDictionary(properties.misspelledWord)
+      }
+    }
   }
 
   /**
@@ -154,12 +156,12 @@ class ContextMenu {
    */
   private createDictionarySuggestions(
     properties: Electron.ContextMenuParams,
-    w: Electron.WebContents,
+    w: Electron.WebContents
   ): MenuItemConstructorOptions[] {
-    const hasText = properties.selectionText.length > 0;
+    const hasText = properties.selectionText.length > 0
 
     if (!hasText || !properties.misspelledWord) {
-      return [];
+      return []
     }
 
     if (properties.dictionarySuggestions.length === 0) {
@@ -168,9 +170,9 @@ class ContextMenu {
           id: 'dictionarySuggestions',
           label: 'No Guesses Found',
           visible: true,
-          enabled: false,
-        },
-      ];
+          enabled: false
+        }
+      ]
     }
 
     return properties.dictionarySuggestions.map((suggestion) => ({
@@ -178,10 +180,10 @@ class ContextMenu {
       label: suggestion,
       visible: Boolean(properties.isEditable && hasText && properties.misspelledWord),
       click: (menuItem: Electron.MenuItem) => {
-        w.replaceMisspelling(menuItem.label);
-      },
-    }));
+        w.replaceMisspelling(menuItem.label)
+      }
+    }))
   }
 }
 
-export const contextMenu = new ContextMenu();
+export const contextMenu = new ContextMenu()

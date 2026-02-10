@@ -9,9 +9,9 @@ import {
   isNil,
   isSet,
   isString,
-  isTypedArray,
-} from 'es-toolkit';
-import JSON5 from 'json5';
+  isTypedArray
+} from 'es-toolkit'
+import JSON5 from 'json5'
 
 /**
  * Export typeof validation function directly from es-toolkit
@@ -26,8 +26,8 @@ export {
   isSet,
   isString,
   isSymbol,
-  isUndefined,
-} from 'es-toolkit';
+  isUndefined
+} from 'es-toolkit'
 
 /**
  * Check if value is a valid number
@@ -35,7 +35,7 @@ export {
  * @returns Returns true if it's a valid number, otherwise false
  */
 export function isNumber(value: unknown): boolean {
-  return typeof value === 'number' || typeof value === 'bigint';
+  return typeof value === 'number' || typeof value === 'bigint'
 }
 
 /**
@@ -44,9 +44,9 @@ export function isNumber(value: unknown): boolean {
  * @returns Returns true if it's a valid integer, otherwise false
  */
 export function isIntNumber(value: unknown): boolean {
-  if (!isNumber(value)) return false;
-  if (typeof value === 'bigint') return true; // bigint is always an integer
-  return Number.isInteger(value) && !Number.isNaN(value);
+  if (!isNumber(value)) return false
+  if (typeof value === 'bigint') return true // bigint is always an integer
+  return Number.isInteger(value) && !Number.isNaN(value)
 }
 
 /**
@@ -55,9 +55,9 @@ export function isIntNumber(value: unknown): boolean {
  * @returns Returns true if value is a finite integer, otherwise false
  */
 export function isFiniteNumber(value: unknown): boolean {
-  if (!isNumber(value)) return false;
-  if (typeof value === 'bigint') return true; // bigint is always finite
-  return Number.isFinite(value);
+  if (!isNumber(value)) return false
+  if (typeof value === 'bigint') return true // bigint is always finite
+  return Number.isFinite(value)
 }
 
 /**
@@ -66,7 +66,7 @@ export function isFiniteNumber(value: unknown): boolean {
  * @returns Returns true if value is a finite integer, otherwise false
  */
 export function isPositiveFiniteNumber(value: unknown): boolean {
-  return isFiniteNumber(value) && (value as number) >= 0;
+  return isFiniteNumber(value) && (value as number) >= 0
 }
 
 /**
@@ -75,8 +75,8 @@ export function isPositiveFiniteNumber(value: unknown): boolean {
  * @returns Returns true if value is a valid permission number, otherwise false
  */
 export function isPermissionNumber(value: unknown): boolean {
-  if (!/^[0-7]+$/.test(String(value))) return false;
-  return (value as number) >= 0 && (value as number) <= 0o777;
+  if (!/^[0-7]+$/.test(String(value))) return false
+  return (value as number) >= 0 && (value as number) <= 0o777
 }
 
 /**
@@ -85,7 +85,7 @@ export function isPermissionNumber(value: unknown): boolean {
  * @returns Returns true if string is empty, otherwise false
  */
 export function isStrEmpty(value: unknown): boolean {
-  return isString(value) && value.trim().length === 0;
+  return isString(value) && value.trim().length === 0
 }
 
 /**
@@ -94,7 +94,7 @@ export function isStrEmpty(value: unknown): boolean {
  * @returns Returns true if value is an object, otherwise false
  */
 export function isObject(value?: any): value is object {
-  return value !== null && (typeof value === 'object' || typeof value === 'function');
+  return value !== null && (typeof value === 'object' || typeof value === 'function')
 }
 
 /**
@@ -103,7 +103,7 @@ export function isObject(value?: any): value is object {
  * @returns Returns true if object is empty, otherwise false
  */
 export function isObjectEmpty(value: unknown): boolean {
-  return isJSONObject(value) && Object.keys(value).length === 0;
+  return isJSONObject(value) && Object.keys(value).length === 0
 }
 
 /**
@@ -113,7 +113,7 @@ export function isObjectEmpty(value: unknown): boolean {
  */
 // export const isArray = isJSONArray;
 export function isArray(value?: any): value is any[] {
-  return Array.isArray(value);
+  return Array.isArray(value)
 }
 
 /**
@@ -123,10 +123,10 @@ export function isArray(value?: any): value is any[] {
  * @returns Returns true if value is an array with multiple dimensions, otherwise false
  */
 export function isMultidimensionalArray(value?: any, depth: number = 2): boolean {
-  if (!isArray(value)) return false;
-  if (depth <= 1) return true;
+  if (!isArray(value)) return false
+  if (depth <= 1) return true
 
-  return !isArrayEmpty(value) && value.every((item) => isMultidimensionalArray(item, depth - 1));
+  return !isArrayEmpty(value) && value.every((item) => isMultidimensionalArray(item, depth - 1))
 }
 
 /**
@@ -135,7 +135,7 @@ export function isMultidimensionalArray(value?: any, depth: number = 2): boolean
  * @returns Returns true if array is empty, otherwise false
  */
 export function isArrayEmpty(value: unknown): boolean {
-  return isJSONArray(value) && value.length === 0;
+  return isJSONArray(value) && value.length === 0
 }
 
 /**
@@ -144,7 +144,7 @@ export function isArrayEmpty(value: unknown): boolean {
  * @returns Returns true if object can be serialized to valid JSON, otherwise false
  */
 export function isJson(value: unknown): boolean {
-  return typeof value === 'object' && value !== null && isJSONValue(value);
+  return typeof value === 'object' && value !== null && isJSONValue(value)
 }
 
 /**
@@ -153,14 +153,14 @@ export function isJson(value: unknown): boolean {
  * @returns Returns true if string is valid JSON format, otherwise false
  */
 export function isJsonStr(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
+  if (!isString(value) || isStrEmpty(value)) return false
   // return isJSON(value); // not parse json5
   try {
-    const resp = JSON5.parse(value);
-    if (!isJson(resp)) return false;
-    return true;
+    const resp = JSON5.parse(value)
+    if (!isJson(resp)) return false
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -170,7 +170,7 @@ export function isJsonStr(value: unknown): boolean {
  * @returns Returns true if string is valid binary format, otherwise false
  */
 export function isBinary(value: unknown): boolean {
-  return isBuffer(value) || isArrayBuffer(value) || isTypedArray(value);
+  return isBuffer(value) || isArrayBuffer(value) || isTypedArray(value)
 }
 
 /**
@@ -179,14 +179,14 @@ export function isBinary(value: unknown): boolean {
  * @returns Returns true if string is valid base64 format, otherwise false
  */
 export function isBase64(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
+  if (!isString(value) || isStrEmpty(value)) return false
 
   try {
-    const normalizedValue = value.trim();
-    if (normalizedValue.length % 4 !== 0) return false;
-    return /^[A-Z0-9+/]*={0,2}$/i.test(normalizedValue);
+    const normalizedValue = value.trim()
+    if (normalizedValue.length % 4 !== 0) return false
+    return /^[A-Z0-9+/]*={0,2}$/i.test(normalizedValue)
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -198,34 +198,34 @@ export function isBase64(value: unknown): boolean {
 export function isValEmpty(value: unknown): boolean {
   // Check null/undefined
   if (isNil(value)) {
-    return true;
+    return true
   }
 
   // Check string
   if (isString(value)) {
-    return value.trim().length === 0;
+    return value.trim().length === 0
   }
 
   // Check map/set
   if (isMap(value) || isSet(value)) {
-    return value.size === 0;
+    return value.size === 0
   }
 
   // Check array
   if (Array.isArray(value)) {
-    return value.length === 0;
+    return value.length === 0
   }
 
   // Check object
   if (typeof value === 'object' && value !== null) {
-    return Object.keys(value).length === 0;
+    return Object.keys(value).length === 0
   }
 
-  return false;
+  return false
 }
 
 // Cache compiled regex patterns for better performance
-const pathMatchRegexCache = new Map<string, RegExp>();
+const pathMatchRegexCache = new Map<string, RegExp>()
 
 /**
  * Check if a path matches the specified pattern
@@ -234,15 +234,18 @@ const pathMatchRegexCache = new Map<string, RegExp>();
  * @returns Returns true if the path matches the pattern, otherwise false
  */
 export function isPathMatch(pattern: string, path: string): boolean {
-  if (isValEmpty(pattern) || isValEmpty(path)) return false;
+  if (isValEmpty(pattern) || isValEmpty(path)) return false
 
   // Use cached regex if available
   if (!pathMatchRegexCache.has(pattern)) {
-    const regexPattern = pattern.replace(/\//g, '\\/').replace(/\*\*/g, '.*').replace(/\*/g, '[^\\/]*');
-    pathMatchRegexCache.set(pattern, new RegExp(`^${regexPattern}$`));
+    const regexPattern = pattern
+      .replace(/\//g, '\\/')
+      .replace(/\*\*/g, '.*')
+      .replace(/\*/g, '[^\\/]*')
+    pathMatchRegexCache.set(pattern, new RegExp(`^${regexPattern}$`))
   }
 
-  return pathMatchRegexCache.get(pattern)!.test(path);
+  return pathMatchRegexCache.get(pattern)!.test(path)
 }
 
 /**
@@ -252,11 +255,11 @@ export function isPathMatch(pattern: string, path: string): boolean {
  * @returns Returns true if string contains HTTP/HTTPS protocol, otherwise false
  */
 export function isHttp(value: unknown, strict: boolean = false): boolean {
-  if (!isString(value) || isValEmpty(value)) return false;
+  if (!isString(value) || isValEmpty(value)) return false
   if (strict) {
-    return /^https:\/\//i.test(value);
+    return /^https:\/\//i.test(value)
   }
-  return /^https?:\/\//i.test(value);
+  return /^https?:\/\//i.test(value)
 }
 
 /**
@@ -265,9 +268,9 @@ export function isHttp(value: unknown, strict: boolean = false): boolean {
  * @returns Returns true if URL is an external resource, otherwise false
  */
 export function isExternal(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
+  if (!isString(value) || isStrEmpty(value)) return false
   // eslint-disable-next-line regexp/no-unused-capturing-group
-  return /^(https?:|file:|mailto:|tel:)/i.test(value);
+  return /^(https?:|file:|mailto:|tel:)/i.test(value)
 }
 
 /**
@@ -276,12 +279,12 @@ export function isExternal(value: unknown): boolean {
  * @returns Returns true if it's a valid URI, otherwise false
  */
 export function isURI(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
+  if (!isString(value) || isStrEmpty(value)) return false
   try {
-    const url = new URL(value);
-    return Boolean(url);
+    const url = new URL(value)
+    return Boolean(url)
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -291,8 +294,8 @@ export function isURI(value: unknown): boolean {
  * @returns Returns true if string contains only lowercase letters, otherwise false
  */
 export function isLowerCase(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
-  return /^[a-z]+$/.test(value);
+  if (!isString(value) || isStrEmpty(value)) return false
+  return /^[a-z]+$/.test(value)
 }
 
 /**
@@ -301,8 +304,8 @@ export function isLowerCase(value: unknown): boolean {
  * @returns Returns true if string contains only uppercase letters, otherwise false
  */
 export function isUpperCase(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
-  return /^[A-Z]+$/.test(value);
+  if (!isString(value) || isStrEmpty(value)) return false
+  return /^[A-Z]+$/.test(value)
 }
 
 /**
@@ -311,8 +314,8 @@ export function isUpperCase(value: unknown): boolean {
  * @returns Returns true if string contains only alphabets, otherwise false
  */
 export function isAlphabets(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
-  return /^[A-Z]+$/i.test(value);
+  if (!isString(value) || isStrEmpty(value)) return false
+  return /^[A-Z]+$/i.test(value)
 }
 
 /**
@@ -321,7 +324,8 @@ export function isAlphabets(value: unknown): boolean {
  * @param patten - Regular expression pattern to match special characters, default is /[!@#¥$%.&*^()_+=\-~]/
  * @returns Returns true if string contains special characters, otherwise false
  */
-export const isContainsSpecialChar = (value: string, patten = /[!@#¥$%.&*^()_+=\-~]/) => patten.test(value);
+export const isContainsSpecialChar = (value: string, patten = /[!@#¥$%.&*^()_+=\-~]/) =>
+  patten.test(value)
 
 /**
  * Check if string contains alpha and numeric
@@ -329,10 +333,10 @@ export const isContainsSpecialChar = (value: string, patten = /[!@#¥$%.&*^()_+=
  * @returns Returns true if string contains  alpha and numeric, otherwise false
  */
 export const isContainsAlphaNumeric = (value: string) => {
-  const hasLetter = /[a-z]/i.test(value);
-  const hasNumber = /\d/.test(value);
-  return hasLetter && hasNumber;
-};
+  const hasLetter = /[a-z]/i.test(value)
+  const hasNumber = /\d/.test(value)
+  return hasLetter && hasNumber
+}
 
 /**
  * Check if string is a valid email address
@@ -340,11 +344,11 @@ export const isContainsAlphaNumeric = (value: string) => {
  * @returns Returns true if it's a valid email address, otherwise false
  */
 export function isEmail(value: unknown): boolean {
-  if (!isString(value) || isStrEmpty(value)) return false;
-  return /^[\w.%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(value);
+  if (!isString(value) || isStrEmpty(value)) return false
+  return /^[\w.%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(value)
 }
 
-export type UUIDVersion = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 'nil' | 'max' | 'all';
+export type UUIDVersion = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 'nil' | 'max' | 'all'
 
 /**
  * Check if string is a valid UUID
@@ -353,7 +357,7 @@ export type UUIDVersion = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 'nil' | 'max' | 'all';
  * @returns Returns true if it's a valid UUID, otherwise false
  */
 export function isUUID(value: unknown, version: UUIDVersion = 'all'): boolean {
-  if (!isString(value) || isStrEmpty(value) || value.length !== 36) return false;
+  if (!isString(value) || isStrEmpty(value) || value.length !== 36) return false
 
   // Precompile UUID regexes for better performance
   const UUID_REGEXES: Record<UUIDVersion, RegExp> = {
@@ -368,9 +372,9 @@ export function isUUID(value: unknown, version: UUIDVersion = 'all'): boolean {
     nil: /^00000000-0000-0000-0000-000000000000$/,
     max: /^ffffffff-ffff-ffff-ffff-ffffffffffff$/i,
     // https://github.com/uuidjs/uuid/blob/main/src/regex.ts
-    all: /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i,
-  };
-  return version in UUID_REGEXES && UUID_REGEXES[version].test(value);
+    all: /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i
+  }
+  return version in UUID_REGEXES && UUID_REGEXES[version].test(value)
 }
 
 /**
@@ -379,16 +383,16 @@ export function isUUID(value: unknown, version: UUIDVersion = 'all'): boolean {
  * @returns Returns true if it's a valid port number (1-65535), otherwise false
  */
 export function isPort(value: unknown): boolean {
-  const num = Number(value);
-  return isPositiveFiniteNumber(num) && num >= 1 && num <= 65535;
+  const num = Number(value)
+  return isPositiveFiniteNumber(num) && num >= 1 && num <= 65535
 }
 
 export function isTimestamp(value: unknown, type: 'ms' | 's' = 'ms'): boolean {
-  if (!isFiniteNumber(value)) return false;
+  if (!isFiniteNumber(value)) return false
   if (type === 'ms') {
-    return String(value).length === 13;
+    return String(value).length === 13
   }
-  return String(value).length === 10;
+  return String(value).length === 10
 }
 
 export default {
@@ -419,5 +423,5 @@ export default {
   isEmail,
   isUUID,
   isPort,
-  isTimestamp,
-};
+  isTimestamp
+}

@@ -1,10 +1,10 @@
-import { APP_DATABASE_PATH } from '@main/utils/path';
-import { generateUserAgent } from '@main/utils/systeminfo';
-import { PROXY_TYPE } from '@shared/config/setting';
-import type { ITheme } from '@shared/config/theme';
-import type { ILang } from '@shared/locales';
-import type { ProxyConfig } from 'electron';
-import Store from 'electron-store';
+import { APP_DATABASE_PATH } from '@main/utils/path'
+import { generateUserAgent } from '@main/utils/systeminfo'
+import { PROXY_TYPE } from '@shared/config/setting'
+import type { ITheme } from '@shared/config/theme'
+import type { ILang } from '@shared/locales'
+import type { ProxyConfig } from 'electron'
+import Store from 'electron-store'
 
 /**
  * 应用配置存储键枚举
@@ -21,12 +21,12 @@ export enum IStore {
   TIMEOUT = 'timeout',
   UA = 'ua',
   DEBUG = 'debug',
-  PROXY = 'proxy',
+  PROXY = 'proxy'
 }
 
-export type IStoreKey = `${IStore}`;
+export type IStoreKey = `${IStore}`
 
-export const STORE_KEYS: IStoreKey[] = Object.values(IStore);
+export const STORE_KEYS: IStoreKey[] = Object.values(IStore)
 
 /**
  * 应用配置管理器（单例）
@@ -38,7 +38,7 @@ export const STORE_KEYS: IStoreKey[] = Object.values(IStore);
  * 注意：这里主要是通用业务配置，与视频播放业务无关
  */
 export class ConfigManager {
-  private store: Store;
+  private store: Store
 
   /**
    * 构造函数
@@ -49,8 +49,8 @@ export class ConfigManager {
   constructor() {
     this.store = new Store({
       name: 'config',
-      cwd: APP_DATABASE_PATH,
-    });
+      cwd: APP_DATABASE_PATH
+    })
   }
 
   /**
@@ -59,7 +59,7 @@ export class ConfigManager {
    * - 默认为 'system'，表示跟随操作系统主题
    */
   public get theme(): ITheme {
-    return this.get(IStore.THEME, 'system');
+    return this.get(IStore.THEME, 'system')
   }
 
   /**
@@ -68,7 +68,7 @@ export class ConfigManager {
    * - 默认为 'system'，表示交给 AppLocale 根据系统语言自动推导
    */
   public get lang(): ILang {
-    return this.get(IStore.LANG, 'system');
+    return this.get(IStore.LANG, 'system')
   }
 
   /**
@@ -78,7 +78,7 @@ export class ConfigManager {
    * - WindowService 中会使用该值设置 BrowserWindow 的 zoomFactor
    */
   public get zoom(): number {
-    return this.get(IStore.ZOOM, 1);
+    return this.get(IStore.ZOOM, 1)
   }
 
   /**
@@ -87,7 +87,7 @@ export class ConfigManager {
    * - 为空串时通常表示使用系统默认 DNS
    */
   public get dns(): string {
-    return this.get(IStore.DNS);
+    return this.get(IStore.DNS)
   }
 
   /**
@@ -96,7 +96,7 @@ export class ConfigManager {
    * - 默认为 true，如需要排查显卡相关问题可关闭
    */
   public get hardwareAcceleration(): boolean {
-    return this.get(IStore.HARDWARE_ACCELERATION, true);
+    return this.get(IStore.HARDWARE_ACCELERATION, true)
   }
 
   /**
@@ -105,7 +105,7 @@ export class ConfigManager {
    * - 默认 10 秒
    */
   public get timeout(): number {
-    return this.get(IStore.TIMEOUT, 10 * 1000);
+    return this.get(IStore.TIMEOUT, 10 * 1000)
   }
 
   /**
@@ -115,7 +115,7 @@ export class ConfigManager {
    * - WindowService / WebviewService 中会引用该值覆盖请求 UA
    */
   public get ua(): string {
-    return this.get(IStore.UA, generateUserAgent());
+    return this.get(IStore.UA, generateUserAgent())
   }
 
   /**
@@ -124,7 +124,7 @@ export class ConfigManager {
    * - debug 模式下可启用额外的日志、窗口等功能（如 Sniffer 窗口）
    */
   public get debug(): boolean {
-    return this.get(IStore.DEBUG, false);
+    return this.get(IStore.DEBUG, false)
   }
 
   /**
@@ -135,18 +135,22 @@ export class ConfigManager {
    * - 其它情况：使用 direct 模式，即不走代理
    */
   public get proxy(): ProxyConfig {
-    const { type, url: proxy, bypass } = this.get(IStore.PROXY, { type: 'system', url: '', bypass: '' });
-    let proxyConfig: ProxyConfig;
+    const {
+      type,
+      url: proxy,
+      bypass
+    } = this.get(IStore.PROXY, { type: 'system', url: '', bypass: '' })
+    let proxyConfig: ProxyConfig
 
     if (type === PROXY_TYPE.SYSTEM) {
-      proxyConfig = { mode: 'system' };
+      proxyConfig = { mode: 'system' }
     } else if (proxy) {
-      proxyConfig = { mode: 'fixed_servers', proxyRules: proxy, proxyBypassRules: bypass };
+      proxyConfig = { mode: 'fixed_servers', proxyRules: proxy, proxyBypassRules: bypass }
     } else {
-      proxyConfig = { mode: 'direct' };
+      proxyConfig = { mode: 'direct' }
     }
 
-    return proxyConfig;
+    return proxyConfig
   }
 
   /**
@@ -156,7 +160,7 @@ export class ConfigManager {
    * @param value 要写入的值
    */
   public set(key: string, value: unknown) {
-    this.store.set(key, value);
+    this.store.set(key, value)
   }
 
   /**
@@ -166,8 +170,8 @@ export class ConfigManager {
    * @param defaultValue 可选的默认值；当存储中不存在该 key 时返回该值
    */
   public get<T>(key: string, defaultValue?: T) {
-    return this.store.get(key, defaultValue) as T;
+    return this.store.get(key, defaultValue) as T
   }
 }
 
-export const configManager = new ConfigManager();
+export const configManager = new ConfigManager()

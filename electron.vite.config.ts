@@ -14,9 +14,9 @@ export default defineConfig({
         // 补充常用别名，确保主进程内与 shared 包的导入正常解析
         '@main': resolve('src/main'),
         '@shared': resolve('packages/shared'),
-        '@pkg': resolve('package.json'),
-      },
-    },
+        '@pkg': resolve('package.json')
+      }
+    }
   },
   preload: {},
   renderer: {

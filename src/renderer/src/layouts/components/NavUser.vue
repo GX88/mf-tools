@@ -1,18 +1,7 @@
 <script setup lang="ts">
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-vue-next"
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-vue-next'
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@renderer/src/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@renderer/src/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,13 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@renderer/src/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  useSidebar
 } from '@renderer/src/components/ui/sidebar'
 import { useUserStore } from '@renderer/src/store'
 import { toast } from 'vue-sonner'
@@ -59,9 +48,7 @@ const handleLogout = () => {
           >
             <Avatar class="h-8 w-8 rounded-lg">
               <AvatarImage :src="user.avatar" :alt="user.name" />
-              <AvatarFallback class="rounded-lg">
-                CN
-              </AvatarFallback>
+              <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-medium">{{ user.name }}</span>
@@ -80,9 +67,7 @@ const handleLogout = () => {
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
                 <AvatarImage :src="user.avatar" :alt="user.name" />
-                <AvatarFallback class="rounded-lg">
-                  CN
-                </AvatarFallback>
+                <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
                 <span class="truncate font-semibold">{{ user.name }}</span>
@@ -113,10 +98,7 @@ const handleLogout = () => {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            class="cursor-pointer"
-            @click="handleLogout"
-          >
+          <DropdownMenuItem class="cursor-pointer" @click="handleLogout">
             <LogOut />
             Log out
           </DropdownMenuItem>

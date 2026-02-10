@@ -1,9 +1,9 @@
 declare global {
   namespace Electron {
     interface App {
-      isQuitting: boolean;
+      isQuitting: boolean
     }
   }
 }
 
-export {};
+export {}

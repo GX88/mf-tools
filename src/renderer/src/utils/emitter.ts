@@ -1,5 +1,5 @@
-import Emittery from 'emittery';
+import Emittery from 'emittery'
 
-const emitter = new Emittery();
+const emitter = new Emittery()
 
-export default emitter;
+export default emitter

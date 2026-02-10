@@ -1,32 +1,32 @@
-import { t } from '@main/services/AppLocale';
-import { isMacOS } from '@main/utils/systeminfo';
-import { APP_NAME } from '@shared/config/appinfo';
-import type { MenuItemConstructorOptions } from 'electron';
-import { Menu } from 'electron';
+import { t } from '@main/services/AppLocale'
+import { isMacOS } from '@main/utils/systeminfo'
+import { APP_NAME } from '@shared/config/appinfo'
+import type { MenuItemConstructorOptions } from 'electron'
+import { Menu } from 'electron'
 
 class MenuService {
-  private static instance: MenuService;
-  private contextMenu: Menu | null = null;
+  private static instance: MenuService
+  private contextMenu: Menu | null = null
 
   constructor() {}
 
   public static getInstance(): MenuService {
     if (!MenuService.instance) {
-      MenuService.instance = new MenuService();
+      MenuService.instance = new MenuService()
     }
-    return MenuService.instance;
+    return MenuService.instance
   }
 
   private createMenu() {
-    this.destroyMenu();
+    this.destroyMenu()
 
-    this.updateContextMenu();
+    this.updateContextMenu()
 
     if (!isMacOS) {
-      return;
+      return
     }
 
-    Menu.setApplicationMenu(this.contextMenu);
+    Menu.setApplicationMenu(this.contextMenu)
   }
 
   private updateContextMenu() {
@@ -41,13 +41,13 @@ class MenuService {
           { label: t('system.app.hideOthers'), role: 'hideOthers' },
           { label: t('system.app.showAll'), role: 'showAll' },
           { type: 'separator' },
-          { label: t('system.app.quit', { name: APP_NAME }), role: 'quit' },
-        ],
+          { label: t('system.app.quit', { name: APP_NAME }), role: 'quit' }
+        ]
       },
       {
         label: t('system.file.title'),
         role: 'fileMenu',
-        submenu: [{ label: t('system.file.closeWindow'), role: 'close' }],
+        submenu: [{ label: t('system.file.closeWindow'), role: 'close' }]
       },
       {
         label: t('system.edit.title'),
@@ -60,8 +60,8 @@ class MenuService {
           { label: t('system.edit.copy'), role: 'copy' },
           { label: t('system.edit.paste'), role: 'paste' },
           { label: t('system.edit.delete'), role: 'delete' },
-          { label: t('system.edit.selectAll'), role: 'selectAll' },
-        ],
+          { label: t('system.edit.selectAll'), role: 'selectAll' }
+        ]
       },
       {
         label: t('system.view.title'),
@@ -75,38 +75,38 @@ class MenuService {
           { label: t('system.view.zoomIn'), role: 'zoomIn' },
           { label: t('system.view.zoomOut'), role: 'zoomOut' },
           { type: 'separator' },
-          { label: t('system.view.toggleFullScreen'), role: 'togglefullscreen' },
-        ],
+          { label: t('system.view.toggleFullScreen'), role: 'togglefullscreen' }
+        ]
       },
       {
         label: t('system.window.title'),
         role: 'windowMenu',
         submenu: [
           { label: t('system.window.minimize'), role: 'minimize' },
-          { label: t('system.window.zoom'), role: 'zoom' },
+          { label: t('system.window.zoom'), role: 'zoom' }
           // { label: t('system.window.fill'), role: 'front' },
           // { label: t('system.window.center'), role: 'center' },
-        ],
-      },
-    ].filter(Boolean) as MenuItemConstructorOptions[];
+        ]
+      }
+    ].filter(Boolean) as MenuItemConstructorOptions[]
 
-    this.contextMenu = Menu.buildFromTemplate(template);
+    this.contextMenu = Menu.buildFromTemplate(template)
   }
 
   public updateMenu(showMenu: boolean = false) {
     if (showMenu) {
-      this.createMenu();
+      this.createMenu()
     } else {
-      this.destroyMenu();
+      this.destroyMenu()
     }
   }
 
   private destroyMenu() {
     if (this.contextMenu) {
-      Menu.setApplicationMenu(null);
-      this.contextMenu = null;
+      Menu.setApplicationMenu(null)
+      this.contextMenu = null
     }
   }
 }
 
-export const menuService = MenuService.getInstance();
+export const menuService = MenuService.getInstance()

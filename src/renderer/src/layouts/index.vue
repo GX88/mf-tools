@@ -7,7 +7,7 @@ import {
   SidebarHeader,
   SidebarRail,
   SidebarProvider,
-  SidebarInset,
+  SidebarInset
 } from '@renderer/src/components/ui/sidebar'
 
 import NavMain from './components/NavMain.vue'
@@ -17,17 +17,16 @@ import TeamSwitcher from './components/TeamSwitcher.vue'
 import LayoutHeader from './components/LayoutHeader.vue'
 import LayoutContent from './components/LayoutContent.vue'
 
-
 const props = withDefaults(defineProps<SidebarProps>(), {
-  collapsible: "icon",
+  collapsible: 'icon'
 })
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+    name: 'shadcn',
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg'
+  }
 }
 </script>
 
@@ -51,11 +50,12 @@ const data = {
     </Sidebar>
     <SidebarInset>
       <header
-        class="flex h-12 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b drag-region">
+        class="flex h-12 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b drag-region"
+      >
         <layout-header />
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4">
-        <layout-content class="min-h-full rounded-md"/>
+        <layout-content class="min-h-full rounded-md" />
       </div>
     </SidebarInset>
   </SidebarProvider>

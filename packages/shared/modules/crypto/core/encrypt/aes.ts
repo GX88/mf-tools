@@ -1,18 +1,18 @@
-import { cipher } from 'node-forge';
+import { cipher } from 'node-forge'
 
-import type { AesOptionsNew, Pad } from '../../type';
+import type { AesOptionsNew, Pad } from '../../type'
 import {
   arrayToBytes as forgeArrayToBytes,
   bytesToArray as forgeBytesToArray,
-  stringify as forgeStringify,
-} from '../../utils/forge';
+  stringify as forgeStringify
+} from '../../utils/forge'
 import {
   arrayToWordArray,
   pad as wordArrayPad,
   parse as wordArrayParse,
   unpad as wordArrayUnpad,
-  wordArrayToArray,
-} from '../../utils/wordArray';
+  wordArrayToArray
+} from '../../utils/wordArray'
 
 /**
  * 获取填充模式名称
@@ -21,20 +21,20 @@ const getPad = (pad: string): Pad => {
   switch (pad.toLowerCase()) {
     case 'pkcs5padding':
     case 'pkcs7padding':
-      return 'pkcs7padding';
+      return 'pkcs7padding'
     case 'ansix923':
-      return 'ansix923';
+      return 'ansix923'
     case 'iso10126':
-      return 'iso10126';
+      return 'iso10126'
     case 'iso97971':
-      return 'iso97971';
+      return 'iso97971'
     case 'zeropadding':
-      return 'zeropadding';
+      return 'zeropadding'
     case 'nopadding':
     default:
-      return 'nopadding';
+      return 'nopadding'
   }
-};
+}
 
 /**
  * 获取加密模式
@@ -42,20 +42,20 @@ const getPad = (pad: string): Pad => {
 const getMode = (mode: string) => {
   switch (mode.toLowerCase()) {
     case 'cfb':
-      return 'AES-CFB';
+      return 'AES-CFB'
     case 'ofb':
-      return 'AES-OFB';
+      return 'AES-OFB'
     case 'ctr':
-      return 'AES-CTR';
+      return 'AES-CTR'
     case 'ecb':
-      return 'AES-ECB';
+      return 'AES-ECB'
     case 'gcm':
-      return 'AES-GCM';
+      return 'AES-GCM'
     case 'cbc':
     default:
-      return 'AES-CBC';
+      return 'AES-CBC'
   }
-};
+}
 
 /**
  * AES 加密/解密工具
@@ -98,58 +98,62 @@ export const aes = {
       ivEncode = 'utf8',
       aadEncode = 'utf8',
       tagEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (key === '' || src === '') return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (key === '' || src === '') return ''
     if (!['ecb', 'gcm'].includes(mode.toLowerCase()) && (!iv || iv === '')) {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const keyBuffer = wordArrayParse[keyEncode](key);
-    const ivBuffer = mode.toLowerCase() !== 'ecb' ? wordArrayParse[ivEncode](iv!) : undefined;
+    const keyBuffer = wordArrayParse[keyEncode](key)
+    const ivBuffer = mode.toLowerCase() !== 'ecb' ? wordArrayParse[ivEncode](iv!) : undefined
 
     if (![16, 24, 32].includes(keyBuffer.sigBytes)) {
-      throw new Error('Key must be 128, 192, or 256 bytes');
+      throw new Error('Key must be 128, 192, or 256 bytes')
     }
     if (!['ecb', 'gcm'].includes(mode.toLowerCase()) && ivBuffer.sigBytes !== 16) {
-      throw new Error('IV must be 128 bytes');
+      throw new Error('IV must be 128 bytes')
     }
 
-    const srcBuffer = wordArrayParse[inputEncode](src);
-    const aadBuffer = mode.toLowerCase() === 'gcm' && aad ? wordArrayParse[aadEncode](aad) : undefined;
+    const srcBuffer = wordArrayParse[inputEncode](src)
+    const aadBuffer =
+      mode.toLowerCase() === 'gcm' && aad ? wordArrayParse[aadEncode](aad) : undefined
 
-    const encipher = cipher.createCipher(getMode(mode), forgeArrayToBytes(wordArrayToArray(keyBuffer)));
+    const encipher = cipher.createCipher(
+      getMode(mode),
+      forgeArrayToBytes(wordArrayToArray(keyBuffer))
+    )
     encipher.start({
       iv: ivBuffer ? forgeArrayToBytes(wordArrayToArray(ivBuffer)) : undefined,
-      additionalData: aadBuffer ? forgeArrayToBytes(wordArrayToArray(aadBuffer)) : undefined,
-    });
+      additionalData: aadBuffer ? forgeArrayToBytes(wordArrayToArray(aadBuffer)) : undefined
+    })
     const paddedData = ['cbc', 'ecb'].includes(mode.toLowerCase())
       ? wordArrayPad[getPad(pad)](srcBuffer, 4)
-      : srcBuffer;
+      : srcBuffer
 
     if (
       paddedData.sigBytes % 16 !== 0 &&
       pad.toLowerCase() === 'nopadding' &&
       ['cbc', 'ecb'].includes(mode.toLowerCase())
     ) {
-      throw new Error('Message must be multipler of 128 bits');
+      throw new Error('Message must be multipler of 128 bits')
     }
 
-    encipher.mode.pad = false;
-    encipher.update(forgeArrayToBytes(wordArrayToArray(paddedData)));
-    encipher.finish();
-    const encrypted = encipher.output;
+    encipher.mode.pad = false
+    encipher.update(forgeArrayToBytes(wordArrayToArray(paddedData)))
+    encipher.finish()
+    const encrypted = encipher.output
 
     // GCM模式需要返回标签
     if (mode.toLowerCase() === 'gcm') {
-      const encryptedData = forgeStringify[outputEncode](encrypted.getBytes());
-      const tag = forgeStringify[tagEncode](encipher.mode.tag);
-      return `${encryptedData}\nTag:${tag}`;
+      const encryptedData = forgeStringify[outputEncode](encrypted.getBytes())
+      const tag = forgeStringify[tagEncode](encipher.mode.tag)
+      return `${encryptedData}\nTag:${tag}`
     }
 
-    return forgeStringify[outputEncode](encrypted.getBytes());
+    return forgeStringify[outputEncode](encrypted.getBytes())
   },
 
   /**
@@ -189,43 +193,50 @@ export const aes = {
       ivEncode = 'utf8',
       aadEncode = 'utf8',
       tagEncode = 'utf8',
-      outputEncode = 'utf8',
-    } = options;
+      outputEncode = 'utf8'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (key === '' || src === '') return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (key === '' || src === '') return ''
     if (!['ecb', 'gcm'].includes(mode.toLowerCase()) && (!iv || iv === '')) {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const keyBuffer = wordArrayParse[keyEncode](key);
-    const ivBuffer = mode.toLowerCase() !== 'ecb' ? wordArrayParse[ivEncode](iv!) : undefined;
+    const keyBuffer = wordArrayParse[keyEncode](key)
+    const ivBuffer = mode.toLowerCase() !== 'ecb' ? wordArrayParse[ivEncode](iv!) : undefined
 
     if (![16, 24, 32].includes(keyBuffer.sigBytes)) {
-      throw new Error('Key must be 128, 192, or 256 bytes');
+      throw new Error('Key must be 128, 192, or 256 bytes')
     }
     if (!['ecb', 'gcm'].includes(mode.toLowerCase()) && ivBuffer.sigBytes !== 16) {
-      throw new Error('IV must be 128 bytes');
+      throw new Error('IV must be 128 bytes')
     }
 
-    const srcBuffer = wordArrayParse[inputEncode](src);
-    const aadBuffer = mode.toLowerCase() === 'gcm' && aad ? wordArrayParse[aadEncode](aad) : undefined;
-    const tagBuffer = mode.toLowerCase() === 'gcm' && tag ? wordArrayParse[tagEncode](tag) : undefined;
+    const srcBuffer = wordArrayParse[inputEncode](src)
+    const aadBuffer =
+      mode.toLowerCase() === 'gcm' && aad ? wordArrayParse[aadEncode](aad) : undefined
+    const tagBuffer =
+      mode.toLowerCase() === 'gcm' && tag ? wordArrayParse[tagEncode](tag) : undefined
 
-    const decipher = cipher.createDecipher(getMode(mode), forgeArrayToBytes(wordArrayToArray(keyBuffer)));
+    const decipher = cipher.createDecipher(
+      getMode(mode),
+      forgeArrayToBytes(wordArrayToArray(keyBuffer))
+    )
     decipher.start({
       iv: ivBuffer ? forgeArrayToBytes(wordArrayToArray(ivBuffer)) : undefined,
       additionalData: aadBuffer ? forgeArrayToBytes(wordArrayToArray(aadBuffer)) : undefined,
-      tag: tagBuffer ? forgeArrayToBytes(wordArrayToArray(tagBuffer)) : undefined,
-    });
-    decipher.mode.unpad = false;
-    decipher.update(forgeArrayToBytes(wordArrayToArray(srcBuffer)));
-    decipher.finish();
-    const decrypted = decipher.output;
+      tag: tagBuffer ? forgeArrayToBytes(wordArrayToArray(tagBuffer)) : undefined
+    })
+    decipher.mode.unpad = false
+    decipher.update(forgeArrayToBytes(wordArrayToArray(srcBuffer)))
+    decipher.finish()
+    const decrypted = decipher.output
 
-    const unpaddedBuffer = wordArrayUnpad[getPad(pad)](arrayToWordArray(forgeBytesToArray(decrypted)));
-    const unpaddedBytes = forgeArrayToBytes(wordArrayToArray(unpaddedBuffer));
+    const unpaddedBuffer = wordArrayUnpad[getPad(pad)](
+      arrayToWordArray(forgeBytesToArray(decrypted))
+    )
+    const unpaddedBytes = forgeArrayToBytes(wordArrayToArray(unpaddedBuffer))
 
-    return forgeStringify[outputEncode](unpaddedBytes.getBytes());
-  },
-};
+    return forgeStringify[outputEncode](unpaddedBytes.getBytes())
+  }
+}

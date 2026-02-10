@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js'
 
 import type {
   AesOptions,
@@ -7,44 +7,44 @@ import type {
   RabbitOptions,
   Rc4DropOptions,
   Rc4Options,
-  TripleDesOptions,
-} from '../../type';
-import { parse, stringify } from '../../utils/wordArray';
+  TripleDesOptions
+} from '../../type'
+import { parse, stringify } from '../../utils/wordArray'
 
 const getMode = (mode: string) => {
   switch (mode.toLowerCase()) {
     case 'cfb':
-      return CryptoJS.mode.CFB;
+      return CryptoJS.mode.CFB
     case 'ofb':
-      return CryptoJS.mode.OFB;
+      return CryptoJS.mode.OFB
     case 'ctr':
-      return CryptoJS.mode.CTR;
+      return CryptoJS.mode.CTR
     case 'ecb':
-      return CryptoJS.mode.ECB;
+      return CryptoJS.mode.ECB
     case 'cbc':
     default:
-      return CryptoJS.mode.CBC;
+      return CryptoJS.mode.CBC
   }
-};
+}
 
 const getPad = (pad: string) => {
   switch (pad.toLowerCase()) {
     case 'pkcs5padding':
     case 'pkcs7padding':
-      return CryptoJS.pad.Pkcs7;
+      return CryptoJS.pad.Pkcs7
     case 'ansix923':
-      return CryptoJS.pad.AnsiX923;
+      return CryptoJS.pad.AnsiX923
     case 'iso10126':
-      return CryptoJS.pad.Iso10126;
+      return CryptoJS.pad.Iso10126
     case 'iso97971':
-      return CryptoJS.pad.Iso97971;
+      return CryptoJS.pad.Iso97971
     case 'zeropadding':
-      return CryptoJS.pad.ZeroPadding;
+      return CryptoJS.pad.ZeroPadding
     case 'nopadding':
     default:
-      return CryptoJS.pad.NoPadding;
+      return CryptoJS.pad.NoPadding
   }
-};
+}
 
 /**
  * RC4 加密/解密工具
@@ -70,19 +70,19 @@ export const rc4 = {
    *  => 2udOYsBDDgW3IH0GacWKv9H7
    */
   encode: (options: Rc4Options): string => {
-    const { src, key, inputEncode = 'utf8', keyEncode = 'utf8', outputEncode = 'base64' } = options;
+    const { src, key, inputEncode = 'utf8', keyEncode = 'utf8', outputEncode = 'base64' } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (!src) return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (!src) return ''
     if (key === '') {
-      throw new Error('Key is required for RC4 encryption');
+      throw new Error('Key is required for RC4 encryption')
     }
 
-    const k = parse[keyEncode](key);
+    const k = parse[keyEncode](key)
 
-    const plaintext = parse[inputEncode](src);
-    const encrypted = CryptoJS.RC4.encrypt(plaintext, k);
-    return stringify[outputEncode](encrypted.ciphertext);
+    const plaintext = parse[inputEncode](src)
+    const encrypted = CryptoJS.RC4.encrypt(plaintext, k)
+    return stringify[outputEncode](encrypted.ciphertext)
   },
 
   /**
@@ -103,22 +103,22 @@ export const rc4 = {
    *  => this is an example
    */
   decode: (options: Rc4Options): string => {
-    const { src, key, inputEncode = 'utf8', keyEncode = 'utf8', outputEncode = 'base64' } = options;
+    const { src, key, inputEncode = 'utf8', keyEncode = 'utf8', outputEncode = 'base64' } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (!src) return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (!src) return ''
     if (key === '') {
-      throw new Error('Key is required for RC4 encryption');
+      throw new Error('Key is required for RC4 encryption')
     }
 
-    const k = parse[keyEncode](key);
+    const k = parse[keyEncode](key)
 
-    const ciphertext = parse[inputEncode](src);
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext });
-    const decrypted = CryptoJS.RC4.decrypt(cipherParams, k);
-    return stringify[outputEncode](decrypted);
-  },
-};
+    const ciphertext = parse[inputEncode](src)
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
+    const decrypted = CryptoJS.RC4.decrypt(cipherParams, k)
+    return stringify[outputEncode](decrypted)
+  }
+}
 
 /**
  * RC4 Drop 加密/解密工具
@@ -144,24 +144,31 @@ export const rc4Drop = {
    *  => 1mR2O4/G3zwlwkvdgiBpqZ+w
    */
   encode: (options: Rc4DropOptions): string => {
-    const { src, key, drop = 192, inputEncode = 'utf8', keyEncode = 'utf8', outputEncode = 'base64' } = options;
+    const {
+      src,
+      key,
+      drop = 192,
+      inputEncode = 'utf8',
+      keyEncode = 'utf8',
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (!src) return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (!src) return ''
     if (!(Number.isFinite(drop) && Number.isInteger(drop) && drop >= 0)) {
-      throw new Error('Drop must be a positive integer');
+      throw new Error('Drop must be a positive integer')
     }
     if (key === '') {
-      throw new Error('Key is required for RC4 encryption');
+      throw new Error('Key is required for RC4 encryption')
     }
 
-    const k = parse[keyEncode](key);
+    const k = parse[keyEncode](key)
 
-    const plaintext = parse[inputEncode](src);
+    const plaintext = parse[inputEncode](src)
     const encrypted = CryptoJS.RC4Drop.encrypt(plaintext, k, {
-      drop,
-    });
-    return stringify[outputEncode](encrypted.ciphertext);
+      drop
+    })
+    return stringify[outputEncode](encrypted.ciphertext)
   },
 
   /**
@@ -183,27 +190,34 @@ export const rc4Drop = {
    *  => this is an example
    */
   decode: (options: Rc4DropOptions): string => {
-    const { src, key, drop = 192, inputEncode = 'utf8', keyEncode = 'utf8', outputEncode = 'base64' } = options;
+    const {
+      src,
+      key,
+      drop = 192,
+      inputEncode = 'utf8',
+      keyEncode = 'utf8',
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (!src) return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (!src) return ''
     if (!(Number.isFinite(drop) && Number.isInteger(drop) && drop >= 0)) {
-      throw new Error('Drop must be a positive integer');
+      throw new Error('Drop must be a positive integer')
     }
     if (key === '') {
-      throw new Error('Key is required for RC4 encryption');
+      throw new Error('Key is required for RC4 encryption')
     }
 
-    const k = parse[keyEncode](key);
+    const k = parse[keyEncode](key)
 
-    const ciphertext = parse[inputEncode](src);
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext });
+    const ciphertext = parse[inputEncode](src)
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
     const decrypted = CryptoJS.RC4Drop.decrypt(cipherParams, k, {
-      drop,
-    });
-    return stringify[outputEncode](decrypted);
-  },
-};
+      drop
+    })
+    return stringify[outputEncode](decrypted)
+  }
+}
 
 /**
  * AES 加密/解密工具
@@ -243,39 +257,39 @@ export const _aes = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for AES encryption');
+      throw new Error('Key is required for AES encryption')
     }
     if (!['ecb', 'gcm'].includes(mode.toLowerCase()) && iv === '') {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const k = parse[keyEncode](key);
-    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined;
-    const plaintext = parse[inputEncode](src);
+    const k = parse[keyEncode](key)
+    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined
+    const plaintext = parse[inputEncode](src)
 
-    if (![16, 24, 32].includes(k.sigBytes)) throw new Error('Key must be 128, 192 or 256 bytes');
-    if (mode !== 'ecb' && v.sigBytes !== 16) throw new Error('IV must be 128 bytes');
+    if (![16, 24, 32].includes(k.sigBytes)) throw new Error('Key must be 128, 192 or 256 bytes')
+    if (mode !== 'ecb' && v.sigBytes !== 16) throw new Error('IV must be 128 bytes')
 
     if (
       plaintext.sigBytes % 64 !== 0 &&
       pad.toLowerCase() === 'nopadding' &&
       ['cbc', 'ecb'].includes(mode.toLowerCase())
     ) {
-      throw new Error('Message must be multipler of 128 bits');
+      throw new Error('Message must be multipler of 128 bits')
     }
 
     const encrypted = CryptoJS.AES.encrypt(plaintext, k, {
       iv: v,
       mode: getMode(mode),
-      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding'),
-    });
-    return stringify[outputEncode](encrypted.ciphertext);
+      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding')
+    })
+    return stringify[outputEncode](encrypted.ciphertext)
   },
 
   /**
@@ -311,34 +325,34 @@ export const _aes = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for AES encryption');
+      throw new Error('Key is required for AES encryption')
     }
     if (!['ecb', 'gcm'].includes(mode.toLowerCase()) && iv === '') {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const k = parse[keyEncode](key);
-    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined;
+    const k = parse[keyEncode](key)
+    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined
 
-    if (![16, 24, 32].includes(k.sigBytes)) throw new Error('Key must be 128, 192 or 256 bytes');
-    if (mode !== 'ecb' && v.sigBytes !== 16) throw new Error('IV must be 128 bytes');
+    if (![16, 24, 32].includes(k.sigBytes)) throw new Error('Key must be 128, 192 or 256 bytes')
+    if (mode !== 'ecb' && v.sigBytes !== 16) throw new Error('IV must be 128 bytes')
 
-    const ciphertext = parse[inputEncode](src);
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext });
+    const ciphertext = parse[inputEncode](src)
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
     const decrypted = CryptoJS.AES.decrypt(cipherParams, k, {
       iv: v,
       mode: getMode(mode),
-      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding'),
-    });
-    return stringify[outputEncode](decrypted);
-  },
-};
+      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding')
+    })
+    return stringify[outputEncode](decrypted)
+  }
+}
 
 /**
  * DES 加密/解密工具
@@ -377,31 +391,31 @@ export const des = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for DES encryption');
+      throw new Error('Key is required for DES encryption')
     }
     if (!['ecb'].includes(mode.toLowerCase()) && (!iv || iv === '')) {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const k = parse[keyEncode](key);
-    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined;
-    const plaintext = parse[inputEncode](src);
+    const k = parse[keyEncode](key)
+    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined
+    const plaintext = parse[inputEncode](src)
 
-    if (k.sigBytes !== 8) throw new Error('Key must be 64 bytes');
-    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 8) throw new Error('Key must be 64 bytes')
+    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
     const encrypted = CryptoJS.DES.encrypt(plaintext, k, {
       iv: v,
       mode: getMode(mode),
-      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding'),
-    });
-    return stringify[outputEncode](encrypted.ciphertext);
+      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding')
+    })
+    return stringify[outputEncode](encrypted.ciphertext)
   },
 
   /**
@@ -436,34 +450,34 @@ export const des = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for DES encryption');
+      throw new Error('Key is required for DES encryption')
     }
     if (!['ecb'].includes(mode.toLowerCase()) && (!iv || iv === '')) {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const k = parse[keyEncode](key);
-    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined;
+    const k = parse[keyEncode](key)
+    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined
 
-    if (k.sigBytes !== 8) throw new Error('Key must be 64 bytes');
-    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 8) throw new Error('Key must be 64 bytes')
+    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
-    const ciphertext = parse[inputEncode](src);
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext });
+    const ciphertext = parse[inputEncode](src)
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
     const decrypted = CryptoJS.DES.decrypt(cipherParams, k, {
       iv: v,
       mode: getMode(mode),
-      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding'),
-    });
-    return stringify[outputEncode](decrypted);
-  },
-};
+      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding')
+    })
+    return stringify[outputEncode](decrypted)
+  }
+}
 
 /**
  * 3DES 加密/解密工具
@@ -502,31 +516,31 @@ export const tripleDes = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for 3DES encryption');
+      throw new Error('Key is required for 3DES encryption')
     }
     if (!['ecb'].includes(mode.toLowerCase()) && (!iv || iv === '')) {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const k = parse[keyEncode](key);
-    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined;
-    const plaintext = parse[inputEncode](src);
+    const k = parse[keyEncode](key)
+    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined
+    const plaintext = parse[inputEncode](src)
 
-    if (k.sigBytes !== 24) throw new Error('Key must be 192 bytes');
-    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 24) throw new Error('Key must be 192 bytes')
+    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
     const encrypted = CryptoJS.TripleDES.encrypt(plaintext, k, {
       iv: v,
       mode: getMode(mode),
-      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding'),
-    });
-    return stringify[outputEncode](encrypted.ciphertext);
+      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding')
+    })
+    return stringify[outputEncode](encrypted.ciphertext)
   },
 
   /**
@@ -561,34 +575,34 @@ export const tripleDes = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for DES encryption');
+      throw new Error('Key is required for DES encryption')
     }
     if (!['ecb'].includes(mode.toLowerCase()) && (!iv || iv === '')) {
-      throw new Error('IV is required in CBC/CFB/OFB/CTR mode');
+      throw new Error('IV is required in CBC/CFB/OFB/CTR mode')
     }
 
-    const k = parse[keyEncode](key);
-    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined;
+    const k = parse[keyEncode](key)
+    const v = mode.toLowerCase() !== 'ecb' ? parse[ivEncode](iv!) : undefined
 
-    if (k.sigBytes !== 24) throw new Error('Key must be 256 bytes');
-    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 24) throw new Error('Key must be 256 bytes')
+    if (mode !== 'ecb' && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
-    const ciphertext = parse[inputEncode](src);
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext });
+    const ciphertext = parse[inputEncode](src)
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
     const decrypted = CryptoJS.TripleDES.decrypt(cipherParams, k, {
       iv: v,
       mode: getMode(mode),
-      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding'),
-    });
-    return stringify[outputEncode](decrypted);
-  },
-};
+      padding: getPad(['cbc', 'ecb'].includes(mode.toLowerCase()) ? pad : 'nopadding')
+    })
+    return stringify[outputEncode](decrypted)
+  }
+}
 
 /**
  * Rabbit 加密/解密工具
@@ -623,26 +637,26 @@ export const rabbit = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (!src) return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (!src) return ''
     if (key === '') {
-      throw new Error('Key is required for Rabbit encryption');
+      throw new Error('Key is required for Rabbit encryption')
     }
 
-    const k = parse[keyEncode](key);
-    const v = iv ? parse[ivEncode](iv) : undefined;
+    const k = parse[keyEncode](key)
+    const v = iv ? parse[ivEncode](iv) : undefined
 
-    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes');
-    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes')
+    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
-    const plaintext = parse[inputEncode](src);
+    const plaintext = parse[inputEncode](src)
     const encrypted = CryptoJS.Rabbit.encrypt(plaintext, k, {
-      iv: v,
-    });
-    return stringify[outputEncode](encrypted.ciphertext);
+      iv: v
+    })
+    return stringify[outputEncode](encrypted.ciphertext)
   },
 
   /**
@@ -672,29 +686,29 @@ export const rabbit = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (!src) return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (!src) return ''
     if (key === '') {
-      throw new Error('Key is required for Rabbit encryption');
+      throw new Error('Key is required for Rabbit encryption')
     }
 
-    const k = parse[keyEncode](key);
-    const v = iv ? parse[ivEncode](iv) : undefined;
+    const k = parse[keyEncode](key)
+    const v = iv ? parse[ivEncode](iv) : undefined
 
-    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes');
-    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes')
+    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
-    const ciphertext = parse[inputEncode](src);
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext });
+    const ciphertext = parse[inputEncode](src)
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
     const decrypted = CryptoJS.Rabbit.decrypt(cipherParams, k, {
-      iv: v,
-    });
-    return stringify[outputEncode](decrypted);
-  },
-};
+      iv: v
+    })
+    return stringify[outputEncode](decrypted)
+  }
+}
 
 /**
  * Rabbit Legacy 加密/解密工具
@@ -727,24 +741,24 @@ export const rabbitLegacy = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(outputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for RabbitLegacy encryption');
+      throw new Error('Key is required for RabbitLegacy encryption')
     }
 
-    const k = parse[keyEncode](key);
-    const v = iv ? parse[ivEncode](iv) : undefined;
+    const k = parse[keyEncode](key)
+    const v = iv ? parse[ivEncode](iv) : undefined
 
-    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes');
-    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes')
+    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
-    const plaintext = parse[inputEncode](src);
-    const encrypted = CryptoJS.RabbitLegacy.encrypt(plaintext, k);
-    return stringify[outputEncode](encrypted.ciphertext);
+    const plaintext = parse[inputEncode](src)
+    const encrypted = CryptoJS.RabbitLegacy.encrypt(plaintext, k)
+    return stringify[outputEncode](encrypted.ciphertext)
   },
 
   /**
@@ -773,24 +787,24 @@ export const rabbitLegacy = {
       inputEncode = 'utf8',
       keyEncode = 'utf8',
       ivEncode = 'utf8',
-      outputEncode = 'base64',
-    } = options;
+      outputEncode = 'base64'
+    } = options
 
-    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return '';
-    if (src === '') return '';
+    if (!['base64', 'hex'].includes(inputEncode.toLowerCase())) return ''
+    if (src === '') return ''
     if (key === '') {
-      throw new Error('Key is required for RabbitLegacy encryption');
+      throw new Error('Key is required for RabbitLegacy encryption')
     }
 
-    const k = parse[keyEncode](key);
-    const v = iv ? parse[ivEncode](iv) : undefined;
+    const k = parse[keyEncode](key)
+    const v = iv ? parse[ivEncode](iv) : undefined
 
-    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes');
-    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes');
+    if (k.sigBytes !== 16) throw new Error('Key must be 128 bytes')
+    if (iv && v.sigBytes !== 8) throw new Error('IV must be 64 bytes')
 
-    const ciphertext = parse[inputEncode](src);
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext });
-    const decrypted = CryptoJS.RabbitLegacy.decrypt(cipherParams, k);
-    return stringify[outputEncode](decrypted);
-  },
-};
+    const ciphertext = parse[inputEncode](src)
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
+    const decrypted = CryptoJS.RabbitLegacy.decrypt(cipherParams, k)
+    return stringify[outputEncode](decrypted)
+  }
+}

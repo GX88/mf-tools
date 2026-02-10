@@ -1,34 +1,38 @@
-import { join } from 'node:path';
-import url from 'node:url';
+import { join } from 'node:path'
+import url from 'node:url'
 
 import { app, BrowserWindow, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
-import type { BrowserWindowConstructorOptions } from 'electron';
-import windowStateKeeper from 'electron-window-state';
+import type { BrowserWindowConstructorOptions } from 'electron'
+import windowStateKeeper from 'electron-window-state'
 import { merge } from 'es-toolkit'
 
 import { loggerService } from '@logger'
-import { appLocale } from '@main/services/AppLocale';
+import { appLocale } from '@main/services/AppLocale'
 import { contextMenu } from '@main/services/ContextMenu'
-import { configManager } from '@main/services/ConfigManager';
-import { initSessionUserAgent } from '@main/services/WebviewService';
+import { configManager } from '@main/services/ConfigManager'
+import { initSessionUserAgent } from '@main/services/WebviewService'
 
 import { LOG_MODULE } from '@shared/config/logger'
-import { WINDOW_NAME } from '@shared/config/windowName';
-import { titleBarOverlayDark, titleBarOverlayLight } from '@shared/config/appinfo';
-import { isUndefined } from '@shared/modules/validate';
+import { WINDOW_NAME } from '@shared/config/windowName'
+import { titleBarOverlayDark, titleBarOverlayLight } from '@shared/config/appinfo'
+import { isUndefined } from '@shared/modules/validate'
 import { IPC_CHANNEL } from '@shared/config/ipcChannel'
-import { convertUriToStandard, ELECTRON_TAG, isLocalhostURI, UNSAFE_HEADERS } from '@shared/modules/headers';
+import {
+  convertUriToStandard,
+  ELECTRON_TAG,
+  isLocalhostURI,
+  UNSAFE_HEADERS
+} from '@shared/modules/headers'
 
-import { APP_DATABASE_PATH, APP_FILE_PATH } from '@main/utils/path';
+import { APP_DATABASE_PATH, APP_FILE_PATH } from '@main/utils/path'
 import { isDev, isLinux, isMacOS, isWindows, isPackaged } from '@main/utils/systeminfo'
 
-import iconPath from '../../../build/icon.png?asset';
-
+import iconPath from '../../../build/icon.png?asset'
 
 // 窗口相关日志记录器，统一为窗口管理模块打日志
 const logger = loggerService.withContext(LOG_MODULE.APP_WINDOW)
 // Linux 平台下的应用图标，其他平台不需要在这里显式指定
-const linuxIcon = isLinux ? nativeImage.createFromPath(iconPath) : undefined;
+const linuxIcon = isLinux ? nativeImage.createFromPath(iconPath) : undefined
 
 /**
  * 窗口管理服务（单例）
@@ -40,8 +44,8 @@ const linuxIcon = isLinux ? nativeImage.createFromPath(iconPath) : undefined;
  * - 在 setupWebRequestHeaders 中统一处理网络请求头，属于业务工具逻辑，并非视频播放相关
  */
 export class WindowService {
-  private static instance: WindowService | null = null;
-  private winPool = new Map<string, { window: BrowserWindow | null; lastCrashTime: number }>();
+  private static instance: WindowService | null = null
+  private winPool = new Map<string, { window: BrowserWindow | null; lastCrashTime: number }>()
 
   /**
    * 获取 WindowService 单例实例
@@ -309,7 +313,7 @@ export class WindowService {
     const windows = this.getAllWindows()
     windows.forEach((win) => this.closeWindow(win))
     this.winPool.clear()
-  };
+  }
 
   /**
    * 重新加载指定窗口内容
@@ -484,55 +488,55 @@ export class WindowService {
   private setupWebContentsHandlers(mainWindow: BrowserWindow) {
     mainWindow.webContents.on('will-navigate', (event, url) => {
       if (url.includes('localhost:5173')) {
-        return;
+        return
       }
 
-      event.preventDefault();
-      shell.openExternal(url);
-    });
+      event.preventDefault()
+      shell.openExternal(url)
+    })
 
     mainWindow.webContents.setWindowOpenHandler((details) => {
-      const { url } = details;
+      const { url } = details
 
-      const oauthProviderUrls = ['github.com', 'catni.cn', 'pagespy.org'];
+      const oauthProviderUrls = ['github.com', 'catni.cn', 'pagespy.org']
 
       if (oauthProviderUrls.some((link) => url.includes(link))) {
         return {
           action: 'allow',
           overrideBrowserWindowOptions: {
             webPreferences: {
-              partition: 'persist:webview',
-            },
-          },
-        };
+              partition: 'persist:webview'
+            }
+          }
+        }
       }
 
       if (url.includes('http://file/')) {
-        const fileName = url.replace('http://file/', '');
-        const filePath = `${APP_FILE_PATH}/${fileName}`;
-        shell.openPath(filePath).catch((error) => logger.error('Failed to open file:', error));
+        const fileName = url.replace('http://file/', '')
+        const filePath = `${APP_FILE_PATH}/${fileName}`
+        shell.openPath(filePath).catch((error) => logger.error('Failed to open file:', error))
       } else {
         // mainWindow.webContents.send(IPC_CHANNEL.URI_BLOCKED, url);
         // shell.openExternal(details.url);
 
-        let window = this.getWindow(WINDOW_NAME.BROWSER);
+        let window = this.getWindow(WINDOW_NAME.BROWSER)
         if (window && !window.isDestroyed()) {
-          this.showWindow(window);
-          window.webContents.send(IPC_CHANNEL.BROWSER_NAVIGATE, url);
+          this.showWindow(window)
+          window.webContents.send(IPC_CHANNEL.BROWSER_NAVIGATE, url)
         } else {
-          window = this.createBrowserWindow();
+          window = this.createBrowserWindow()
           window.webContents.once('did-finish-load', () => {
             setTimeout(() => {
-              window!.webContents.send(IPC_CHANNEL.BROWSER_NAVIGATE, url);
-            }, 1000);
-          });
+              window!.webContents.send(IPC_CHANNEL.BROWSER_NAVIGATE, url)
+            }, 1000)
+          })
         }
       }
 
-      return { action: 'deny' };
-    });
+      return { action: 'deny' }
+    })
 
-    this.setupWebRequestHeaders(mainWindow);
+    this.setupWebRequestHeaders(mainWindow)
   }
 
   /**
@@ -548,83 +552,92 @@ export class WindowService {
    * - 没有与音视频播放相关的特殊 header（如 Range、DRM、HLS 等）
    */
   private setupWebRequestHeaders(mainWindow: BrowserWindow) {
-    const reqMap = new Map<number, { redirect: string; headers: Record<string, any> }>();
+    const reqMap = new Map<number, { redirect: string; headers: Record<string, any> }>()
 
-    mainWindow.webContents.session.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
-      const { id, url } = details;
+    mainWindow.webContents.session.webRequest.onBeforeRequest(
+      { urls: ['*://*/*'] },
+      (details, callback) => {
+        const { id, url } = details
 
-      // Block devtools detector requests
-      if (['devtools-detector', 'disable-devtool'].some((f) => url.includes(f))) {
-        callback({ cancel: true });
-        return;
+        // Block devtools detector requests
+        if (['devtools-detector', 'disable-devtool'].some((f) => url.includes(f))) {
+          callback({ cancel: true })
+          return
+        }
+
+        const { redirect, headers } = convertUriToStandard(url)
+        if (headers && Object.keys(headers).length && url !== redirect) {
+          reqMap.set(id, { redirect, headers })
+          callback({ cancel: false, redirectURL: redirect })
+        } else {
+          callback({ cancel: false })
+        }
       }
-
-      const { redirect, headers } = convertUriToStandard(url);
-      if (headers && Object.keys(headers).length && url !== redirect) {
-        reqMap.set(id, { redirect, headers });
-        callback({ cancel: false, redirectURL: redirect });
-      } else {
-        callback({ cancel: false });
-      }
-    });
+    )
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
-      const { id, requestHeaders, url } = details;
-      const customHeaders = reqMap.has(id) ? reqMap.get(id)!.headers : {};
-      if (reqMap.has(id)) reqMap.delete(id);
+      const { id, requestHeaders, url } = details
+      const customHeaders = reqMap.has(id) ? reqMap.get(id)!.headers : {}
+      if (reqMap.has(id)) reqMap.delete(id)
 
       UNSAFE_HEADERS.forEach((key) => {
         requestHeaders[key] = !isUndefined(customHeaders[key])
           ? customHeaders[key]
           : !isUndefined(requestHeaders[`${ELECTRON_TAG}-${key}`])
             ? requestHeaders[`${ELECTRON_TAG}-${key}`]
-            : requestHeaders[key];
-        delete requestHeaders[`${ELECTRON_TAG}-${key}`];
+            : requestHeaders[key]
+        delete requestHeaders[`${ELECTRON_TAG}-${key}`]
 
         if (key === 'User-Agent' && requestHeaders[key]?.includes(ELECTRON_TAG)) {
-          requestHeaders[key] = configManager.ua;
+          requestHeaders[key] = configManager.ua
         }
 
         if (isUndefined(requestHeaders[key]) || isLocalhostURI(requestHeaders[key])) {
-          delete requestHeaders[key];
+          delete requestHeaders[key]
         }
-      });
+      })
 
       // Accept-Language
-      const language = appLocale.defaultLang();
-      requestHeaders['Accept-Language'] = `${language}, en;q=0.9, *;q=0.5`;
+      const language = appLocale.defaultLang()
+      requestHeaders['Accept-Language'] = `${language}, en;q=0.9, *;q=0.5`
 
       // Custom Header
       if (url.includes('doubanio.com') && !requestHeaders.Referer) {
-        requestHeaders.Referer = 'https://api.douban.com/';
+        requestHeaders.Referer = 'https://api.douban.com/'
       }
 
       // Handle redirect mode
-      if (requestHeaders.Redirect === 'manual') reqMap.set(id, { redirect: url, headers: requestHeaders });
+      if (requestHeaders.Redirect === 'manual')
+        reqMap.set(id, { redirect: url, headers: requestHeaders })
 
-      callback({ requestHeaders });
-    });
+      callback({ requestHeaders })
+    })
 
-    mainWindow.webContents.session.webRequest.onHeadersReceived({ urls: ['*://*/*'] }, (details, callback) => {
-      const { id, responseHeaders } = details;
+    mainWindow.webContents.session.webRequest.onHeadersReceived(
+      { urls: ['*://*/*'] },
+      (details, callback) => {
+        const { id, responseHeaders } = details
 
-      // Frame
-      ['X-Frame-Options', 'x-frame-options'].forEach((key) => delete responseHeaders?.[key]);
+        // Frame
+        ;['X-Frame-Options', 'x-frame-options'].forEach((key) => delete responseHeaders?.[key])
 
-      // Content-Security-Policy
-      ['Content-Security-Policy', 'content-security-policy'].forEach((key) => delete responseHeaders?.[key]);
+        // Content-Security-Policy
+        ;['Content-Security-Policy', 'content-security-policy'].forEach(
+          (key) => delete responseHeaders?.[key]
+        )
 
-      // Set-Cookie
-      ['Set-Cookie', 'set-cookie'].forEach((key) => {
-        if (responseHeaders?.[key]) {
-          responseHeaders[key] = responseHeaders![key].map((ck) => `${ck}; SameSite=None; Secure`);
-        }
-      });
+        // Set-Cookie
+        ;['Set-Cookie', 'set-cookie'].forEach((key) => {
+          if (responseHeaders?.[key]) {
+            responseHeaders[key] = responseHeaders![key].map((ck) => `${ck}; SameSite=None; Secure`)
+          }
+        })
 
-      if (reqMap.has(id)) reqMap.delete(id);
+        if (reqMap.has(id)) reqMap.delete(id)
 
-      callback({ cancel: false, responseHeaders });
-    });
+        callback({ cancel: false, responseHeaders })
+      }
+    )
   }
 
   // see: https://github.com/electron/electron/issues/42055#issuecomment-2449365647
@@ -656,7 +669,7 @@ export class WindowService {
           body {
             --default-font-family: system-ui, sans-serif;
           }
-      `;
+      `
         mainWindow.webContents.devToolsWebContents?.executeJavaScript(`
           const overriddenStyle = document.createElement('style');
           overriddenStyle.innerHTML = '${css.replaceAll('\n', ' ')}';
@@ -686,10 +699,10 @@ export class WindowService {
               }
             });
           }
-      `);
-      });
+      `)
+      })
     }
-  };
+  }
 
   /**
    * 创建或复用一个基础窗口
@@ -700,13 +713,16 @@ export class WindowService {
    * @param windowName 窗口在 winPool 中的名称
    * @param options    额外的窗口配置（会与默认配置 merge）
    */
-  public createWindow(windowName: string, options?: BrowserWindowConstructorOptions): BrowserWindow {
-    let mainWindow = this.getWindow(windowName);
+  public createWindow(
+    windowName: string,
+    options?: BrowserWindowConstructorOptions
+  ): BrowserWindow {
+    let mainWindow = this.getWindow(windowName)
 
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.show();
-      mainWindow.focus();
-      return mainWindow;
+      mainWindow.show()
+      mainWindow.focus()
+      return mainWindow
     }
 
     // 默认 BrowserWindow 配置，偏向业务调试工具场景：
@@ -731,29 +747,29 @@ export class WindowService {
             sandbox: false,
             spellcheck: false,
             webSecurity: false,
-            zoomFactor: configManager.zoom,
-          },
+            zoomFactor: configManager.zoom
+          }
         },
-        options || {},
-      ),
-    );
+        options || {}
+      )
+    )
 
     // 开发阶段调整 DevTools 字体、注册右键菜单与崩溃监控
-    this.replaceDevtoolsFont(mainWindow);
-    this.setupContextMenu(mainWindow);
-    this.setupWindowMonitor(mainWindow);
+    this.replaceDevtoolsFont(mainWindow)
+    this.setupContextMenu(mainWindow)
+    this.setupWindowMonitor(mainWindow)
 
     mainWindow.on('closed', () => {
-      this.winPool.delete(windowName);
+      this.winPool.delete(windowName)
 
       if (app.isQuitting && this.getAllWindows().length === 0) {
-        app.quit();
+        app.quit()
       }
-    });
+    })
 
-    this.winPool.set(windowName, { window: mainWindow, lastCrashTime: 0 });
+    this.winPool.set(windowName, { window: mainWindow, lastCrashTime: 0 })
 
-    return mainWindow;
+    return mainWindow
   }
 
   /**
@@ -773,8 +789,8 @@ export class WindowService {
       defaultWidth: 1000,
       defaultHeight: 640,
       fullScreen: false,
-      maximize: false,
-    });
+      maximize: false
+    })
 
     const mainWindow = this.createWindow(WINDOW_NAME.MAIN, {
       x: mainWindowState.x,
@@ -793,36 +809,42 @@ export class WindowService {
       ...(isMacOS
         ? {
             titleBarStyle: 'hidden',
-            titleBarOverlay: nativeTheme.shouldUseDarkColors ? titleBarOverlayDark : titleBarOverlayLight,
-            trafficLightPosition: { x: 8, y: 14 },
+            titleBarOverlay: nativeTheme.shouldUseDarkColors
+              ? titleBarOverlayDark
+              : titleBarOverlayLight,
+            trafficLightPosition: { x: 8, y: 14 }
           }
         : {
-            frame: false, // Frameless window for Windows and Linux
+            frame: false // Frameless window for Windows and Linux
           }),
-      backgroundColor: isMacOS ? undefined : nativeTheme.shouldUseDarkColors ? '#181818' : '#FFFFFF',
+      backgroundColor: isMacOS
+        ? undefined
+        : nativeTheme.shouldUseDarkColors
+          ? '#181818'
+          : '#FFFFFF',
       darkTheme: nativeTheme.shouldUseDarkColors,
       webPreferences: {
-        webviewTag: true,
-      },
-    });
+        webviewTag: true
+      }
+    })
 
-    mainWindowState.manage(mainWindow);
+    mainWindowState.manage(mainWindow)
 
     // 主窗口的生命周期、尺寸事件与网络请求头处理均在此处挂载
-    this.setupWindowEvents(mainWindow);
-    this.setupWebContentsHandlers(mainWindow);
+    this.setupWindowEvents(mainWindow)
+    this.setupWebContentsHandlers(mainWindow)
 
     // 开发模式走 Vite dev server，生产环境加载打包后的 index.html
     if (!isPackaged && process.env.ELECTRON_RENDERER_URL) {
-      mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
+      mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
     } else {
-      mainWindow.loadFile(join(import.meta.dirname, '../renderer/index.html'));
+      mainWindow.loadFile(join(import.meta.dirname, '../renderer/index.html'))
     }
 
     // 初始化 webview 的 User-Agent，后续所有 webview 请求都会使用统一 UA
-    initSessionUserAgent();
+    initSessionUserAgent()
 
-    return mainWindow;
+    return mainWindow
   }
 
   /**
@@ -839,8 +861,8 @@ export class WindowService {
       defaultWidth: 1000,
       defaultHeight: 640,
       fullScreen: false,
-      maximize: false,
-    });
+      maximize: false
+    })
 
     const mainWindow = this.createWindow(WINDOW_NAME.BROWSER, {
       minWidth: 1024,
@@ -855,46 +877,52 @@ export class WindowService {
       ...(isMacOS
         ? {
             titleBarStyle: 'hidden',
-            titleBarOverlay: nativeTheme.shouldUseDarkColors ? titleBarOverlayDark : titleBarOverlayLight,
-            trafficLightPosition: { x: 8, y: 14 },
+            titleBarOverlay: nativeTheme.shouldUseDarkColors
+              ? titleBarOverlayDark
+              : titleBarOverlayLight,
+            trafficLightPosition: { x: 8, y: 14 }
           }
         : {
-            frame: false, // Frameless window for Windows and Linux
+            frame: false // Frameless window for Windows and Linux
           }),
-      backgroundColor: isMacOS ? undefined : nativeTheme.shouldUseDarkColors ? '#181818' : '#FFFFFF',
+      backgroundColor: isMacOS
+        ? undefined
+        : nativeTheme.shouldUseDarkColors
+          ? '#181818'
+          : '#FFFFFF',
       darkTheme: nativeTheme.shouldUseDarkColors,
       webPreferences: {
-        webviewTag: true,
-      },
-    });
+        webviewTag: true
+      }
+    })
 
-    mainWindowState.manage(mainWindow);
+    mainWindowState.manage(mainWindow)
 
     // 浏览器窗口同样需要通用的事件与网络请求处理
-    this.setupWindowEvents(mainWindow);
-    this.setupWebContentsHandlers(mainWindow);
+    this.setupWindowEvents(mainWindow)
+    this.setupWebContentsHandlers(mainWindow)
 
     // 拦截默认 close 行为，改为安全关闭流程，避免直接 destroy 导致渲染端未清理
     mainWindow.on('close', (event: Electron.Event) => {
-      event.preventDefault();
-      this.safeClose(mainWindow);
-    });
+      event.preventDefault()
+      this.safeClose(mainWindow)
+    })
 
     // 为浏览器窗口指定默认加载的 hash 路由为 #/browser
     if (!isPackaged && process.env.ELECTRON_RENDERER_URL) {
-      mainWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL}/#/browser`);
+      mainWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL}/#/browser`)
     } else {
       mainWindow.loadURL(
         url.format({
           pathname: join(import.meta.dirname, '../renderer/index.html'),
           protocol: 'file:',
           slashes: true,
-          hash: 'browser',
-        }),
-      );
+          hash: 'browser'
+        })
+      )
     }
 
-    return mainWindow;
+    return mainWindow
   }
 
   /**
@@ -906,22 +934,22 @@ export class WindowService {
    * 该窗口属于抓包 / 调试类业务，与视频播放无关
    */
   public createSnifferWindow(uuid: string): BrowserWindow {
-    const mainWindow = this.createWindow(`${WINDOW_NAME.SNIFFER}-${uuid}`, {});
+    const mainWindow = this.createWindow(`${WINDOW_NAME.SNIFFER}-${uuid}`, {})
 
-    const debug = configManager.debug;
+    const debug = configManager.debug
 
     if (debug) {
       mainWindow.once('ready-to-show', () => {
-        mainWindow.webContents.setZoomFactor(configManager.zoom);
+        mainWindow.webContents.setZoomFactor(configManager.zoom)
 
         // [mac]hacky-fix: miniWindow set visibleOnFullScreen:true will cause dock icon disappeared
-        app.dock?.show();
-        mainWindow.show();
-      });
+        app.dock?.show()
+        mainWindow.show()
+      })
     }
 
-    return mainWindow;
+    return mainWindow
   }
 }
 
-export const windowService = WindowService.getInstance();
+export const windowService = WindowService.getInstance()

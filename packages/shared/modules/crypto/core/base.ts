@@ -1,7 +1,7 @@
-import { toString } from '@shared/modules/toString';
-import { isPositiveFiniteNumber, isUUID } from '@shared/modules/validate';
-import type { UUIDTypes } from 'uuid';
-import { v3 as uuidv3, v4 as uuidv4, v5 as uuidv5 } from 'uuid';
+import { toString } from '@shared/modules/toString'
+import { isPositiveFiniteNumber, isUUID } from '@shared/modules/validate'
+import type { UUIDTypes } from 'uuid'
+import { v3 as uuidv3, v4 as uuidv4, v5 as uuidv5 } from 'uuid'
 
 /**
  * Generate a random version 4 UUID
@@ -20,8 +20,8 @@ export const randomUUID = (): string => {
 
   //   return nibble.toString(16);
   // });
-  return uuidv4();
-};
+  return uuidv4()
+}
 
 /**
  * Generate a random nanoid
@@ -29,22 +29,22 @@ export const randomUUID = (): string => {
  * @returns {string} A random nanoid
  */
 export const randomNanoid = (len?: number): string => {
-  if (!isPositiveFiniteNumber(len)) len = 21;
+  if (!isPositiveFiniteNumber(len)) len = 21
 
-  const URL_ALPHABET = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
+  const URL_ALPHABET = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict'
 
-  const bytes = new Uint8Array(len!);
+  const bytes = new Uint8Array(len!)
   for (let i = 0; i < len!; i++) {
-    bytes[i] = (Math.random() * 256) | 0;
+    bytes[i] = (Math.random() * 256) | 0
   }
 
-  let id = '';
+  let id = ''
   for (let i = 0; i < len!; i++) {
-    id += URL_ALPHABET[63 & bytes[i]];
+    id += URL_ALPHABET[63 & bytes[i]]
   }
 
-  return id;
-};
+  return id
+}
 
 /**
  * Generates the Name-Based UUID hashes v3 and v5 according to RFC-4122
@@ -57,16 +57,16 @@ export const randomNanoid = (len?: number): string => {
  * @returns {string} UUID
  */
 export const generateStrUUID = (value: string, namespace?: UUIDTypes, version?: number): string => {
-  const content = toString(value);
+  const content = toString(value)
 
-  const safeNamespace = isUUID(namespace) ? namespace! : '00000000-0000-0000-0000-000000000000';
-  const safeVersion = version === 3 || version === 5 ? version : 5;
+  const safeNamespace = isUUID(namespace) ? namespace! : '00000000-0000-0000-0000-000000000000'
+  const safeVersion = version === 3 || version === 5 ? version : 5
 
   switch (safeVersion) {
     case 3:
-      return uuidv3(content, safeNamespace);
+      return uuidv3(content, safeNamespace)
     case 5:
     default:
-      return uuidv5(content, safeNamespace);
+      return uuidv5(content, safeNamespace)
   }
-};
+}

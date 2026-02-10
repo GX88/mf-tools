@@ -1,8 +1,8 @@
-import CryptoJS from 'crypto-js';
-import * as he from 'he';
-import pako from 'pako';
+import CryptoJS from 'crypto-js'
+import * as he from 'he'
+import pako from 'pako'
 
-import { atob, btoa } from '../modules/atob-btoa';
+import { atob, btoa } from '../modules/atob-btoa'
 import type {
   Base64DecodeOptions,
   Base64EncodeOptions,
@@ -15,10 +15,15 @@ import type {
   UnicodeDecodeOptions,
   UnicodeEncodeOptions,
   UrlDecodeOptions,
-  UrlEncodeOptions,
-} from '../type';
-import { arrayToWordArray, parse as wordParse, stringify as wordStringify, wordArrayToArray } from '../utils/wordArray';
-import { isLatin1String } from './../utils/base';
+  UrlEncodeOptions
+} from '../type'
+import {
+  arrayToWordArray,
+  parse as wordParse,
+  stringify as wordStringify,
+  wordArrayToArray
+} from '../utils/wordArray'
+import { isLatin1String } from './../utils/base'
 
 /**
  * Base64 编码/解码工具
@@ -35,10 +40,10 @@ export const base64 = {
    * base64.encode({ src: 'this is an example' }) // => 'dGhpcyBpcyBhbiBleGFtcGxl'
    */
   encode: (options: Base64EncodeOptions): string => {
-    const { src, inputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    const srcBuffer = wordParse[inputEncode](src);
-    return CryptoJS.enc.Base64.stringify(srcBuffer);
+    const { src, inputEncode = 'utf8' } = options
+    if (src === '') return ''
+    const srcBuffer = wordParse[inputEncode](src)
+    return CryptoJS.enc.Base64.stringify(srcBuffer)
   },
 
   /**
@@ -52,10 +57,10 @@ export const base64 = {
    * base64.decode({ src: 'dGhpcyBpcyBhbiBleGFtcGxl' }) // => 'this is an example'
    */
   decode: (options: Base64DecodeOptions): string => {
-    const { src, outputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    const decryptedBuffer = CryptoJS.enc.Base64.parse(src);
-    return wordStringify[outputEncode](decryptedBuffer);
+    const { src, outputEncode = 'utf8' } = options
+    if (src === '') return ''
+    const decryptedBuffer = CryptoJS.enc.Base64.parse(src)
+    return wordStringify[outputEncode](decryptedBuffer)
   },
 
   /**
@@ -67,15 +72,15 @@ export const base64 = {
    * base64.btoa({ src: 'this is an example' }) // => 'dGhpcyBpcyBhbiBleGFtcGxl'
    */
   btoa: (options: Base64EncodeOptions): string => {
-    const { src, inputEncode = 'utf8', ignore = false } = options;
-    if (src === '') return '';
-    const srcBuffer = wordParse[inputEncode](src);
-    const srcStr = wordStringify.utf8(srcBuffer);
-    const isLatin1 = isLatin1String(srcStr);
+    const { src, inputEncode = 'utf8', ignore = false } = options
+    if (src === '') return ''
+    const srcBuffer = wordParse[inputEncode](src)
+    const srcStr = wordStringify.utf8(srcBuffer)
+    const isLatin1 = isLatin1String(srcStr)
     if (!ignore && !isLatin1) {
-      throw new Error('Input string must be Latin-1 encoded for btoa');
+      throw new Error('Input string must be Latin-1 encoded for btoa')
     }
-    return btoa(wordStringify.utf8(srcBuffer));
+    return btoa(wordStringify.utf8(srcBuffer))
   },
 
   /**
@@ -87,12 +92,12 @@ export const base64 = {
    * base64.atob({ src: 'dGhpcyBpcyBhbiBleGFtcGxl' }) // => 'this is an example'
    */
   atob: (options: Base64DecodeOptions): string => {
-    const { src, outputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    const decrypted = atob(src);
-    return wordStringify[outputEncode](wordParse.utf8(decrypted));
-  },
-};
+    const { src, outputEncode = 'utf8' } = options
+    if (src === '') return ''
+    const decrypted = atob(src)
+    return wordStringify[outputEncode](wordParse.utf8(decrypted))
+  }
+}
 
 /**
  * Unicode 编码/解码工具
@@ -109,31 +114,31 @@ export const unicode = {
    * unicode.encode({ src: 'this is an example', prefix: '%u', pad: 4, encodeEverything: true }) // => \u0074\u0068\u0069\u0073\u0020\u0069\u0073\u0020\u0061\u006e\u0020\u0065\u0078\u0061\u006d\u0070\u006c\u0065
    */
   encode: (options: UnicodeEncodeOptions): string => {
-    const { src, prefix = '\\u', pad = 4, encodeEverything = true, inputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    const plaintext = wordStringify.utf8(wordParse[inputEncode](src));
-    let encrypted = '';
+    const { src, prefix = '\\u', pad = 4, encodeEverything = true, inputEncode = 'utf8' } = options
+    if (src === '') return ''
+    const plaintext = wordStringify.utf8(wordParse[inputEncode](src))
+    let encrypted = ''
 
     const encodeChar = (char: string): string => {
-      const codePoint = char.codePointAt(0);
-      if (codePoint === undefined) return '';
+      const codePoint = char.codePointAt(0)
+      if (codePoint === undefined) return ''
 
-      let hex = codePoint.toString(16);
-      if (hex.length < pad) hex = hex.padStart(pad, '0');
+      let hex = codePoint.toString(16)
+      if (hex.length < pad) hex = hex.padStart(pad, '0')
 
-      return prefix + hex;
-    };
+      return prefix + hex
+    }
 
     for (const char of plaintext) {
-      const shouldEncode = encodeEverything || char.charCodeAt(0) > 127;
+      const shouldEncode = encodeEverything || char.charCodeAt(0) > 127
       if (shouldEncode) {
-        encrypted += encodeChar(char);
+        encrypted += encodeChar(char)
       } else {
-        encrypted += char;
+        encrypted += char
       }
     }
 
-    return encrypted;
+    return encrypted
   },
 
   /**
@@ -147,25 +152,25 @@ export const unicode = {
    * unicode.decode({ src: '\u0074\u0068\u0069\u0073\u0020\u0069\u0073\u0020\u0061\u006e\u0020\u0065\u0078\u0061\u006d\u0070\u006c\u0065' }) // => this is an example
    */
   decode: (options: UnicodeDecodeOptions): string => {
-    const { src, prefix = '\\u', outputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    let regx: RegExp | null = null;
+    const { src, prefix = '\\u', outputEncode = 'utf8' } = options
+    if (src === '') return ''
+    let regx: RegExp | null = null
     if (prefix === 'U+') {
-      regx = /U\+([0-9A-Fa-f]{4,6})/g;
+      regx = /U\+([0-9A-Fa-f]{4,6})/g
     } else if (prefix === '\\u') {
-      regx = /\\u([0-9A-Fa-f]{4,6})/g;
+      regx = /\\u([0-9A-Fa-f]{4,6})/g
     } else if (prefix === '%u') {
-      regx = /%u([0-9A-Fa-f]{4,6})/g;
+      regx = /%u([0-9A-Fa-f]{4,6})/g
     }
 
     const decrypted = src.replace(regx!, (_match, hex) => {
-      const codePoint = Number.parseInt(hex, 16);
-      return String.fromCodePoint(codePoint);
-    });
+      const codePoint = Number.parseInt(hex, 16)
+      return String.fromCodePoint(codePoint)
+    })
 
-    return wordStringify[outputEncode](wordParse.utf8(decrypted));
-  },
-};
+    return wordStringify[outputEncode](wordParse.utf8(decrypted))
+  }
+}
 
 /**
  * HTML 编码/解码工具
@@ -184,21 +189,21 @@ export const html = {
    * html.encode({ src: '中国this is an example', encodeEverything: false, entities: 'numeric' }) // => &#20013;&#22269;this is an example
    */
   encode: (options: HtmlEncodeOptions): string => {
-    const { src, entities = 'named', encodeEverything = true, inputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    const plaintext = wordStringify.utf8(wordParse[inputEncode](src));
+    const { src, entities = 'named', encodeEverything = true, inputEncode = 'utf8' } = options
+    if (src === '') return ''
+    const plaintext = wordStringify.utf8(wordParse[inputEncode](src))
     const encrypted = he.encode(
       plaintext,
       Object.assign(
         {
-          encodeEverything,
+          encodeEverything
         },
         entities === 'numeric' ? { decimal: true } : {},
-        ['named', 'hex'].includes(entities) ? { useNamedReferences: entities === 'named' } : {},
-      ),
-    );
+        ['named', 'hex'].includes(entities) ? { useNamedReferences: entities === 'named' } : {}
+      )
+    )
 
-    return encrypted;
+    return encrypted
   },
 
   /**
@@ -212,12 +217,12 @@ export const html = {
    * html.decode({ src: '1 &lt; 2 &amp; 3 &gt; 4' }) // => 1 < 2 & 3 > 4
    */
   decode: (options: HtmlDecodeOptions): string => {
-    const { src, outputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    const decrypted = he.decode(src);
-    return wordStringify[outputEncode](wordParse.utf8(decrypted));
-  },
-};
+    const { src, outputEncode = 'utf8' } = options
+    if (src === '') return ''
+    const decrypted = he.decode(src)
+    return wordStringify[outputEncode](wordParse.utf8(decrypted))
+  }
+}
 
 /**
  * Gzip 压缩/解压工具
@@ -234,11 +239,11 @@ export const gzip = {
    * gzip.encode({ src: 'this is an example' }) // => 'H4sIAAAAAAAAAyvJyCxWAKLEPIXUisTcgpxUAG3ADfISAAAA'
    */
   encode: (options: GzipEncodeOptions): string => {
-    const { src, inputEncode = 'utf8', outputEncode = 'base64' } = options;
-    if (src === '') return '';
-    const buffer = wordParse[inputEncode](src);
-    const compressed = pako.gzip(wordArrayToArray(buffer));
-    return wordStringify[outputEncode](arrayToWordArray(compressed));
+    const { src, inputEncode = 'utf8', outputEncode = 'base64' } = options
+    if (src === '') return ''
+    const buffer = wordParse[inputEncode](src)
+    const compressed = pako.gzip(wordArrayToArray(buffer))
+    return wordStringify[outputEncode](arrayToWordArray(compressed))
   },
 
   /**
@@ -252,16 +257,16 @@ export const gzip = {
    * gzip.decode({ src: 'H4sIAAAAAAAAAyvJyCxWAKLEPIXUisTcgpxUAG3ADfISAAAA' }) // => 'this is an example'
    */
   decode: (options: GzipDecodeOptions): string => {
-    const { src, inputEncode = 'base64', outputEncode = 'utf8' } = options;
-    if (src === '') return '';
-    const buffer = wordParse[inputEncode](src);
-    const decompressed = pako.ungzip(wordArrayToArray(buffer));
+    const { src, inputEncode = 'base64', outputEncode = 'utf8' } = options
+    if (src === '') return ''
+    const buffer = wordParse[inputEncode](src)
+    const decompressed = pako.ungzip(wordArrayToArray(buffer))
     if (!decompressed) {
-      throw new Error('Not a valid Gzip string');
+      throw new Error('Not a valid Gzip string')
     }
-    return wordStringify[outputEncode](arrayToWordArray(decompressed));
-  },
-};
+    return wordStringify[outputEncode](arrayToWordArray(decompressed))
+  }
+}
 
 /**
  * URL 编码/解码工具
@@ -279,11 +284,11 @@ export const url = {
    * url.encode({ src: 'https://www.google.com/search?q=google map', type: 'uri' }) // => 'https%3A%2F%2Fwww%2Egoogle%2Ecom%2Fsearch%3Fq%3Dgoogle%20map'
    */
   encode: (options: UrlEncodeOptions): string => {
-    const { src, type = 'component', inputEncode = 'utf8' } = options;
-    if (!src) return '';
-    const plaintext = wordStringify.utf8(wordParse[inputEncode](src));
-    const encrypted = type === 'component' ? encodeURIComponent(plaintext) : encodeURI(plaintext);
-    return encrypted;
+    const { src, type = 'component', inputEncode = 'utf8' } = options
+    if (!src) return ''
+    const plaintext = wordStringify.utf8(wordParse[inputEncode](src))
+    const encrypted = type === 'component' ? encodeURIComponent(plaintext) : encodeURI(plaintext)
+    return encrypted
   },
 
   /**
@@ -298,12 +303,12 @@ export const url = {
    * url.decode({ src: 'https%3A%2F%2Fwww%2Egoogle%2Ecom%2Fsearch%3Fq%3Dgoogle%20map', type: 'uri' }) // => 'https://www.google.com/search?q=google map'
    */
   decode: (options: UrlDecodeOptions): string => {
-    const { src, type = 'component', outputEncode = 'utf8' } = options;
-    if (!src) return '';
-    const decrypted = type === 'component' ? decodeURIComponent(src) : decodeURI(src);
-    return wordStringify[outputEncode](wordParse.utf8(decrypted));
-  },
-};
+    const { src, type = 'component', outputEncode = 'utf8' } = options
+    if (!src) return ''
+    const decrypted = type === 'component' ? decodeURIComponent(src) : decodeURI(src)
+    return wordStringify[outputEncode](wordParse.utf8(decrypted))
+  }
+}
 
 /**
  * 十六进制分隔符映射
@@ -319,8 +324,8 @@ const HEX_DELIMITER_MAP = {
   '0x': '0x-',
   '0xComma': '0x-,',
   '\\x': '\\x-',
-  none: '-',
-} as const;
+  none: '-'
+} as const
 
 /**
  * Hex制编码/解码工具
@@ -337,20 +342,20 @@ export const hex = {
    * hex.encode({ src: 'this is an example', delimiter: 'none' }) // => '7468697320697320616e206578616d706c65'
    */
   encode: (options: HexEncodeOptions): string => {
-    const { src, delimiter = 'none', inputEncode = 'utf8' } = options;
-    const delimiterStr = HEX_DELIMITER_MAP[delimiter];
-    const [prefix, suffix] = delimiterStr.split('-');
-    const hexString = wordStringify.hex(wordParse[inputEncode](src));
+    const { src, delimiter = 'none', inputEncode = 'utf8' } = options
+    const delimiterStr = HEX_DELIMITER_MAP[delimiter]
+    const [prefix, suffix] = delimiterStr.split('-')
+    const hexString = wordStringify.hex(wordParse[inputEncode](src))
 
-    const bytes = hexString.match(/.{1,2}/g);
-    if (!bytes) return hexString;
+    const bytes = hexString.match(/.{1,2}/g)
+    if (!bytes) return hexString
 
     return bytes
       .map((byte, index, array) => {
-        const isLast = index === array.length - 1;
-        return `${prefix}${byte}${isLast ? '' : suffix}`;
+        const isLast = index === array.length - 1
+        return `${prefix}${byte}${isLast ? '' : suffix}`
       })
-      .join('');
+      .join('')
   },
 
   /**
@@ -364,35 +369,35 @@ export const hex = {
    * hex.decode({ src: '7468697320697320616e206578616d706c65', delimiter: 'none' }) // => 'this is an example'
    */
   decode: (options: HexDecodeOptions): string => {
-    const { src, delimiter = 'none', outputEncode = 'utf8' } = options;
+    const { src, delimiter = 'none', outputEncode = 'utf8' } = options
 
     // 特殊处理 \x 格式
     if (delimiter === '\\x') {
-      return wordStringify[outputEncode](wordParse.utf8(src));
+      return wordStringify[outputEncode](wordParse.utf8(src))
     }
 
-    const delimiterStr = HEX_DELIMITER_MAP[delimiter];
-    const [prefix, suffix] = delimiterStr.split('-');
+    const delimiterStr = HEX_DELIMITER_MAP[delimiter]
+    const [prefix, suffix] = delimiterStr.split('-')
 
-    let hexString = src;
+    let hexString = src
 
     const escapeRegExp = (string: string): string => {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    };
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    }
 
     // 移除前缀和后缀
     if (prefix) {
-      hexString = hexString.replace(new RegExp(escapeRegExp(prefix), 'g'), '');
+      hexString = hexString.replace(new RegExp(escapeRegExp(prefix), 'g'), '')
     }
     if (suffix) {
-      hexString = hexString.replace(new RegExp(escapeRegExp(suffix), 'g'), '');
+      hexString = hexString.replace(new RegExp(escapeRegExp(suffix), 'g'), '')
     }
 
     // 验证十六进制字符串长度
     if (hexString.length % 2 !== 0) {
-      throw new Error('String length must be even');
+      throw new Error('String length must be even')
     }
 
-    return wordStringify[outputEncode](wordParse.hex(hexString));
-  },
-};
+    return wordStringify[outputEncode](wordParse.hex(hexString))
+  }
+}

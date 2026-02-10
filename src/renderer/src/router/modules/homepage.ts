@@ -1,6 +1,5 @@
 import Layout from '@renderer/src/layouts/index.vue'
 
-
 export default [
   {
     path: '/',
@@ -14,9 +13,9 @@ export default [
         component: () => import('@renderer/src/pages/dashboard/index.vue'),
         meta: {
           title: '仪表盘',
-          icon: 'LayoutDashboard',
+          icon: 'LayoutDashboard'
         }
-      },
+      }
     ]
   },
   {
@@ -26,7 +25,7 @@ export default [
     component: Layout,
     meta: {
       title: '退款',
-      icon: 'CreditCard',
+      icon: 'CreditCard'
     },
     children: [
       {
@@ -35,8 +34,8 @@ export default [
         component: () => import('@renderer/src/pages/payment/refund/index.vue'),
         meta: {
           title: '退款',
-          icon: 'CreditCard',
-        },
+          icon: 'CreditCard'
+        }
       }
     ]
   }

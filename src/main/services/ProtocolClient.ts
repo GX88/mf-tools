@@ -42,7 +42,7 @@ export function handleProtocolUrl(url: string) {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('protocol-data', {
       url,
-      params: Object.fromEntries(params.entries()),
+      params: Object.fromEntries(params.entries())
     })
   }
 }
@@ -92,7 +92,9 @@ export async function setupAppImageDeepLink(): Promise<void> {
     // Update the desktop database
     // It's important to update the database for the changes to take effect
     try {
-      const { stdout, stderr } = await execAsync(`update-desktop-database ${escapePathForExec(applicationsDir)}`)
+      const { stdout, stderr } = await execAsync(
+        `update-desktop-database ${escapePathForExec(applicationsDir)}`
+      )
       if (stderr) {
         logger.warn(`update-desktop-database stderr: ${stderr}`)
       }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineOptions({
-  name: 'SystemControl',
+  name: 'SystemControl'
 })
 
 import { ref, onMounted } from 'vue'
@@ -17,15 +17,14 @@ import { X } from 'lucide-vue-next'
 
 const active = ref({
   isPinned: false,
-  isMaximized: false,
+  isMaximized: false
 })
-
 
 const props = defineProps({
   filter: {
     type: Array,
-    default: () => [],
-  },
+    default: () => []
+  }
 })
 
 onMounted(() => {
@@ -92,32 +91,46 @@ const attachMaximizeListener = () => {
 </script>
 
 <template>
-  <div
-    class="system-controls flex items-center justify-between drag-region">
-    <Button class="no-drag-region" variant="ghost" size="icon"
+  <div class="system-controls flex items-center justify-between drag-region">
+    <Button
+      class="no-drag-region"
+      variant="ghost"
+      size="icon"
       v-if="!isFilter('pin')"
-      @click="handlePinWindow">
+      @click="handlePinWindow"
+    >
       <Pin v-if="!active.isPinned" class="size-4" />
       <PinOff v-else class="size-4" />
     </Button>
 
     <template v-if="!isMacOS">
-      <Button class="no-drag-region" variant="ghost" size="icon"
+      <Button
+        class="no-drag-region"
+        variant="ghost"
+        size="icon"
         v-if="!isFilter('min')"
-        @click="handleMinimizeWindow">
+        @click="handleMinimizeWindow"
+      >
         <Minus class="size-4" />
       </Button>
-      <Button class="no-drag-region" variant="ghost" size="icon"
+      <Button
+        class="no-drag-region"
+        variant="ghost"
+        size="icon"
         v-if="!isFilter('max')"
-        @click="handleMaximizeWindow">
+        @click="handleMaximizeWindow"
+      >
         <Maximize v-if="!active.isMaximized" class="size-4" />
         <Minimize v-else class="size-4" />
       </Button>
-      <Button variant="ghost" size="icon"
+      <Button
+        variant="ghost"
+        size="icon"
         @click="handleCloseWindow"
         v-if="!isFilter('close')"
         style="transform: scaleX(-1)"
-        class="control-button control-button__close no-drag-region">
+        class="control-button control-button__close no-drag-region"
+      >
         <X class="size-5" />
       </Button>
     </template>

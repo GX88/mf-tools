@@ -1,13 +1,13 @@
-import { loggerService } from '@logger';
-import { configManager } from '@main/services/ConfigManager';
-import { LOG_MODULE } from '@shared/config/logger';
-import type { ILang, ILangWithoutSystem } from '@shared/locales';
-import { defaultLocale, fallbackLocale, langCode, messages } from '@shared/locales';
-import { app } from 'electron';
-import type { InitOptions } from 'i18next';
-import i18n, { changeLanguage, init as createI18n } from 'i18next';
+import { loggerService } from '@logger'
+import { configManager } from '@main/services/ConfigManager'
+import { LOG_MODULE } from '@shared/config/logger'
+import type { ILang, ILangWithoutSystem } from '@shared/locales'
+import { defaultLocale, fallbackLocale, langCode, messages } from '@shared/locales'
+import { app } from 'electron'
+import type { InitOptions } from 'i18next'
+import i18n, { changeLanguage, init as createI18n } from 'i18next'
 
-const logger = loggerService.withContext(LOG_MODULE.APP_LOCALE);
+const logger = loggerService.withContext(LOG_MODULE.APP_LOCALE)
 
 /**
  * 应用国际化与语言环境管理服务（单例）
@@ -18,7 +18,7 @@ const logger = loggerService.withContext(LOG_MODULE.APP_LOCALE);
  * - 对外暴露 isChinaMainland 用于区分中国大陆与其他地区
  */
 export class AppLocale {
-  private static instance: AppLocale;
+  private static instance: AppLocale
 
   /**
    * 构造函数
@@ -35,9 +35,9 @@ export class AppLocale {
    */
   public static getInstance(): AppLocale {
     if (!AppLocale.instance) {
-      AppLocale.instance = new AppLocale();
+      AppLocale.instance = new AppLocale()
     }
-    return AppLocale.instance;
+    return AppLocale.instance
   }
 
   /**
@@ -49,21 +49,21 @@ export class AppLocale {
    */
   public init(): void {
     const resources = Object.fromEntries(
-      Object.entries(messages()).map(([k, v]) => [k, { translation: v }]),
-    ) as InitOptions['resources'];
+      Object.entries(messages()).map(([k, v]) => [k, { translation: v }])
+    ) as InitOptions['resources']
 
     createI18n({
       resources,
       lng: this.defaultLang(),
       fallbackLng: fallbackLocale,
       interpolation: {
-        escapeValue: false,
+        escapeValue: false
       },
       saveMissing: true,
       missingKeyHandler: (_lngs: readonly string[], _ns: string, key: string) => {
-        logger.warn(`Missing key: ${key}`);
-      },
-    });
+        logger.warn(`Missing key: ${key}`)
+      }
+    })
   }
 
   /**
@@ -75,16 +75,16 @@ export class AppLocale {
    * - 底层调用 i18next.changeLanguage，并在成功/失败时记录日志
    */
   public changeLocale(value: ILang): void {
-    const lang = this.defaultLang(value);
+    const lang = this.defaultLang(value)
 
-    if (i18n.language === lang) return;
+    if (i18n.language === lang) return
 
     changeLanguage(lang, (error) => {
       if (error) {
-        return logger.error(`Failed to change language: ${error.message}`);
+        return logger.error(`Failed to change language: ${error.message}`)
       }
-      logger.info(`Language changed to ${lang}`);
-    });
+      logger.info(`Language changed to ${lang}`)
+    })
   }
 
   /**
@@ -101,15 +101,15 @@ export class AppLocale {
    * - 若推导出的语言不在 langCode 列表中，则回落到 defaultLocale
    */
   public defaultLang(value?: ILang): ILangWithoutSystem {
-    let lang = value;
+    let lang = value
 
     if (!lang) {
-      lang = configManager.lang;
+      lang = configManager.lang
     }
     if (!lang || lang === 'system') {
-      const appLocale = app.getLocale();
+      const appLocale = app.getLocale()
       if (appLocale.startsWith('zh')) {
-        const region = appLocale.split('-')[1];
+        const region = appLocale.split('-')[1]
 
         // On Windows and macOS, Chinese languages returned by
         // app.getPreferredSystemLanguages() start with zh-hans
@@ -121,20 +121,20 @@ export class AppLocale {
         // country codes, assume they use Simplified Chinese.
         // For other cases, assume they use Traditional.
         if (['hans', 'cn', 'sg', 'my'].includes(region.toLocaleLowerCase())) {
-          lang = 'zh-CN';
+          lang = 'zh-CN'
         }
 
-        lang = 'zh-TW';
+        lang = 'zh-TW'
       }
 
-      lang = appLocale as ILangWithoutSystem;
+      lang = appLocale as ILangWithoutSystem
     }
 
     if (!langCode.includes(lang)) {
-      lang = defaultLocale;
+      lang = defaultLocale
     }
 
-    return lang;
+    return lang
   }
 
   /**
@@ -144,11 +144,11 @@ export class AppLocale {
    * - 供业务层做区域差异化配置时使用（如接口域名、内容开关等）
    */
   public isChinaMainland(): boolean {
-    const lang = this.defaultLang();
-    return lang === 'zh-CN';
+    const lang = this.defaultLang()
+    return lang === 'zh-CN'
   }
 }
 
-export const appLocale = AppLocale.getInstance();
+export const appLocale = AppLocale.getInstance()
 
-export { t } from 'i18next';
+export { t } from 'i18next'

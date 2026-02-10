@@ -1,9 +1,9 @@
-import { Buffer } from 'node:buffer';
-import { basename, dirname, extname, join } from 'node:path';
+import { Buffer } from 'node:buffer'
+import { basename, dirname, extname, join } from 'node:path'
 
-import { hash } from '@shared/modules/crypto';
-import type { ISizeOption } from '@shared/modules/size';
-import { calculateSize } from '@shared/modules/size';
+import { hash } from '@shared/modules/crypto'
+import type { ISizeOption } from '@shared/modules/size'
+import { calculateSize } from '@shared/modules/size'
 import {
   isBase64,
   isBinary,
@@ -12,25 +12,25 @@ import {
   isPermissionNumber,
   isPositiveFiniteNumber,
   isStrEmpty,
-  isString,
-} from '@shared/modules/validate';
-import { fdir as Fdir } from 'fdir';
-import fs from 'fs-extra';
-import JSON5 from 'json5';
-import mime from 'mime-types';
+  isString
+} from '@shared/modules/validate'
+import { fdir as Fdir } from 'fdir'
+import fs from 'fs-extra'
+import JSON5 from 'json5'
+import mime from 'mime-types'
 
-import { relativeToAbsolute } from './path';
+import { relativeToAbsolute } from './path'
 
-export type IFileState = 'file' | 'dir' | 'unknown';
-export type IFileLink = 'link' | 'strict' | 'unknown';
-export type IFileMode = fs.Mode;
+export type IFileState = 'file' | 'dir' | 'unknown'
+export type IFileLink = 'link' | 'strict' | 'unknown'
+export type IFileMode = fs.Mode
 export interface IFileMetadata {
-  name: string;
-  path: string;
-  created_at: string;
-  size: number;
-  ext: string;
-  mime: string;
+  name: string
+  path: string
+  created_at: string
+  size: number
+  ext: string
+  mime: string
 }
 
 const bufferEncoding: Array<BufferEncoding> = [
@@ -45,8 +45,8 @@ const bufferEncoding: Array<BufferEncoding> = [
   'base64url',
   'latin1',
   'binary',
-  'hex',
-];
+  'hex'
+]
 
 /**
  * Check if path exists
@@ -55,16 +55,16 @@ const bufferEncoding: Array<BufferEncoding> = [
  */
 export const pathExist = async (filePath: string): Promise<boolean> => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    return await fs.pathExists(absolutePath);
+    const absolutePath = relativeToAbsolute(filePath)
+    return await fs.pathExists(absolutePath)
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously check if path exists
@@ -73,16 +73,16 @@ export const pathExist = async (filePath: string): Promise<boolean> => {
  */
 export const pathExistSync = (filePath: string): boolean => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    return fs.pathExistsSync(absolutePath);
+    const absolutePath = relativeToAbsolute(filePath)
+    return fs.pathExistsSync(absolutePath)
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Check if path is soft link
@@ -91,19 +91,19 @@ export const pathExistSync = (filePath: string): boolean => {
  */
 export const pathLink = async (filePath: string): Promise<IFileLink> => {
   if (!(await pathExist(filePath))) {
-    return 'unknown';
+    return 'unknown'
   }
 
   try {
-    const stats = await fs.lstat(filePath);
+    const stats = await fs.lstat(filePath)
     if (stats.isSymbolicLink()) {
-      return 'link';
+      return 'link'
     }
-    return 'strict';
+    return 'strict'
   } catch {
-    return 'unknown';
+    return 'unknown'
   }
-};
+}
 
 /**
  * Synchronously check if path is soft link
@@ -112,19 +112,19 @@ export const pathLink = async (filePath: string): Promise<IFileLink> => {
  */
 export const pathLinkSync = (filePath: string): IFileLink => {
   if (!pathExistSync(filePath)) {
-    return 'unknown';
+    return 'unknown'
   }
 
   try {
-    const stats = fs.lstatSync(filePath);
+    const stats = fs.lstatSync(filePath)
     if (stats.isSymbolicLink()) {
-      return 'link';
+      return 'link'
     }
-    return 'strict';
+    return 'strict'
   } catch {
-    return 'unknown';
+    return 'unknown'
   }
-};
+}
 
 /**
  * Get path state
@@ -133,19 +133,19 @@ export const pathLinkSync = (filePath: string): IFileLink => {
  */
 export const fileState = async (filePath: string): Promise<IFileState> => {
   if (!(await pathExist(filePath))) {
-    return 'unknown';
+    return 'unknown'
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const state = await fs.stat(absolutePath);
-    if (state.isFile()) return 'file';
-    if (state.isDirectory()) return 'dir';
-    return 'unknown';
+    const absolutePath = relativeToAbsolute(filePath)
+    const state = await fs.stat(absolutePath)
+    if (state.isFile()) return 'file'
+    if (state.isDirectory()) return 'dir'
+    return 'unknown'
   } catch {
-    return 'unknown';
+    return 'unknown'
   }
-};
+}
 
 /**
  * Synchronously check path state
@@ -154,19 +154,19 @@ export const fileState = async (filePath: string): Promise<IFileState> => {
  */
 export const fileStateSync = (filePath: string): IFileState => {
   if (!pathExistSync(filePath)) {
-    return 'unknown';
+    return 'unknown'
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const state = fs.statSync(absolutePath);
-    if (state.isFile()) return 'file';
-    if (state.isDirectory()) return 'dir';
-    return 'unknown';
+    const absolutePath = relativeToAbsolute(filePath)
+    const state = fs.statSync(absolutePath)
+    if (state.isFile()) return 'file'
+    if (state.isDirectory()) return 'dir'
+    return 'unknown'
   } catch {
-    return 'unknown';
+    return 'unknown'
   }
-};
+}
 
 /**
  * Get file line count
@@ -175,17 +175,17 @@ export const fileStateSync = (filePath: string): IFileState => {
  */
 export const fileLineCount = async (filePath: string): Promise<number> => {
   if (!(await pathExist(filePath))) {
-    return 0;
+    return 0
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const content = (await readFile(absolutePath, 'utf8')) || '';
-    return content.split('\n').length;
+    const absolutePath = relativeToAbsolute(filePath)
+    const content = (await readFile(absolutePath, 'utf8')) || ''
+    return content.split('\n').length
   } catch {
-    return 0;
+    return 0
   }
-};
+}
 
 /**
  * Synchronously get file line count
@@ -194,17 +194,17 @@ export const fileLineCount = async (filePath: string): Promise<number> => {
  */
 export const fileLineCountSync = (filePath: string): number => {
   if (!pathExistSync(filePath)) {
-    return 0;
+    return 0
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const content = readFileSync(absolutePath, 'utf8') || '';
-    return content.split('\n').length;
+    const absolutePath = relativeToAbsolute(filePath)
+    const content = readFileSync(absolutePath, 'utf8') || ''
+    return content.split('\n').length
   } catch {
-    return 0;
+    return 0
   }
-};
+}
 
 /**
  * Get file permission
@@ -212,85 +212,87 @@ export const fileLineCountSync = (filePath: string): number => {
  * @returns File permission
  */
 export const filePermission = async (
-  filePath: string,
+  filePath: string
 ): Promise<{ read: boolean; writ: boolean; exec: boolean; code: number }> => {
-  const defaultValue = { read: false, writ: false, exec: false, code: 0 };
+  const defaultValue = { read: false, writ: false, exec: false, code: 0 }
 
   if (!(await pathExist(filePath))) {
-    return defaultValue;
+    return defaultValue
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     const check = async (type: 'read' | 'writ' | 'exec'): Promise<boolean> => {
       try {
         const permit = {
           read: fs.constants.R_OK,
           writ: fs.constants.W_OK,
-          exec: fs.constants.X_OK,
-        };
+          exec: fs.constants.X_OK
+        }
 
-        await fs.access(absolutePath, permit[type]);
-        return true;
+        await fs.access(absolutePath, permit[type])
+        return true
       } catch {
-        return false;
+        return false
       }
-    };
+    }
 
-    const read = await check('read');
-    const writ = await check('writ');
-    const exec = await check('exec');
+    const read = await check('read')
+    const writ = await check('writ')
+    const exec = await check('exec')
 
-    const code = ((read ? 4 : 0) + (writ ? 2 : 0) + (exec ? 1 : 0)) * 111;
+    const code = ((read ? 4 : 0) + (writ ? 2 : 0) + (exec ? 1 : 0)) * 111
 
-    return { read, writ, exec, code };
+    return { read, writ, exec, code }
   } catch {
-    return defaultValue;
+    return defaultValue
   }
-};
+}
 
 /**
  * Synchronously get file permission
  * @param filePath File path
  * @returns File permission
  */
-export const filePermissionSync = (filePath: string): { read: boolean; writ: boolean; exec: boolean; code: number } => {
-  const defaultValue = { read: false, writ: false, exec: false, code: 0 };
+export const filePermissionSync = (
+  filePath: string
+): { read: boolean; writ: boolean; exec: boolean; code: number } => {
+  const defaultValue = { read: false, writ: false, exec: false, code: 0 }
 
   if (!pathExistSync(filePath)) {
-    return defaultValue;
+    return defaultValue
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     const check = (type: 'read' | 'writ' | 'exec'): boolean => {
       try {
         const permit = {
           read: fs.constants.R_OK,
           writ: fs.constants.W_OK,
-          exec: fs.constants.X_OK,
-        };
+          exec: fs.constants.X_OK
+        }
 
-        fs.accessSync(absolutePath, permit[type]);
-        return true;
+        fs.accessSync(absolutePath, permit[type])
+        return true
       } catch {
-        return false;
+        return false
       }
-    };
+    }
 
-    const read = check('read');
-    const writ = check('writ');
-    const exec = check('exec');
+    const read = check('read')
+    const writ = check('writ')
+    const exec = check('exec')
 
-    const code = ((read ? 4 : 0) + (writ ? 2 : 0) + (exec ? 1 : 0)) * 111;
+    const code = ((read ? 4 : 0) + (writ ? 2 : 0) + (exec ? 1 : 0)) * 111
 
-    return { read, writ, exec, code };
+    return { read, writ, exec, code }
   } catch {
-    return defaultValue;
+    return defaultValue
   }
-};
+}
 
 /**
  * Modify file permission
@@ -300,22 +302,22 @@ export const filePermissionSync = (filePath: string): { read: boolean; writ: boo
  */
 export const fileChmod = async (filePath: string, mode: IFileMode): Promise<boolean> => {
   if (!(await pathExist(filePath))) {
-    return false;
+    return false
   }
 
   if (!isPermissionNumber(mode)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const octalMode = Number.parseInt(mode.toString(), 8);
-    await fs.chmod(absolutePath, octalMode);
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    const octalMode = Number.parseInt(mode.toString(), 8)
+    await fs.chmod(absolutePath, octalMode)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously modify file permission
@@ -325,22 +327,22 @@ export const fileChmod = async (filePath: string, mode: IFileMode): Promise<bool
  */
 export const fileChmodSync = (filePath: string, mode: IFileMode): boolean => {
   if (!pathExistSync(filePath)) {
-    return false;
+    return false
   }
 
   if (!isPermissionNumber(mode)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const octalMode = Number.parseInt(mode.toString(), 8);
-    fs.chmodSync(absolutePath, octalMode);
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    const octalMode = Number.parseInt(mode.toString(), 8)
+    fs.chmodSync(absolutePath, octalMode)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Get file metadata
@@ -348,31 +350,38 @@ export const fileChmodSync = (filePath: string, mode: IFileMode): boolean => {
  * @returns File metadata
  */
 export const fileMetadata = async (filePath: string): Promise<IFileMetadata> => {
-  const defaultValue: IFileMetadata = { name: '', ext: '', path: '', size: 0, created_at: '', mime: 'unknown' };
+  const defaultValue: IFileMetadata = {
+    name: '',
+    ext: '',
+    path: '',
+    size: 0,
+    created_at: '',
+    mime: 'unknown'
+  }
 
   if (!(await pathExist(filePath))) {
-    return defaultValue;
+    return defaultValue
   }
 
   if ((await fileState(filePath)) !== 'file') {
-    return defaultValue;
+    return defaultValue
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const stats = await fs.stat(absolutePath);
+    const absolutePath = relativeToAbsolute(filePath)
+    const stats = await fs.stat(absolutePath)
     return {
       name: basename(absolutePath),
       ext: extname(absolutePath).slice(1),
       mime: mime.lookup(absolutePath) || 'unknown',
       path: absolutePath,
       size: stats.size,
-      created_at: stats.birthtime.toISOString(),
-    };
+      created_at: stats.birthtime.toISOString()
+    }
   } catch {
-    return defaultValue;
+    return defaultValue
   }
-};
+}
 
 /**
  * Synchronously get file metadata
@@ -380,93 +389,106 @@ export const fileMetadata = async (filePath: string): Promise<IFileMetadata> => 
  * @returns File metadata
  */
 export const fileMetadataSync = (filePath: string): IFileMetadata => {
-  const defaultValue: IFileMetadata = { name: '', ext: '', path: '', size: 0, created_at: '', mime: 'unknown' };
+  const defaultValue: IFileMetadata = {
+    name: '',
+    ext: '',
+    path: '',
+    size: 0,
+    created_at: '',
+    mime: 'unknown'
+  }
 
   if (!pathExistSync(filePath)) {
-    return defaultValue;
+    return defaultValue
   }
 
   if (fileStateSync(filePath) !== 'file') {
-    return defaultValue;
+    return defaultValue
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const stats = fs.statSync(absolutePath);
+    const absolutePath = relativeToAbsolute(filePath)
+    const stats = fs.statSync(absolutePath)
     return {
       name: basename(absolutePath),
       ext: extname(absolutePath).slice(1),
       mime: mime.lookup(absolutePath) || 'unknown',
       path: absolutePath,
       size: stats.size,
-      created_at: stats.birthtime.toISOString(),
-    };
+      created_at: stats.birthtime.toISOString()
+    }
   } catch {
-    return defaultValue;
+    return defaultValue
   }
-};
+}
 
 /**
  * Compute file hash
  * @param filePath File path
  * @returns File hash
  */
-export const fileHash = async (filePath: string, algo: 'sha1' | 'sha256' | 'md5' = 'md5'): Promise<string> => {
+export const fileHash = async (
+  filePath: string,
+  algo: 'sha1' | 'sha256' | 'md5' = 'md5'
+): Promise<string> => {
   if (!(await pathExist(filePath))) {
-    return '';
+    return ''
   }
 
   if ((await fileState(filePath)) !== 'file') {
-    return '';
+    return ''
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const content = await readFile(absolutePath);
+    const absolutePath = relativeToAbsolute(filePath)
+    const content = await readFile(absolutePath)
     switch (algo) {
       case 'sha1':
-        return hash.sha1({ src: content! });
+        return hash.sha1({ src: content! })
       case 'sha256':
-        return hash.sha256({ src: content! });
+        return hash.sha256({ src: content! })
       case 'md5':
       default:
-        return hash['md5-32']({ src: content! });
+        return hash['md5-32']({ src: content! })
     }
   } catch {
-    return '';
+    return ''
   }
-};
+}
 
 /**
  * Synchronously compute file hash
  * @param filePath File path
  * @returns File hash
  */
-export const fileHashSync = async (filePath: string, algo: 'sha1' | 'sha256' | 'md5' = 'md5'): Promise<string> => {
+export const fileHashSync = async (
+  filePath: string,
+  algo: 'sha1' | 'sha256' | 'md5' = 'md5'
+): Promise<string> => {
   if (!pathExistSync(filePath)) {
-    return '';
+    return ''
   }
 
   if (fileStateSync(filePath) !== 'file') {
-    return '';
+    return ''
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const content = readFileSync(absolutePath);
+    const absolutePath = relativeToAbsolute(filePath)
+    const content = readFileSync(absolutePath)
     switch (algo) {
       case 'sha1':
-        return hash.sha1({ src: content! });
+        return hash.sha1({ src: content! })
       case 'sha256':
-        return hash.sha256({ src: content! });
+        return hash.sha256({ src: content! })
       case 'md5':
       default:
-        return hash['md5-32']({ src: content! });
+        return hash['md5-32']({ src: content! })
     }
   } catch {
-    return '';
+    return ''
   }
-};
+}
 
 /**
  * Copy a file or directory. The directory can have contents.
@@ -476,27 +498,27 @@ export const fileHashSync = async (filePath: string, algo: 'sha1' | 'sha256' | '
  */
 export const fileCopy = async (srcPath: string, destPath: string): Promise<boolean> => {
   if (!(await pathExist(srcPath))) {
-    return false;
+    return false
   }
 
   try {
-    const absoluteSrcPath = relativeToAbsolute(srcPath);
-    const absoluteDestPath = relativeToAbsolute(destPath);
+    const absoluteSrcPath = relativeToAbsolute(srcPath)
+    const absoluteDestPath = relativeToAbsolute(destPath)
 
-    const copyStat = await fileState(srcPath);
-    if (copyStat === 'unknown') return false;
-    const destDir = copyStat === 'file' ? dirname(destPath) : destPath;
-    const stats = await ensureDir(destDir);
+    const copyStat = await fileState(srcPath)
+    if (copyStat === 'unknown') return false
+    const destDir = copyStat === 'file' ? dirname(destPath) : destPath
+    const stats = await ensureDir(destDir)
     if (!stats) {
-      return false;
+      return false
     }
 
-    await fs.copy(absoluteSrcPath, absoluteDestPath, { overwrite: true });
-    return true;
+    await fs.copy(absoluteSrcPath, absoluteDestPath, { overwrite: true })
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously copy a file or directory. The directory can have contents.
@@ -506,27 +528,27 @@ export const fileCopy = async (srcPath: string, destPath: string): Promise<boole
  */
 export const fileCopySync = (srcPath: string, destPath: string): boolean => {
   if (!pathExistSync(srcPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absoluteSrcPath = relativeToAbsolute(srcPath);
-    const absoluteDestPath = relativeToAbsolute(destPath);
+    const absoluteSrcPath = relativeToAbsolute(srcPath)
+    const absoluteDestPath = relativeToAbsolute(destPath)
 
-    const copyStat = fileStateSync(srcPath);
-    if (copyStat === 'unknown') return false;
-    const destDir = copyStat === 'file' ? dirname(destPath) : destPath;
-    const stats = ensureDirSync(destDir);
+    const copyStat = fileStateSync(srcPath)
+    if (copyStat === 'unknown') return false
+    const destDir = copyStat === 'file' ? dirname(destPath) : destPath
+    const stats = ensureDirSync(destDir)
     if (!stats) {
-      return false;
+      return false
     }
 
-    fs.copySync(absoluteSrcPath, absoluteDestPath, { overwrite: true });
-    return true;
+    fs.copySync(absoluteSrcPath, absoluteDestPath, { overwrite: true })
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Move a file or directory, even across devices
@@ -536,27 +558,27 @@ export const fileCopySync = (srcPath: string, destPath: string): boolean => {
  */
 export const fileMove = async (srcPath: string, destPath: string): Promise<boolean> => {
   if (!(await pathExist(srcPath))) {
-    return false;
+    return false
   }
 
   try {
-    const absoluteSrcPath = relativeToAbsolute(srcPath);
-    const absoluteDestPath = relativeToAbsolute(destPath);
+    const absoluteSrcPath = relativeToAbsolute(srcPath)
+    const absoluteDestPath = relativeToAbsolute(destPath)
 
-    const copyStat = await fileState(srcPath);
-    if (copyStat === 'unknown') return false;
-    const destDir = copyStat === 'file' ? dirname(destPath) : destPath;
-    const stats = await ensureDir(destDir);
+    const copyStat = await fileState(srcPath)
+    if (copyStat === 'unknown') return false
+    const destDir = copyStat === 'file' ? dirname(destPath) : destPath
+    const stats = await ensureDir(destDir)
     if (!stats) {
-      return false;
+      return false
     }
 
-    await fs.move(absoluteSrcPath, absoluteDestPath, { overwrite: true });
-    return true;
+    await fs.move(absoluteSrcPath, absoluteDestPath, { overwrite: true })
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously move a file or directory, even across devices
@@ -566,27 +588,27 @@ export const fileMove = async (srcPath: string, destPath: string): Promise<boole
  */
 export const fileMoveSync = (srcPath: string, destPath: string): boolean => {
   if (!pathExistSync(srcPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absoluteSrcPath = relativeToAbsolute(srcPath);
-    const absoluteDestPath = relativeToAbsolute(destPath);
+    const absoluteSrcPath = relativeToAbsolute(srcPath)
+    const absoluteDestPath = relativeToAbsolute(destPath)
 
-    const copyStat = fileStateSync(srcPath);
-    if (copyStat === 'unknown') return false;
-    const destDir = copyStat === 'file' ? dirname(destPath) : destPath;
-    const stats = ensureDirSync(destDir);
+    const copyStat = fileStateSync(srcPath)
+    if (copyStat === 'unknown') return false
+    const destDir = copyStat === 'file' ? dirname(destPath) : destPath
+    const stats = ensureDirSync(destDir)
     if (!stats) {
-      return false;
+      return false
     }
 
-    fs.moveSync(absoluteSrcPath, absoluteDestPath, { overwrite: true });
-    return true;
+    fs.moveSync(absoluteSrcPath, absoluteDestPath, { overwrite: true })
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Rename the file or directory from oldPath to newPath
@@ -596,18 +618,18 @@ export const fileMoveSync = (srcPath: string, destPath: string): boolean => {
  */
 export const fileRename = async (filePath: string, newName: string): Promise<boolean> => {
   if (!(await pathExist(filePath))) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const newFilePath = join(dirname(absolutePath), newName);
-    await fs.rename(absolutePath, newFilePath);
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    const newFilePath = join(dirname(absolutePath), newName)
+    await fs.rename(absolutePath, newFilePath)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously rename the file or directory from oldPath to newPath
@@ -617,18 +639,18 @@ export const fileRename = async (filePath: string, newName: string): Promise<boo
  */
 export const fileRenameSync = (filePath: string, newName: string): boolean => {
   if (!pathExistSync(filePath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const newFilePath = join(dirname(absolutePath), newName);
-    fs.renameSync(absolutePath, newFilePath);
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    const newFilePath = join(dirname(absolutePath), newName)
+    fs.renameSync(absolutePath, newFilePath)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Save file (supports string and Buffer)
@@ -640,32 +662,32 @@ export const fileRenameSync = (filePath: string, newName: string): boolean => {
 export const saveFile = async (
   filePath: string,
   content: string | Buffer = '',
-  encoding: BufferEncoding = 'utf8',
+  encoding: BufferEncoding = 'utf8'
 ): Promise<boolean> => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   if (!isString(content) && !isBinary(content)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     if (isString(content)) {
-      await fs.outputFile(absolutePath, content, encoding);
-      return true;
+      await fs.outputFile(absolutePath, content, encoding)
+      return true
     } else if (isBinary(content)) {
-      const binary = Buffer.from(content);
-      await fs.outputFile(absolutePath, binary);
-      return true;
+      const binary = Buffer.from(content)
+      await fs.outputFile(absolutePath, binary)
+      return true
     }
-    return true;
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously save file (supports string and Buffer)
@@ -677,33 +699,33 @@ export const saveFile = async (
 export const saveFileSync = (
   filePath: string,
   content: string | Buffer = '',
-  encoding: BufferEncoding = 'utf8',
+  encoding: BufferEncoding = 'utf8'
 ): boolean => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   if (!isString(content) && !isBinary(content)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     if (isString(content)) {
-      fs.outputFileSync(absolutePath, content, encoding);
-      return true;
+      fs.outputFileSync(absolutePath, content, encoding)
+      return true
     } else if (isBinary(content)) {
-      const binary = Buffer.from(content);
-      fs.outputFileSync(absolutePath, binary);
-      return true;
+      const binary = Buffer.from(content)
+      fs.outputFileSync(absolutePath, binary)
+      return true
     }
 
-    return false;
+    return false
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Read file (supports string and NonSharedBuffer)
@@ -713,29 +735,30 @@ export const saveFileSync = (
  */
 export const readFile = async <T extends BufferEncoding | null = 'utf8'>(
   filePath: string,
-  encoding: T = 'utf8' as T,
+  encoding: T = 'utf8' as T
 ): Promise<T extends null ? NonSharedBuffer | null : string | null> => {
   if (!(await pathExist(filePath))) {
-    return null;
+    return null
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
-    const state = fileStateSync(absolutePath);
+    const state = fileStateSync(absolutePath)
     if (state !== 'file') {
-      return null;
+      return null
     }
 
-    const encodingFormat = encoding !== null && bufferEncoding.includes(encoding) ? encoding : null;
-    const content = encodingFormat === null
-      ? await fs.readFile(absolutePath)
-      : await fs.readFile(absolutePath, encodingFormat);
-    return content as T extends null ? NonSharedBuffer | null : string | null;
+    const encodingFormat = encoding !== null && bufferEncoding.includes(encoding) ? encoding : null
+    const content =
+      encodingFormat === null
+        ? await fs.readFile(absolutePath)
+        : await fs.readFile(absolutePath, encodingFormat)
+    return content as T extends null ? NonSharedBuffer | null : string | null
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 /**
  * Synchronously read file (supports string and NonSharedBuffer)
@@ -745,27 +768,27 @@ export const readFile = async <T extends BufferEncoding | null = 'utf8'>(
  */
 export const readFileSync = <T extends BufferEncoding | null = 'utf8'>(
   filePath: string,
-  encoding: T = 'utf8' as T,
+  encoding: T = 'utf8' as T
 ): T extends null ? NonSharedBuffer | null : string | null => {
   if (!pathExistSync(filePath)) {
-    return null;
+    return null
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
-    const state = fileStateSync(absolutePath);
+    const state = fileStateSync(absolutePath)
     if (state !== 'file') {
-      return null;
+      return null
     }
 
-    const encodingFormat = encoding !== null && bufferEncoding.includes(encoding) ? encoding : null;
-    const content = fs.readFileSync(absolutePath, { encoding: encodingFormat });
-    return content as T extends null ? NonSharedBuffer | null : string | null;
+    const encodingFormat = encoding !== null && bufferEncoding.includes(encoding) ? encoding : null
+    const content = fs.readFileSync(absolutePath, { encoding: encodingFormat })
+    return content as T extends null ? NonSharedBuffer | null : string | null
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 /**
  * Save JSON file
@@ -774,25 +797,29 @@ export const readFileSync = <T extends BufferEncoding | null = 'utf8'>(
  * @param spaces Number of spaces for indentation, defaults to 2
  * @returns Whether the save was successful
  */
-export const saveJson = async (filePath: string, content: object = {}, spaces: number = 2): Promise<boolean> => {
+export const saveJson = async (
+  filePath: string,
+  content: object = {},
+  spaces: number = 2
+): Promise<boolean> => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   if (!isJson(content)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const contentFormat = JSON5.parse(JSON.stringify(content));
-    const spacesFormat = isPositiveFiniteNumber(spaces) ? spaces : 2;
-    await fs.outputJson(absolutePath, contentFormat, { spaces: spacesFormat });
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    const contentFormat = JSON5.parse(JSON.stringify(content))
+    const spacesFormat = isPositiveFiniteNumber(spaces) ? spaces : 2
+    await fs.outputJson(absolutePath, contentFormat, { spaces: spacesFormat })
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously save JSON file
@@ -801,25 +828,29 @@ export const saveJson = async (filePath: string, content: object = {}, spaces: n
  * @param spaces Number of spaces for indentation, defaults to 2
  * @returns Whether the save was successful
  */
-export const saveJsonSync = (filePath: string, content: object = {}, spaces: number = 2): boolean => {
+export const saveJsonSync = (
+  filePath: string,
+  content: object = {},
+  spaces: number = 2
+): boolean => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   if (!isJson(content)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    const contentFormat = JSON5.parse(JSON.stringify(content));
-    const spacesFormat = isPositiveFiniteNumber(spaces) ? spaces : 2;
-    fs.outputJsonSync(absolutePath, contentFormat, { spaces: spacesFormat });
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    const contentFormat = JSON5.parse(JSON.stringify(content))
+    const spacesFormat = isPositiveFiniteNumber(spaces) ? spaces : 2
+    fs.outputJsonSync(absolutePath, contentFormat, { spaces: spacesFormat })
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Read JSON file
@@ -828,27 +859,27 @@ export const saveJsonSync = (filePath: string, content: object = {}, spaces: num
  */
 export const readJson = async (filePath: string): Promise<any | null> => {
   if (!(await pathExist(filePath))) {
-    return null;
+    return null
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     if (!(await pathExist(absolutePath))) {
-      return null;
+      return null
     }
 
-    const state = await fileState(absolutePath);
+    const state = await fileState(absolutePath)
     if (state !== 'file') {
-      return null;
+      return null
     }
 
-    const content = await fs.readJson(absolutePath);
-    return content;
+    const content = await fs.readJson(absolutePath)
+    return content
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 /**
  * Synchronously read JSON file
@@ -857,27 +888,27 @@ export const readJson = async (filePath: string): Promise<any | null> => {
  */
 export const readJsonSync = (filePath: string): any | null => {
   if (!pathExistSync(filePath)) {
-    return null;
+    return null
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     if (!pathExistSync(absolutePath)) {
-      return null;
+      return null
     }
 
-    const state = fileStateSync(absolutePath);
+    const state = fileStateSync(absolutePath)
     if (state !== 'file') {
-      return null;
+      return null
     }
 
-    const content = fs.readJsonSync(absolutePath);
-    return content;
+    const content = fs.readJsonSync(absolutePath)
+    return content
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 /**
  * Save image from base64
@@ -887,26 +918,26 @@ export const readJsonSync = (filePath: string): any | null => {
  */
 export const saveImageBase64 = async (filePath: string, base64Data: string): Promise<boolean> => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   if (!isBase64(base64Data)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
-    const base64String = base64Data.replace(/^data:.*;base64,/, '');
-    const buffer = Buffer.from(base64String, 'base64');
+    const base64String = base64Data.replace(/^data:.*;base64,/, '')
+    const buffer = Buffer.from(base64String, 'base64')
 
-    await saveFile(absolutePath, buffer);
+    await saveFile(absolutePath, buffer)
 
-    return true;
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously save image from base64
@@ -916,26 +947,26 @@ export const saveImageBase64 = async (filePath: string, base64Data: string): Pro
  */
 export const saveImageBase64Sync = (filePath: string, base64Data: string): boolean => {
   if (isStrEmpty(filePath)) {
-    return false;
+    return false
   }
 
   if (!isBase64(base64Data)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
-    const base64String = base64Data.replace(/^data:.*;base64,/, '');
-    const buffer = Buffer.from(base64String, 'base64');
+    const base64String = base64Data.replace(/^data:.*;base64,/, '')
+    const buffer = Buffer.from(base64String, 'base64')
 
-    saveFileSync(absolutePath, buffer);
+    saveFileSync(absolutePath, buffer)
 
-    return true;
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Read image file as base64
@@ -944,33 +975,33 @@ export const saveImageBase64Sync = (filePath: string, base64Data: string): boole
  */
 export const readImageBase64 = async (filePath: string): Promise<string | null> => {
   if (!(await pathExist(filePath))) {
-    return null;
+    return null
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     if (!(await pathExist(absolutePath))) {
-      return null;
+      return null
     }
 
-    const state = await fileState(absolutePath);
+    const state = await fileState(absolutePath)
     if (state !== 'file') {
-      return null;
+      return null
     }
 
-    const mimeinfo = mime.lookup(absolutePath);
+    const mimeinfo = mime.lookup(absolutePath)
     if (!mimeinfo || !mimeinfo.startsWith('image')) {
-      return null;
+      return null
     }
 
-    const ext = extname(filePath).slice(1);
-    const content = await readFile(absolutePath, 'base64');
-    return `data:${ext};base64,${content}`;
+    const ext = extname(filePath).slice(1)
+    const content = await readFile(absolutePath, 'base64')
+    return `data:${ext};base64,${content}`
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 /**
  * Synchronously read image file as base64
@@ -979,33 +1010,33 @@ export const readImageBase64 = async (filePath: string): Promise<string | null> 
  */
 export const readImageBase64Sync = (filePath: string): string | null => {
   if (!pathExistSync(filePath)) {
-    return null;
+    return null
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
+    const absolutePath = relativeToAbsolute(filePath)
 
     if (!pathExistSync(absolutePath)) {
-      return null;
+      return null
     }
 
-    const state = fileStateSync(absolutePath);
+    const state = fileStateSync(absolutePath)
     if (state !== 'file') {
-      return null;
+      return null
     }
 
-    const mimeinfo = mime.lookup(absolutePath);
+    const mimeinfo = mime.lookup(absolutePath)
     if (!mimeinfo || !mimeinfo.startsWith('image')) {
-      return null;
+      return null
     }
 
-    const ext = extname(filePath).slice(1);
-    const content = readFileSync(absolutePath, 'base64');
-    return `data:${ext};base64,${content}`;
+    const ext = extname(filePath).slice(1)
+    const content = readFileSync(absolutePath, 'base64')
+    return `data:${ext};base64,${content}`
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 /**
  * Delete file or directory
@@ -1014,17 +1045,17 @@ export const readImageBase64Sync = (filePath: string): string | null => {
  */
 export const fileDelete = async (filePath: string): Promise<boolean> => {
   if (!(await pathExist(filePath))) {
-    return true;
+    return true
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    await fs.remove(absolutePath);
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    await fs.remove(absolutePath)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously delete file or directory
@@ -1033,17 +1064,17 @@ export const fileDelete = async (filePath: string): Promise<boolean> => {
  */
 export const fileDeleteSync = (filePath: string): boolean => {
   if (!pathExistSync(filePath)) {
-    return true;
+    return true
   }
 
   try {
-    const absolutePath = relativeToAbsolute(filePath);
-    fs.removeSync(absolutePath);
-    return true;
+    const absolutePath = relativeToAbsolute(filePath)
+    fs.removeSync(absolutePath)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Read directory contents
@@ -1052,23 +1083,23 @@ export const fileDeleteSync = (filePath: string): boolean => {
  */
 export const readDir = async (dirPath: string): Promise<string[]> => {
   if (!(await pathExist(dirPath))) {
-    return [];
+    return []
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
-    const state = await fileState(absolutePath);
+    const state = await fileState(absolutePath)
     if (state === 'file') {
-      return [absolutePath];
+      return [absolutePath]
     }
 
-    const entries = await fs.readdir(absolutePath);
-    return entries;
+    const entries = await fs.readdir(absolutePath)
+    return entries
   } catch {
-    return [];
+    return []
   }
-};
+}
 
 /**
  * Read directory contents faster
@@ -1084,37 +1115,37 @@ export const readDirFaster = async (
   dirPath: string,
   depth: number = 0,
   exclude?: (path: string, isDirectory: boolean) => boolean,
-  include?: (path: string, isDirectory: boolean) => boolean,
+  include?: (path: string, isDirectory: boolean) => boolean
 ): Promise<string[]> => {
   if (!(await pathExist(dirPath))) {
-    return [];
+    return []
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
-    const state = await fileState(absolutePath);
+    const state = await fileState(absolutePath)
     if (state === 'file') {
-      return [absolutePath];
+      return [absolutePath]
     }
 
     const api = new Fdir()
       .withFullPaths()
       .withDirs()
       .filter((path: string, isDirectory: boolean) => {
-        if (!isDirectory && path.endsWith('.DS_Store')) return false;
-        if (exclude && isFunction(exclude) && exclude(path, isDirectory)) return false;
-        if (include && isFunction(include) && !include(path, isDirectory)) return false;
-        return true;
-      });
-    if (isPositiveFiniteNumber(depth)) api.withMaxDepth(depth);
+        if (!isDirectory && path.endsWith('.DS_Store')) return false
+        if (exclude && isFunction(exclude) && exclude(path, isDirectory)) return false
+        if (include && isFunction(include) && !include(path, isDirectory)) return false
+        return true
+      })
+    if (isPositiveFiniteNumber(depth)) api.withMaxDepth(depth)
 
-    const entries = await api.crawl(absolutePath).withPromise();
-    return entries;
+    const entries = await api.crawl(absolutePath).withPromise()
+    return entries
   } catch {
-    return [];
+    return []
   }
-};
+}
 
 /**
  * Synchronously read directory contents
@@ -1123,23 +1154,23 @@ export const readDirFaster = async (
  */
 export const readDirSync = (dirPath: string): Array<string> => {
   if (!pathExistSync(dirPath)) {
-    return [];
+    return []
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
-    const state = fileStateSync(absolutePath);
+    const state = fileStateSync(absolutePath)
     if (state === 'file') {
-      return [absolutePath];
+      return [absolutePath]
     }
 
-    const entries = fs.readdirSync(absolutePath);
-    return entries;
+    const entries = fs.readdirSync(absolutePath)
+    return entries
   } catch {
-    return [];
+    return []
   }
-};
+}
 
 /**
  * Synchronously read  directory contents faster
@@ -1155,37 +1186,37 @@ export const readDirFasterSync = (
   dirPath: string,
   depth: number = 0,
   exclude?: (path: string, isDirectory: boolean) => boolean,
-  include?: (path: string, isDirectory: boolean) => boolean,
+  include?: (path: string, isDirectory: boolean) => boolean
 ): string[] => {
   if (!pathExistSync(dirPath)) {
-    return [];
+    return []
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
-    const state = fileStateSync(absolutePath);
+    const state = fileStateSync(absolutePath)
     if (state === 'file') {
-      return [absolutePath];
+      return [absolutePath]
     }
 
     const api = new Fdir()
       .withFullPaths()
       .withDirs()
       .filter((path: string, isDirectory: boolean) => {
-        if (!isDirectory && path.endsWith('.DS_Store')) return false;
-        if (exclude && isFunction(exclude) && exclude(path, isDirectory)) return false;
-        if (include && isFunction(include) && !include(path, isDirectory)) return false;
-        return true;
-      });
-    if (isPositiveFiniteNumber(depth)) api.withMaxDepth(depth);
+        if (!isDirectory && path.endsWith('.DS_Store')) return false
+        if (exclude && isFunction(exclude) && exclude(path, isDirectory)) return false
+        if (include && isFunction(include) && !include(path, isDirectory)) return false
+        return true
+      })
+    if (isPositiveFiniteNumber(depth)) api.withMaxDepth(depth)
 
-    const entries = api.crawl(absolutePath).sync();
-    return entries;
+    const entries = api.crawl(absolutePath).sync()
+    return entries
   } catch {
-    return [];
+    return []
   }
-};
+}
 
 /**
  * Create directory
@@ -1194,17 +1225,17 @@ export const readDirFasterSync = (
  */
 export const createDir = async (dirPath: string): Promise<boolean> => {
   if (isStrEmpty(dirPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
-    await fs.ensureDir(absolutePath);
-    return true;
+    const absolutePath = relativeToAbsolute(dirPath)
+    await fs.ensureDir(absolutePath)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously create directory
@@ -1213,17 +1244,17 @@ export const createDir = async (dirPath: string): Promise<boolean> => {
  */
 export const createDirSync = (dirPath: string): boolean => {
   if (isStrEmpty(dirPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
-    fs.ensureDirSync(absolutePath);
-    return true;
+    const absolutePath = relativeToAbsolute(dirPath)
+    fs.ensureDirSync(absolutePath)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Get file or directory size
@@ -1235,74 +1266,76 @@ export const createDirSync = (dirPath: string): boolean => {
 export const fileSize = async (
   dirPath: string,
   ignoreLink: boolean = true,
-  unit: ISizeOption['unit'] = 'auto',
+  unit: ISizeOption['unit'] = 'auto'
 ): Promise<{ size: number; unit: string; format: string }> => {
   if (!(await pathExist(dirPath))) {
-    return { size: 0, unit: 'B', format: '0B' };
+    return { size: 0, unit: 'B', format: '0B' }
   }
 
-  const processedInodes = new Set<string | number>();
+  const processedInodes = new Set<string | number>()
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
-    const bytes = await calculateBytes(absolutePath);
-    const size = calculateSize(bytes, { unit });
+    const absolutePath = relativeToAbsolute(dirPath)
+    const bytes = await calculateBytes(absolutePath)
+    const size = calculateSize(bytes, { unit })
     const res = {
       size: size.count,
       unit: size.unit,
-      format: `${size.count}${size.unit}`,
-    };
-    return res;
+      format: `${size.count}${size.unit}`
+    }
+    return res
   } catch {
-    return { size: 0, unit: 'B', format: '0B' };
+    return { size: 0, unit: 'B', format: '0B' }
   }
 
   async function calculateBytes(itemPath: string): Promise<number> {
     if (!(await pathExist(itemPath))) {
-      return 0;
+      return 0
     }
 
     try {
       // check if it's a symbolic link
       if (ignoreLink) {
-        const linkState = await pathLink(itemPath);
+        const linkState = await pathLink(itemPath)
         if (linkState === 'link') {
-          return 0;
+          return 0
         }
       }
 
-      const stats = await fs.lstat(itemPath);
+      const stats = await fs.lstat(itemPath)
 
       // check if it's already been processed
       if (processedInodes.has(stats.ino)) {
-        return 0;
+        return 0
       }
-      processedInodes.add(stats.ino);
+      processedInodes.add(stats.ino)
 
       // If it's a file, return the size directly
       if (stats.isFile()) {
-        return stats.size;
+        return stats.size
       }
 
       // If it's a directory, recursively calculate the content size
       if (stats.isDirectory()) {
-        const entries = await readDir(itemPath);
+        const entries = await readDir(itemPath)
 
         if (!entries || entries.length === 0) {
-          return 0;
+          return 0
         }
 
-        const sizes = await Promise.all(entries.map((entry) => calculateBytes(join(itemPath, entry))));
+        const sizes = await Promise.all(
+          entries.map((entry) => calculateBytes(join(itemPath, entry)))
+        )
 
-        return sizes.reduce((total, size) => total + size, 0);
+        return sizes.reduce((total, size) => total + size, 0)
       }
 
-      return 0;
+      return 0
     } catch {
-      return 0;
+      return 0
     }
   }
-};
+}
 
 /**
  * Synchronously get file or directory size
@@ -1314,80 +1347,80 @@ export const fileSize = async (
 export const fileSizeSync = (
   dirPath: string,
   ignoreLink: boolean = true,
-  unit: ISizeOption['unit'] = 'auto',
+  unit: ISizeOption['unit'] = 'auto'
 ): { size: number; unit: string; format: string } => {
   if (!pathExistSync(dirPath)) {
-    return { size: 0, unit: 'B', format: '0B' };
+    return { size: 0, unit: 'B', format: '0B' }
   }
 
   // Track processed inodes to avoid counting hard links multiple times
-  const processedInodes = new Set<string | number>();
+  const processedInodes = new Set<string | number>()
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
-    const bytes = calculateBytesSync(absolutePath);
-    const size = calculateSize(bytes, { unit });
+    const absolutePath = relativeToAbsolute(dirPath)
+    const bytes = calculateBytesSync(absolutePath)
+    const size = calculateSize(bytes, { unit })
     const res = {
       size: size.count,
       unit: size.unit,
-      format: `${size.count}${size.unit}`,
-    };
-    return res;
+      format: `${size.count}${size.unit}`
+    }
+    return res
   } catch {
-    return { size: 0, unit: 'B', format: '0B' };
+    return { size: 0, unit: 'B', format: '0B' }
   }
 
   function calculateBytesSync(itemPath: string): number {
     if (!pathExistSync(itemPath)) {
-      return 0;
+      return 0
     }
 
     try {
       // Check if it's a symbolic link
       if (ignoreLink) {
-        const linkState = pathLinkSync(itemPath);
+        const linkState = pathLinkSync(itemPath)
         if (linkState === 'link') {
-          return 0;
+          return 0
         }
       }
 
-      const stats = fs.lstatSync(itemPath);
+      const stats = fs.lstatSync(itemPath)
 
       // Check if it's already been processed (avoid counting hard links multiple times)
       if (processedInodes.has(stats.ino)) {
-        return 0;
+        return 0
       }
-      processedInodes.add(stats.ino);
+      processedInodes.add(stats.ino)
 
       // If it's a file, return the size directly
       if (stats.isFile()) {
-        return stats.size;
+        return stats.size
       }
 
       // If it's a directory, recursively calculate the content size
       if (stats.isDirectory()) {
-        const entries = readDirSync(itemPath);
+        const entries = readDirSync(itemPath)
 
         if (!entries || entries.length === 0) {
-          return 0;
+          return 0
         }
 
         // Calculate total size by summing all entries
-        let totalSize = 0;
+        let totalSize = 0
         for (const entry of entries) {
-          const entryPath = join(itemPath, entry);
-          totalSize += calculateBytesSync(entryPath);
+          const entryPath = join(itemPath, entry)
+          totalSize += calculateBytesSync(entryPath)
         }
 
-        return totalSize;
+        return totalSize
       }
 
-      return 0;
+      return 0
     } catch {
-      return 0;
+      return 0
     }
   }
-};
+}
 
 /**
  * Ensure directory exists
@@ -1396,26 +1429,26 @@ export const fileSizeSync = (
  */
 export const ensureDir = async (dirPath: string): Promise<boolean> => {
   if (isStrEmpty(dirPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
     if (!(await pathExist(absolutePath))) {
-      await createDir(absolutePath);
+      await createDir(absolutePath)
     } else {
-      const state = await fileState(absolutePath);
+      const state = await fileState(absolutePath)
       if (state !== 'dir') {
-        await fileDelete(absolutePath);
-        await createDir(absolutePath);
+        await fileDelete(absolutePath)
+        await createDir(absolutePath)
       }
     }
-    return true;
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously ensure directory exists
@@ -1424,26 +1457,26 @@ export const ensureDir = async (dirPath: string): Promise<boolean> => {
  */
 export const ensureDirSync = (dirPath: string): boolean => {
   if (isStrEmpty(dirPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
     if (!pathExistSync(absolutePath)) {
-      createDirSync(absolutePath);
+      createDirSync(absolutePath)
     } else {
-      const state = fileStateSync(absolutePath);
+      const state = fileStateSync(absolutePath)
       if (state !== 'dir') {
-        fileDeleteSync(absolutePath);
-        createDirSync(absolutePath);
+        fileDeleteSync(absolutePath)
+        createDirSync(absolutePath)
       }
     }
-    return true;
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Clear directory contents
@@ -1452,29 +1485,29 @@ export const ensureDirSync = (dirPath: string): boolean => {
  */
 export const clearDir = async (dirPath: string): Promise<boolean> => {
   if (isStrEmpty(dirPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
     if (!(await pathExist(absolutePath))) {
-      await createDir(absolutePath);
+      await createDir(absolutePath)
     } else {
-      const state = await fileState(absolutePath);
+      const state = await fileState(absolutePath)
       if (state !== 'dir') {
-        await fileDelete(absolutePath);
-        await createDir(absolutePath);
+        await fileDelete(absolutePath)
+        await createDir(absolutePath)
       } else {
-        await fs.emptyDir(absolutePath);
+        await fs.emptyDir(absolutePath)
       }
     }
 
-    return true;
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 /**
  * Synchronously clear directory contents
@@ -1483,28 +1516,28 @@ export const clearDir = async (dirPath: string): Promise<boolean> => {
  */
 export const clearDirSync = (dirPath: string): boolean => {
   if (isStrEmpty(dirPath)) {
-    return false;
+    return false
   }
 
   try {
-    const absolutePath = relativeToAbsolute(dirPath);
+    const absolutePath = relativeToAbsolute(dirPath)
 
     if (!pathExistSync(absolutePath)) {
-      createDirSync(absolutePath);
+      createDirSync(absolutePath)
     } else {
-      const state = fileStateSync(absolutePath);
+      const state = fileStateSync(absolutePath)
       if (state !== 'dir') {
-        fileDeleteSync(absolutePath);
-        createDirSync(absolutePath);
+        fileDeleteSync(absolutePath)
+        createDirSync(absolutePath)
       } else {
-        fs.emptyDirSync(absolutePath);
+        fs.emptyDirSync(absolutePath)
       }
     }
-    return true;
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 export default {
   pathExist,
@@ -1554,5 +1587,5 @@ export default {
   ensureDir,
   ensureDirSync,
   clearDir,
-  clearDirSync,
-};
+  clearDirSync
+}
