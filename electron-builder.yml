@@ -95,7 +95,7 @@ win:
     # - target: portable
   verifyUpdateCodeSignature: false
 nsis:
-   allowToChangeInstallationDirectory: true
+  allowToChangeInstallationDirectory: true
   artifactName: ${productName}-${os}-${version}-${arch}-setup.${ext}
   buildUniversalInstaller: false
   createDesktopShortcut: always
