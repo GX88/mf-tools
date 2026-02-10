@@ -49,15 +49,15 @@ jobs:
 
       - name: Build Electron App (Windows)
         if: matrix.os == 'windows-latest'
-        run: pnpm run build:win
+        run: pnpm electron-builder --win
 
       - name: Build Electron App (macOS)
         if: matrix.os == 'macos-latest'
-        run: pnpm run build:mac
+        run: pnpm electron-builder --mac
 
       - name: Build Electron App (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: pnpm run build:linux
+        run: pnpm electron-builder --linux
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
