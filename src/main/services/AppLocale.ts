@@ -1,10 +1,10 @@
+import type { ILang, ILangWithoutSystem } from '@shared/locales'
+import type { InitOptions } from 'i18next'
 import { loggerService } from '@logger'
 import { configManager } from '@main/services/ConfigManager'
 import { LOG_MODULE } from '@shared/config/logger'
-import type { ILang, ILangWithoutSystem } from '@shared/locales'
 import { defaultLocale, fallbackLocale, langCode, messages } from '@shared/locales'
 import { app } from 'electron'
-import type { InitOptions } from 'i18next'
 import i18n, { changeLanguage, init as createI18n } from 'i18next'
 
 const logger = loggerService.withContext(LOG_MODULE.APP_LOCALE)
@@ -47,22 +47,22 @@ export class AppLocale {
    * - 根据当前默认语言（defaultLang）和 fallbackLocale 完成配置
    * - 注册 missingKeyHandler，在缺失文案时输出警告日志，便于排查
    */
-  public init(): void {
+  public async init(): Promise<void> {
     const resources = Object.fromEntries(
-      Object.entries(messages()).map(([k, v]) => [k, { translation: v }])
+      Object.entries(messages()).map(([k, v]) => [k, { translation: v }]),
     ) as InitOptions['resources']
 
-    createI18n({
+    await createI18n({
       resources,
       lng: this.defaultLang(),
       fallbackLng: fallbackLocale,
       interpolation: {
-        escapeValue: false
+        escapeValue: false,
       },
       saveMissing: true,
       missingKeyHandler: (_lngs: readonly string[], _ns: string, key: string) => {
         logger.warn(`Missing key: ${key}`)
-      }
+      },
     })
   }
 
@@ -77,7 +77,9 @@ export class AppLocale {
   public changeLocale(value: ILang): void {
     const lang = this.defaultLang(value)
 
-    if (i18n.language === lang) return
+    if (i18n.language === lang) {
+      return
+    }
 
     changeLanguage(lang, (error) => {
       if (error) {
