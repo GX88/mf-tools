@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import QuickMenu from '@renderer/src/components/quick-menu/index.vue'
 
-import { prefix } from '@renderer/src/config/global'
-import { SidebarTrigger } from '@renderer/src/components/ui/sidebar'
 import RouterControl from '@renderer/src/components/router-control/index.vue'
 import SystemControl from '@renderer/src/components/system-control/index.vue'
+import { SidebarTrigger } from '@renderer/src/components/ui/sidebar'
+import { prefix } from '@renderer/src/config/global'
+import { ref } from 'vue'
 
 const systemControlFilter = ref([])
 </script>
@@ -12,11 +13,12 @@ const systemControlFilter = ref([])
 <template>
   <div :class="[`${prefix}-header-container flex justify-between items-center w-full pl-4 pr-2`]">
     <div class="left flex items-center">
-      <sidebar-trigger class="-ml-1 no-drag-region" />
-      <router-control class="no-drag-region" />
+      <SidebarTrigger class="-ml-1 no-drag-region" />
+      <RouterControl class="no-drag-region" />
     </div>
     <div class="right">
-      <system-control :filter="systemControlFilter" />
+      <QuickMenu :filter="systemControlFilter" />
+      <SystemControl :filter="systemControlFilter" />
     </div>
   </div>
 </template>

@@ -1,11 +1,8 @@
-<script lang="ts">
-export const description = 'A login page with form and image.'
-</script>
-
 <script setup lang="ts">
+import QuickMenu from '@renderer/src/components/quick-menu/index.vue'
 import SystemControl from '@renderer/src/components/system-control/index.vue'
-import LoginForm from './components/loginForm.vue'
 import { Copyright } from 'lucide-vue-next'
+import LoginForm from './components/loginForm.vue'
 </script>
 
 <template>
@@ -13,8 +10,11 @@ import { Copyright } from 'lucide-vue-next'
     <div
       class="w-full shrink-0 relative h-10 bg-white flex items-center justify-between drag-region pr-2 pl-4"
     >
-      <img src="@renderer/src/assets/images/login/logo.png" alt="logo" class="h-5 w-auto" />
-      <SystemControl />
+      <img src="@renderer/src/assets/images/login/logo.png" alt="logo" class="h-5 w-auto">
+      <div class="flex">
+        <QuickMenu />
+        <SystemControl />
+      </div>
     </div>
     <div class="flex flex-1 flex-col items-center justify-center p-6 md:p-10 bg-white">
       <div class="w-full max-w-sm md:max-w-4xl max-h-sm md:max-h-5xl">

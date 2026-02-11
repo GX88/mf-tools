@@ -114,6 +114,7 @@
     "vite": "^7.2.6",
     "vue": "^3.5.25",
     "vue-eslint-parser": "^10.2.0",
+    "vue-i18n": "^11.2.8",
     "vue-tsc": "^3.1.6",
     "windows-release": "^7.1.0",
     "winston": "^3.19.0",

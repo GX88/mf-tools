@@ -8,7 +8,8 @@ store.use(PiniaSharedState({ type: 'native' }))
 
 export { store }
 
-export * from './modules/user'
 export * from './modules/hospital'
+export * from './modules/setting'
+export * from './modules/user'
 
 export default store
