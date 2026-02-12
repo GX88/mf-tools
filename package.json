@@ -23,6 +23,7 @@
     "postinstall": "electron-builder install-app-deps",
     "build": "npm run typecheck && electron-vite build",
     "build:check": "pnpm lint && pnpm test",
+    "commit": "git cz",
     "build:web": "npm run build",
     "build:unpack": "dotenv npm run build && electron-builder --dir",
     "build:win": "dotenv npm run build && electron-builder --win --x64 --arm64 --publish never",
@@ -78,7 +79,9 @@
     "@types/qs": "^6.14.0",
     "@vitejs/plugin-vue": "^6.0.2",
     "axios": "^1.13.4",
+    "commitizen": "^4.3.1",
     "crypto-js": "^4.2.0",
+    "cz-git": "^1.12.0",
     "dotenv-cli": "^11.0.0",
     "electron": "^39.2.6",
     "electron-builder": "^26.0.12",
@@ -128,6 +131,11 @@
       "electron",
       "esbuild"
     ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-git"
+    }
   },
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
 }
