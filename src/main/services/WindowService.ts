@@ -1,31 +1,32 @@
-import { join } from 'node:path'
-import url from 'node:url'
-
-import { app, BrowserWindow, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
-import windowStateKeeper from 'electron-window-state'
-import { merge } from 'es-toolkit'
+import { join } from 'node:path'
+import process from 'node:process'
 
+import url from 'node:url'
 import { loggerService } from '@logger'
 import { appLocale } from '@main/services/AppLocale'
-import { contextMenu } from '@main/services/ContextMenu'
 import { configManager } from '@main/services/ConfigManager'
-import { initSessionUserAgent } from '@main/services/WebviewService'
 
+import { contextMenu } from '@main/services/ContextMenu'
+import { initSessionUserAgent } from '@main/services/WebviewService'
+import { APP_DATABASE_PATH, APP_FILE_PATH } from '@main/utils/path'
+import { isDev, isLinux, isMacOS, isPackaged, isWindows } from '@main/utils/systeminfo'
+import { titleBarOverlayDark, titleBarOverlayLight } from '@shared/config/appinfo'
+
+import { IPC_CHANNEL } from '@shared/config/ipcChannel'
 import { LOG_MODULE } from '@shared/config/logger'
 import { WINDOW_NAME } from '@shared/config/windowName'
-import { titleBarOverlayDark, titleBarOverlayLight } from '@shared/config/appinfo'
-import { isUndefined } from '@shared/modules/validate'
-import { IPC_CHANNEL } from '@shared/config/ipcChannel'
 import {
   convertUriToStandard,
   ELECTRON_TAG,
   isLocalhostURI,
-  UNSAFE_HEADERS
+  UNSAFE_HEADERS,
 } from '@shared/modules/headers'
+import { isUndefined } from '@shared/modules/validate'
+import { app, BrowserWindow, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
 
-import { APP_DATABASE_PATH, APP_FILE_PATH } from '@main/utils/path'
-import { isDev, isLinux, isMacOS, isWindows, isPackaged } from '@main/utils/systeminfo'
+import windowStateKeeper from 'electron-window-state'
+import { merge } from 'es-toolkit'
 
 import iconPath from '../../../build/icon.png?asset'
 
@@ -45,7 +46,7 @@ const linuxIcon = isLinux ? nativeImage.createFromPath(iconPath) : undefined
  */
 export class WindowService {
   private static instance: WindowService | null = null
-  private winPool = new Map<string, { window: BrowserWindow | null; lastCrashTime: number }>()
+  private winPool = new Map<string, { window: BrowserWindow | null, lastCrashTime: number }>()
 
   /**
    * 获取 WindowService 单例实例
@@ -77,8 +78,8 @@ export class WindowService {
    */
   public getAllWindows(): BrowserWindow[] {
     return Array.from(this.winPool.values())
-      .map((item) => item.window!)
-      .filter((win) => win instanceof BrowserWindow)
+      .map(item => item.window!)
+      .filter(win => win instanceof BrowserWindow)
   }
 
   /**
@@ -108,7 +109,8 @@ export class WindowService {
       if (this.winPool.has(window)) {
         return this.winPool.get(window)?.window as BrowserWindow
       }
-    } else if (typeof window === 'object' && window instanceof BrowserWindow) {
+    }
+    else if (typeof window === 'object' && window instanceof BrowserWindow) {
       return window
     }
 
@@ -198,7 +200,7 @@ export class WindowService {
    */
   public showAllWindows() {
     const windows = this.getAllWindows()
-    windows.forEach((win) => this.showWindow(win))
+    windows.forEach(win => this.showWindow(win))
   }
 
   /**
@@ -225,7 +227,8 @@ export class WindowService {
       mainWindow.setOpacity(0) // don't show the minimizing animation
       mainWindow.minimize()
       return
-    } else if (isMacOS) {
+    }
+    else if (isMacOS) {
       mainWindow.hide()
       app.hide()
       return
@@ -241,7 +244,7 @@ export class WindowService {
    */
   public hideAllWindows() {
     const windows = this.getAllWindows()
-    windows.forEach((win) => this.hideWindow(win))
+    windows.forEach(win => this.hideWindow(win))
   }
 
   /**
@@ -274,7 +277,7 @@ export class WindowService {
    */
   public toggleAllWindows() {
     const windows = this.getAllWindows()
-    const isVisable = windows.some((win) => win.isVisible())
+    const isVisable = windows.some(win => win.isVisible())
 
     windows.forEach((win) => {
       isVisable ? this.hideWindow(win) : this.showWindow(win)
@@ -294,7 +297,8 @@ export class WindowService {
     if (mainWindow && !mainWindow.isDestroyed()) {
       try {
         mainWindow.close()
-      } catch {
+      }
+      catch {
         mainWindow.destroy()
       }
     }
@@ -311,7 +315,7 @@ export class WindowService {
    */
   public closeAllWindows = () => {
     const windows = this.getAllWindows()
-    windows.forEach((win) => this.closeWindow(win))
+    windows.forEach(win => this.closeWindow(win))
     this.winPool.clear()
   }
 
@@ -336,7 +340,7 @@ export class WindowService {
    */
   public reloadAllWindows(force: boolean = false) {
     const windows = this.getAllWindows()
-    windows.forEach((win) => this.reloadWindow(win, force))
+    windows.forEach(win => this.reloadWindow(win, force))
   }
 
   /**
@@ -349,18 +353,24 @@ export class WindowService {
    * 该逻辑是典型的窗口生命周期管理，与视频播放业务无关
    */
   private safeClose(mainWindow: BrowserWindow) {
-    const finish = () => {
+    let timer: NodeJS.Timeout | null = null
+
+    // 使用函数声明而不是函数表达式，避免变量提升问题
+    function finish() {
       ipcMain.removeListener(IPC_CHANNEL.WINDOW_DESTROY_RELAY, onAck)
-      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.destroy()
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.destroy()
+      }
     }
 
-    const onAck = () => {
-      if (timer) clearTimeout(timer)
+    function onAck() {
+      if (timer) {
+        clearTimeout(timer)
+      }
       finish()
     }
 
-    const timer = setTimeout(() => onAck(), 800)
-
+    timer = setTimeout(() => onAck(), 800)
     ipcMain.once(IPC_CHANNEL.WINDOW_DESTROY_RELAY, onAck)
     mainWindow.webContents.send(IPC_CHANNEL.WINDOW_DESTROY)
   }
@@ -382,7 +392,8 @@ export class WindowService {
       if (currentTime - lastCrashTime > 60 * 1000) {
         // If greater than 1 minute, restart the rendering process
         mainWindow.webContents.reload()
-      } else {
+      }
+      else {
         // If less than 1 minute, exit the application
         app.exit(1)
       }
@@ -500,22 +511,23 @@ export class WindowService {
 
       const oauthProviderUrls = ['github.com', 'catni.cn', 'pagespy.org']
 
-      if (oauthProviderUrls.some((link) => url.includes(link))) {
+      if (oauthProviderUrls.some(link => url.includes(link))) {
         return {
           action: 'allow',
           overrideBrowserWindowOptions: {
             webPreferences: {
-              partition: 'persist:webview'
-            }
-          }
+              partition: 'persist:webview',
+            },
+          },
         }
       }
 
       if (url.includes('http://file/')) {
         const fileName = url.replace('http://file/', '')
         const filePath = `${APP_FILE_PATH}/${fileName}`
-        shell.openPath(filePath).catch((error) => logger.error('Failed to open file:', error))
-      } else {
+        shell.openPath(filePath).catch(error => logger.error('Failed to open file:', error))
+      }
+      else {
         // mainWindow.webContents.send(IPC_CHANNEL.URI_BLOCKED, url);
         // shell.openExternal(details.url);
 
@@ -523,7 +535,8 @@ export class WindowService {
         if (window && !window.isDestroyed()) {
           this.showWindow(window)
           window.webContents.send(IPC_CHANNEL.BROWSER_NAVIGATE, url)
-        } else {
+        }
+        else {
           window = this.createBrowserWindow()
           window.webContents.once('did-finish-load', () => {
             setTimeout(() => {
@@ -552,7 +565,7 @@ export class WindowService {
    * - 没有与音视频播放相关的特殊 header（如 Range、DRM、HLS 等）
    */
   private setupWebRequestHeaders(mainWindow: BrowserWindow) {
-    const reqMap = new Map<number, { redirect: string; headers: Record<string, any> }>()
+    const reqMap = new Map<number, { redirect: string, headers: Record<string, any> }>()
 
     mainWindow.webContents.session.webRequest.onBeforeRequest(
       { urls: ['*://*/*'] },
@@ -560,7 +573,7 @@ export class WindowService {
         const { id, url } = details
 
         // Block devtools detector requests
-        if (['devtools-detector', 'disable-devtool'].some((f) => url.includes(f))) {
+        if (['devtools-detector', 'disable-devtool'].some(f => url.includes(f))) {
           callback({ cancel: true })
           return
         }
@@ -569,23 +582,26 @@ export class WindowService {
         if (headers && Object.keys(headers).length && url !== redirect) {
           reqMap.set(id, { redirect, headers })
           callback({ cancel: false, redirectURL: redirect })
-        } else {
+        }
+        else {
           callback({ cancel: false })
         }
-      }
+      },
     )
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
       const { id, requestHeaders, url } = details
       const customHeaders = reqMap.has(id) ? reqMap.get(id)!.headers : {}
-      if (reqMap.has(id)) reqMap.delete(id)
+      if (reqMap.has(id)) {
+        reqMap.delete(id)
+      }
 
       UNSAFE_HEADERS.forEach((key) => {
         requestHeaders[key] = !isUndefined(customHeaders[key])
           ? customHeaders[key]
           : !isUndefined(requestHeaders[`${ELECTRON_TAG}-${key}`])
-            ? requestHeaders[`${ELECTRON_TAG}-${key}`]
-            : requestHeaders[key]
+              ? requestHeaders[`${ELECTRON_TAG}-${key}`]
+              : requestHeaders[key]
         delete requestHeaders[`${ELECTRON_TAG}-${key}`]
 
         if (key === 'User-Agent' && requestHeaders[key]?.includes(ELECTRON_TAG)) {
@@ -607,8 +623,9 @@ export class WindowService {
       }
 
       // Handle redirect mode
-      if (requestHeaders.Redirect === 'manual')
+      if (requestHeaders.Redirect === 'manual') {
         reqMap.set(id, { redirect: url, headers: requestHeaders })
+      }
 
       callback({ requestHeaders })
     })
@@ -619,24 +636,26 @@ export class WindowService {
         const { id, responseHeaders } = details
 
         // Frame
-        ;['X-Frame-Options', 'x-frame-options'].forEach((key) => delete responseHeaders?.[key])
+        ;['X-Frame-Options', 'x-frame-options'].forEach(key => delete responseHeaders?.[key])
 
         // Content-Security-Policy
         ;['Content-Security-Policy', 'content-security-policy'].forEach(
-          (key) => delete responseHeaders?.[key]
+          key => delete responseHeaders?.[key],
         )
 
         // Set-Cookie
         ;['Set-Cookie', 'set-cookie'].forEach((key) => {
           if (responseHeaders?.[key]) {
-            responseHeaders[key] = responseHeaders![key].map((ck) => `${ck}; SameSite=None; Secure`)
+            responseHeaders[key] = responseHeaders![key].map(ck => `${ck}; SameSite=None; Secure`)
           }
         })
 
-        if (reqMap.has(id)) reqMap.delete(id)
+        if (reqMap.has(id)) {
+          reqMap.delete(id)
+        }
 
         callback({ cancel: false, responseHeaders })
-      }
+      },
     )
   }
 
@@ -715,7 +734,7 @@ export class WindowService {
    */
   public createWindow(
     windowName: string,
-    options?: BrowserWindowConstructorOptions
+    options?: BrowserWindowConstructorOptions,
   ): BrowserWindow {
     let mainWindow = this.getWindow(windowName)
 
@@ -747,11 +766,11 @@ export class WindowService {
             sandbox: false,
             spellcheck: false,
             webSecurity: false,
-            zoomFactor: configManager.zoom
-          }
+            zoomFactor: configManager.zoom,
+          },
         },
-        options || {}
-      )
+        options || {},
+      ),
     )
 
     // 开发阶段调整 DevTools 字体、注册右键菜单与崩溃监控
@@ -786,10 +805,10 @@ export class WindowService {
     const mainWindowState = windowStateKeeper({
       path: APP_DATABASE_PATH,
       file: `${WINDOW_NAME.MAIN}-window-state.json`,
-      defaultWidth: 1000,
-      defaultHeight: 640,
+      defaultWidth: 1024,
+      defaultHeight: 810,
       fullScreen: false,
-      maximize: false
+      maximize: false,
     })
 
     const mainWindow = this.createWindow(WINDOW_NAME.MAIN, {
@@ -812,10 +831,10 @@ export class WindowService {
             titleBarOverlay: nativeTheme.shouldUseDarkColors
               ? titleBarOverlayDark
               : titleBarOverlayLight,
-            trafficLightPosition: { x: 8, y: 14 }
+            trafficLightPosition: { x: 8, y: 14 },
           }
         : {
-            frame: false // Frameless window for Windows and Linux
+            frame: false, // Frameless window for Windows and Linux
           }),
       backgroundColor: isMacOS
         ? undefined
@@ -824,8 +843,8 @@ export class WindowService {
           : '#FFFFFF',
       darkTheme: nativeTheme.shouldUseDarkColors,
       webPreferences: {
-        webviewTag: true
-      }
+        webviewTag: true,
+      },
     })
 
     mainWindowState.manage(mainWindow)
@@ -837,7 +856,8 @@ export class WindowService {
     // 开发模式走 Vite dev server，生产环境加载打包后的 index.html
     if (!isPackaged && process.env.ELECTRON_RENDERER_URL) {
       mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
-    } else {
+    }
+    else {
       mainWindow.loadFile(join(import.meta.dirname, '../renderer/index.html'))
     }
 
@@ -861,12 +881,12 @@ export class WindowService {
       defaultWidth: 1000,
       defaultHeight: 640,
       fullScreen: false,
-      maximize: false
+      maximize: false,
     })
 
     const mainWindow = this.createWindow(WINDOW_NAME.BROWSER, {
-      minWidth: 1024,
-      minHeight: 740,
+      minWidth: 1000,
+      minHeight: 640,
       show: false,
       autoHideMenuBar: true,
       transparent: false,
@@ -880,10 +900,10 @@ export class WindowService {
             titleBarOverlay: nativeTheme.shouldUseDarkColors
               ? titleBarOverlayDark
               : titleBarOverlayLight,
-            trafficLightPosition: { x: 8, y: 14 }
+            trafficLightPosition: { x: 8, y: 14 },
           }
         : {
-            frame: false // Frameless window for Windows and Linux
+            frame: false, // Frameless window for Windows and Linux
           }),
       backgroundColor: isMacOS
         ? undefined
@@ -892,8 +912,8 @@ export class WindowService {
           : '#FFFFFF',
       darkTheme: nativeTheme.shouldUseDarkColors,
       webPreferences: {
-        webviewTag: true
-      }
+        webviewTag: true,
+      },
     })
 
     mainWindowState.manage(mainWindow)
@@ -911,14 +931,15 @@ export class WindowService {
     // 为浏览器窗口指定默认加载的 hash 路由为 #/browser
     if (!isPackaged && process.env.ELECTRON_RENDERER_URL) {
       mainWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL}/#/browser`)
-    } else {
+    }
+    else {
       mainWindow.loadURL(
         url.format({
           pathname: join(import.meta.dirname, '../renderer/index.html'),
           protocol: 'file:',
           slashes: true,
-          hash: 'browser'
-        })
+          hash: 'browser',
+        }),
       )
     }
 

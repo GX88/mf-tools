@@ -1,25 +1,14 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useUserStore } from '@renderer/src/store/modules/user'
 import type { HTMLAttributes } from 'vue'
-import { cn } from '@renderer/src/lib/utils'
-import { Button } from '@renderer/src/components/ui/button'
-import { Card, CardContent } from '@renderer/src/components/ui/card'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator
-} from '@renderer/src/components/ui/field'
-import { Input } from '@renderer/src/components/ui/input'
-import { REGEXP_ONLY_DIGITS } from 'vue-input-otp'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@renderer/src/components/ui/input-otp'
 import BaseApi from '@renderer/src/api/base'
-import { toast } from 'vue-sonner'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@renderer/src/components/ui/input-otp'
+
+import { cn } from '@renderer/src/lib/utils'
+import { useUserStore } from '@renderer/src/store/modules/user'
 import { IPC_CHANNEL } from '@shared/config/ipcChannel'
 import { md5 } from '@shared/modules/crypto'
+import { REGEXP_ONLY_DIGITS } from 'vue-input-otp'
+import { toast } from 'vue-sonner'
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
@@ -35,7 +24,7 @@ const code = ref('')
 
 const smsCodeSent = ref(true)
 
-const handleLogin = async (e: Event) => {
+async function handleLogin(e: Event) {
   e.preventDefault()
   const timestamp = Date.now().toString()
   userStore.login({
@@ -43,7 +32,7 @@ const handleLogin = async (e: Event) => {
     password: md5(password.value),
     code: code.value,
     sign: await handleGetDeviceId(timestamp),
-    timestamp
+    timestamp,
   })
 
   toast.success('登录成功')
@@ -52,12 +41,12 @@ const handleLogin = async (e: Event) => {
   router.push(redirect)
 }
 
-const getSmsCode = async () => {
+async function getSmsCode() {
   const timestamp = Date.now().toString()
   await BaseApi.smsCode({
     phone: username.value,
     sign: await handleGetDeviceId(timestamp),
-    timestamp
+    timestamp,
   })
   toast.success('短信验证码已发送')
 }
@@ -68,10 +57,10 @@ watch(username, (newValue) => {
   }
 })
 
-const handleGetDeviceId = async (timestamp: string) => {
+async function handleGetDeviceId(timestamp: string) {
   const deviceId = (await window.electron.ipcRenderer.invoke(
     IPC_CHANNEL.DEVICE_ID,
-    timestamp
+    timestamp,
   )) as string
   return deviceId
 }
@@ -84,29 +73,37 @@ const handleGetDeviceId = async (timestamp: string) => {
         <form class="p-6 md:p-8" @submit="handleLogin">
           <FieldGroup>
             <div class="flex flex-col items-center gap-2 text-center">
-              <h1 class="text-2xl font-bold">欢迎使用</h1>
-              <p class="text-muted-foreground text-balance">登录到您的铭方身份账户</p>
+              <h1 class="text-2xl font-bold">
+                欢迎使用
+              </h1>
+              <p class="text-muted-foreground text-balance">
+                登录到您的铭方身份账户
+              </p>
             </div>
             <Field>
-              <FieldLabel for="email"> 账号 </FieldLabel>
+              <FieldLabel for="email">
+                账号
+              </FieldLabel>
               <Input
                 id="username"
+                v-model="username"
                 type="phone"
                 placeholder="请输入账号"
-                v-model="username"
                 required
               />
             </Field>
             <Field>
               <div class="flex items-center">
-                <FieldLabel for="code"> 短信验证码 </FieldLabel>
+                <FieldLabel for="code">
+                  短信验证码
+                </FieldLabel>
               </div>
               <div class="flex items-center justify-between">
                 <InputOTP
+                  v-model="code"
                   :maxlength="6"
                   :pattern="REGEXP_ONLY_DIGITS"
                   class="w-full"
-                  v-model="code"
                 >
                   <InputOTPGroup :class="cn('flex items-center justify-between w-full')">
                     <InputOTPSlot :index="0" class="w-full" />
@@ -124,21 +121,25 @@ const handleGetDeviceId = async (timestamp: string) => {
             </Field>
             <Field>
               <div class="flex items-center">
-                <FieldLabel for="password"> 密码 </FieldLabel>
+                <FieldLabel for="password">
+                  密码
+                </FieldLabel>
                 <a href="#" class="ml-auto text-sm underline-offset-2 hover:underline">
                   忘记密码?
                 </a>
               </div>
               <Input
                 id="password"
+                v-model="password"
                 type="password"
                 placeholder="请输入密码"
                 required
-                v-model="password"
               />
             </Field>
             <Field>
-              <Button type="submit"> 登录 </Button>
+              <Button type="submit">
+                登录
+              </Button>
             </Field>
             <FieldSeparator class="*:data-[slot=field-separator-content]:bg-card tracking-wider">
               其他登录方式
@@ -183,7 +184,7 @@ const handleGetDeviceId = async (timestamp: string) => {
             src="@renderer/src/assets/images/login/placeholder.svg"
             alt="Image"
             class="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-          />
+          >
         </div>
       </CardContent>
     </Card>

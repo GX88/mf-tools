@@ -1,13 +1,6 @@
 import type { ILangWithoutSystem } from '@shared/locales'
 import type { Composer } from 'vue-i18n'
-import {
-  defaultLocale,
-  fallbackLocale,
-
-  lang,
-  langCode,
-  messages,
-} from '@shared/locales'
+import { defaultLocale, fallbackLocale, lang, langCode, messages } from '@shared/locales'
 import { usePreferredLanguages } from '@vueuse/core'
 import { computed } from 'vue'
 import { createI18n } from 'vue-i18n'
