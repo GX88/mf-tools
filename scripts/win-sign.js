@@ -1,5 +1,5 @@
-const { execSync } = require('node:child_process')
-const process = require('node:process')
+import { execSync } from 'node:child_process'
+import process from 'node:process'
 
 async function sign(configuration) {
   // Always log to indicate the custom script is loaded
