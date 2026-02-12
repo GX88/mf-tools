@@ -31,7 +31,7 @@ const platformToArch = {
   linuxmusl: 'linuxmusl',
 }
 
-exports.default = async function (context) {
+export default async function (context) {
   const arch = context.arch === Arch.arm64 ? 'arm64' : 'x64'
   const platformName = context.packager.platform.name
   const platform = platformToArch[platformName]

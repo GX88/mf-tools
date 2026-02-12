@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 import process from 'node:process'
 
-async function sign(configuration) {
+export default async function sign(configuration) {
   // Always log to indicate the custom script is loaded
   console.log('  • Custom sign script executing for:', configuration.path)
 
@@ -33,6 +33,3 @@ async function sign(configuration) {
     console.log('  • WIN_SIGN not set, skipping custom signing logic.')
   }
 }
-
-module.exports = sign
-module.exports.default = sign

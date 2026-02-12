@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-exports.default = function (buildResult) {
+export default function (buildResult) {
   try {
     console.log('  • building completed  rename artifact file...')
     if (!buildResult.file.includes(' ')) {

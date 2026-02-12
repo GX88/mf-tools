@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-exports.default = async function notarizing(context) {
+export default async function notarizing(context) {
   if (context.electronPlatformName !== 'darwin') {
     return
   }
