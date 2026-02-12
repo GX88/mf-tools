@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue'
 import BaseApi from '@renderer/src/api/base'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@renderer/src/components/ui/input-otp'
 
 import { cn } from '@renderer/src/lib/utils'
-import { useUserStore } from '@renderer/src/store/modules/user'
+import { t } from '@renderer/src/locales'
 import { IPC_CHANNEL } from '@shared/config/ipcChannel'
 import { md5 } from '@shared/modules/crypto'
 import { REGEXP_ONLY_DIGITS } from 'vue-input-otp'
@@ -23,37 +22,81 @@ const password = ref('')
 const code = ref('')
 
 const smsCodeSent = ref(true)
+const isLoggingIn = ref(false)
+const isSendingCode = ref(false)
+const smsCountdown = ref(0)
+let smsTimer: number | null = null
 
 async function handleLogin(e: Event) {
   e.preventDefault()
-  const timestamp = Date.now().toString()
-  userStore.login({
-    account: username.value,
-    password: md5(password.value),
-    code: code.value,
-    sign: await handleGetDeviceId(timestamp),
-    timestamp,
-  })
+  if (isLoggingIn.value) {
+    return
+  }
+  isLoggingIn.value = true
+  try {
+    const timestamp = Date.now().toString()
+    await userStore.login({
+      account: username.value,
+      password: md5(password.value),
+      code: code.value,
+      sign: await handleGetDeviceId(timestamp),
+      timestamp,
+    })
 
-  toast.success('登录成功')
+    toast.success(t('login.message.success'))
 
-  const redirect = (route.query.redirect as string) || '/'
-  router.push(redirect)
+    const redirect = (route.query.redirect as string) || '/'
+    router.push(redirect)
+  }
+  finally {
+    isLoggingIn.value = false
+  }
 }
 
 async function getSmsCode() {
-  const timestamp = Date.now().toString()
-  await BaseApi.smsCode({
-    phone: username.value,
-    sign: await handleGetDeviceId(timestamp),
-    timestamp,
-  })
-  toast.success('短信验证码已发送')
+  if (isSendingCode.value || smsCountdown.value > 0 || !username.value || !username.value.trim()) {
+    return
+  }
+
+  isSendingCode.value = true
+  try {
+    const timestamp = Date.now().toString()
+    await BaseApi.smsCode({
+      phone: username.value,
+      sign: await handleGetDeviceId(timestamp),
+      timestamp,
+    })
+    toast.success(t('login.message.smsSent'))
+
+    smsCodeSent.value = true
+    smsCountdown.value = 60
+    if (smsTimer !== null) {
+      clearInterval(smsTimer)
+    }
+    smsTimer = window.setInterval(() => {
+      smsCountdown.value -= 1
+      if (smsCountdown.value <= 0) {
+        smsCountdown.value = 0
+        smsCodeSent.value = false
+        if (smsTimer !== null) {
+          clearInterval(smsTimer)
+          smsTimer = null
+        }
+      }
+    }, 1000)
+  }
+  finally {
+    isSendingCode.value = false
+  }
 }
 
 watch(username, (newValue) => {
-  if (newValue && newValue.trim() !== '') {
+  const hasUsername = !!newValue && newValue.trim() !== ''
+  if (hasUsername && smsCountdown.value === 0) {
     smsCodeSent.value = false
+  }
+  if (!hasUsername) {
+    smsCodeSent.value = true
   }
 })
 
@@ -74,28 +117,28 @@ async function handleGetDeviceId(timestamp: string) {
           <FieldGroup>
             <div class="flex flex-col items-center gap-2 text-center">
               <h1 class="text-2xl font-bold">
-                欢迎使用
+                {{ $t('login.title') }}
               </h1>
               <p class="text-muted-foreground text-balance">
-                登录到您的铭方身份账户
+                {{ $t('login.subTitle') }}
               </p>
             </div>
             <Field>
-              <FieldLabel for="email">
-                账号
+              <FieldLabel for="username">
+                {{ $t('login.username') }}
               </FieldLabel>
               <Input
                 id="username"
                 v-model="username"
                 type="phone"
-                placeholder="请输入账号"
+                :placeholder="$t('login.username_placeholder')"
                 required
               />
             </Field>
             <Field>
               <div class="flex items-center">
                 <FieldLabel for="code">
-                  短信验证码
+                  {{ $t('login.code') }}
                 </FieldLabel>
               </div>
               <div class="flex items-center justify-between">
@@ -114,35 +157,47 @@ async function handleGetDeviceId(timestamp: string) {
                     <InputOTPSlot :index="5" class="w-full" />
                   </InputOTPGroup>
                 </InputOTP>
-                <Button type="button" class="ml-2" :disabled="smsCodeSent" @click="getSmsCode">
-                  {{ smsCodeSent ? '重新发送' : '获取验证码' }}
+                <Button
+                  type="button"
+                  class="ml-2"
+                  :disabled="smsCodeSent || isSendingCode"
+                  @click="getSmsCode"
+                >
+                  <Spinner v-if="isSendingCode" class="mr-2 animate-spin" />
+                  <span v-if="smsCountdown > 0"> {{ smsCountdown }}s </span>
+                  <span v-else>
+                    {{ $t('login.button.getCode') }}
+                  </span>
                 </Button>
               </div>
             </Field>
             <Field>
               <div class="flex items-center">
                 <FieldLabel for="password">
-                  密码
+                  {{ $t('login.password') }}
                 </FieldLabel>
                 <a href="#" class="ml-auto text-sm underline-offset-2 hover:underline">
-                  忘记密码?
+                  {{ $t('login.forgotPassword') }}
                 </a>
               </div>
               <Input
                 id="password"
                 v-model="password"
                 type="password"
-                placeholder="请输入密码"
+                :placeholder="$t('login.password_placeholder')"
                 required
               />
             </Field>
             <Field>
-              <Button type="submit">
-                登录
+              <Button type="submit" :disabled="isLoggingIn">
+                <Spinner v-if="isLoggingIn" class="mr-2 animate-spin" />
+                <span>
+                  {{ $t('login.button.submit') }}
+                </span>
               </Button>
             </Field>
             <FieldSeparator class="*:data-[slot=field-separator-content]:bg-card tracking-wider">
-              其他登录方式
+              {{ $t('login.otherLogin') }}
             </FieldSeparator>
             <Field class="grid grid-cols-3 gap-4">
               <Button variant="outline" type="button" disabled>
@@ -174,8 +229,10 @@ async function handleGetDeviceId(timestamp: string) {
               </Button>
             </Field>
             <FieldDescription class="text-center">
-              还没有账号？
-              <a href="#"> 注册 </a>
+              {{ $t('login.registerTip') }}
+              <a href="#" class="underline-offset-2 hover:underline">
+                {{ $t('login.registerLink') }}
+              </a>
             </FieldDescription>
           </FieldGroup>
         </form>

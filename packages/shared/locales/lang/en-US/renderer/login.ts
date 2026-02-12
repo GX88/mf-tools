@@ -1,0 +1,26 @@
+export default {
+  title: 'Welcome',
+  subTitle: 'Sign in to your MingFang account',
+  username: 'Account',
+  username_placeholder: 'Enter your account number',
+  password: 'Password',
+  password_placeholder: 'Enter your password',
+  forgotPassword: 'Forgot password?',
+  code: 'SMS Code',
+  otherLogin: 'Other login methods',
+  registerTip: 'Don\'t have an account?',
+  registerLink: 'Register',
+  copyright: '2026 MingFang Nutrition Technology Co., Ltd.',
+  terms: 'By using this software, you agree to our',
+  termsService: 'Terms of Service',
+  privacyPolicy: 'Privacy Policy',
+  button: {
+    getCode: 'Get code',
+    resendCode: 'Resend code',
+    submit: 'Sign in',
+  },
+  message: {
+    success: 'Login successful',
+    smsSent: 'SMS verification code sent',
+  },
+}

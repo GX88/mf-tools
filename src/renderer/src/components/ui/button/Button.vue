@@ -1,20 +1,25 @@
 <script setup lang="ts">
+import type { I18nTextProps } from '@renderer/src/locales'
 import type { PrimitiveProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 import type { ButtonVariants } from '.'
-import { Primitive } from 'reka-ui'
 import { cn } from '@renderer/src/lib/utils'
+import { resolveI18nText } from '@renderer/src/locales'
+import { Primitive } from 'reka-ui'
+import { computed } from 'vue'
 import { buttonVariants } from '.'
 
-interface Props extends PrimitiveProps {
+interface Props extends PrimitiveProps, I18nTextProps {
   variant?: ButtonVariants['variant']
   size?: ButtonVariants['size']
   class?: HTMLAttributes['class']
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  as: 'button'
+  as: 'button',
 })
+
+const labelText = computed(() => resolveI18nText(props))
 </script>
 
 <template>
@@ -24,6 +29,9 @@ const props = withDefaults(defineProps<Props>(), {
     :as-child="asChild"
     :class="cn(buttonVariants({ variant, size }), props.class)"
   >
-    <slot />
+    <slot v-if="$slots.default" />
+    <template v-else>
+      {{ labelText }}
+    </template>
   </Primitive>
 </template>

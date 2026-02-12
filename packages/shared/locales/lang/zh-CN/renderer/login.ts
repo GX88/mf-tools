@@ -1,0 +1,26 @@
+export default {
+  title: '欢迎使用',
+  subTitle: '登录到您的铭方身份账户',
+  username: '账号',
+  username_placeholder: '请输入账号',
+  password: '密码',
+  password_placeholder: '请输入密码',
+  forgotPassword: '忘记密码？',
+  code: '短信验证码',
+  otherLogin: '其他登录方式',
+  registerTip: '还没有账号？',
+  registerLink: '注册',
+  copyright: '2026 山西铭方营养科技有限公司',
+  terms: '使用本软件即表示您同意我们的',
+  termsService: '服务条款',
+  privacyPolicy: '隐私政策',
+  button: {
+    getCode: '获取验证码',
+    resendCode: '重新发送',
+    submit: '登录',
+  },
+  message: {
+    success: '登录成功',
+    smsSent: '短信验证码已发送',
+  },
+}

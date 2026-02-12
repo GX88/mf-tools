@@ -143,6 +143,7 @@ export default {
     noRequiredParam: '缺少必要参数{0}',
     errRequiredParam: '必要参数{0}格式错误',
     installing: '正在安装, 请稍后刷新查看...',
+    logoutSuccess: '退出成功',
   },
   popup: {
     delete: '确认删除吗?',
@@ -154,5 +155,9 @@ export default {
     noSelect: '请选择数据源',
     complete: '人家是有底线的',
     error: '哎呀，出了点差错',
+  },
+  requestError: {
+    timeout: '请求超时，请稍后重试',
+    network: '网络错误，请检查网络连接',
   },
 }

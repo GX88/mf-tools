@@ -7,7 +7,9 @@ export default antfu(
   },
   {
     rules: {
-      'eslint-comments/no-unlimited-disable': 'off',
+      'eslint-comments/no-unlimited-disable': 'off', // 禁止使用无限禁用注释
+      'no-irregular-whitespace': 'off', // 禁止不规则的空格
+      'style/max-statements-per-line': ['error', { max: 3 }], // 限制每行最大语句数为 3
       'curly': ['error', 'all'],
       'ts/no-unused-expressions': [
         'error',

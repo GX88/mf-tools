@@ -1,26 +1,20 @@
-import Axios, {
-  type AxiosInstance,
-  type AxiosRequestConfig,
-  type CustomParamsSerializer,
-  type AxiosResponse,
-  type InternalAxiosRequestConfig,
-  type Method,
-  type AxiosError
-} from 'axios'
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, CustomParamsSerializer, InternalAxiosRequestConfig, Method } from 'axios'
+import { t } from '@renderer/src/locales'
+import { useUserStore } from '@renderer/src/store'
+import Axios from 'axios'
 import { stringify } from 'qs'
 import { toast } from 'vue-sonner'
-import { useUserStore } from '@renderer/src/store'
 
 // 基础配置
 const defaultConfig: AxiosRequestConfig = {
   baseURL: 'http://192.168.1.175:9911/',
   timeout: 6000,
   headers: {
-    'Content-Type': 'application/json;charset=utf-8'
+    'Content-Type': 'application/json;charset=utf-8',
   },
   paramsSerializer: {
-    serialize: stringify as unknown as CustomParamsSerializer
-  }
+    serialize: stringify as unknown as CustomParamsSerializer,
+  },
 }
 
 // 响应数据基础结构
@@ -80,18 +74,18 @@ class HttpClient {
   private initInterceptors(interceptors?: InterceptorsConfig): void {
     this.initRequestInterceptor(
       interceptors?.requestInterceptor,
-      interceptors?.requestErrorInterceptor
+      interceptors?.requestErrorInterceptor,
     )
     this.initResponseInterceptor(
       interceptors?.responseInterceptor,
-      interceptors?.responseErrorInterceptor
+      interceptors?.responseErrorInterceptor,
     )
   }
 
   /** 初始化请求拦截器 */
   private initRequestInterceptor(
     customInterceptor?: InterceptorsConfig['requestInterceptor'],
-    customErrorInterceptor?: InterceptorsConfig['requestErrorInterceptor']
+    customErrorInterceptor?: InterceptorsConfig['requestErrorInterceptor'],
   ): void {
     // 默认请求拦截器
     const defaultInterceptor = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
@@ -123,19 +117,19 @@ class HttpClient {
     // 优先使用自定义拦截器，否则使用默认拦截器
     this.requestInterceptorId = this.instance.interceptors.request.use(
       customInterceptor || defaultInterceptor,
-      customErrorInterceptor || defaultErrorInterceptor
+      customErrorInterceptor || defaultErrorInterceptor,
     )
   }
 
   /** 初始化响应拦截器 */
   private initResponseInterceptor(
     customInterceptor?: InterceptorsConfig['responseInterceptor'],
-    customErrorInterceptor?: InterceptorsConfig['responseErrorInterceptor']
+    customErrorInterceptor?: InterceptorsConfig['responseErrorInterceptor'],
   ): void {
     // 默认响应拦截器
     const defaultInterceptor = (response: AxiosResponse<ResponseData<any>>) => {
       const requestKey = this.getRequestKey(response.config)
-      if (requestKey) this.abortControllers.delete(requestKey)
+      if (requestKey) { this.abortControllers.delete(requestKey) }
 
       /* 在这里写响应拦截器的默认业务逻辑 */
       // 示例: 处理不同的响应码
@@ -161,7 +155,7 @@ class HttpClient {
     const defaultErrorInterceptor = (error: AxiosError): Promise<any> => {
       if (error.config) {
         const requestKey = this.getRequestKey(error.config)
-        if (requestKey) this.abortControllers.delete(requestKey)
+        if (requestKey) { this.abortControllers.delete(requestKey) }
       }
 
       // 处理请求被取消的情况
@@ -173,14 +167,16 @@ class HttpClient {
       // 网络错误处理
       if (!(error as AxiosError).response) {
         if (
-          (error as any).code === 'ECONNABORTED' ||
-          (error as AxiosError).message?.includes('timeout')
+          (error as any).code === 'ECONNABORTED'
+          || (error as AxiosError).message?.includes('timeout')
         ) {
-          toast.error('请求超时，请稍后重试')
-          return Promise.reject(new Error('请求超时，请稍后重试'))
+          const message = t('common.requestError.timeout')
+          toast.error(message, { position: 'top-center' })
+          return Promise.reject(new Error(message))
         }
-        toast.error('网络错误，请检查网络连接')
-        return Promise.reject(new Error('网络错误，请检查网络连接'))
+        const message = t('common.requestError.network')
+        toast.error(message, { position: 'top-center' })
+        return Promise.reject(new Error(message))
       }
 
       // HTTP状态码错误处理
@@ -194,7 +190,7 @@ class HttpClient {
         500: '服务器内部错误',
         502: '网关错误',
         503: '服务暂不可用',
-        504: '网关超时'
+        504: '网关超时',
       }
 
       const message = commonErrors[status || 0] || `请求失败 (状态码：${status || 0})`
@@ -204,23 +200,23 @@ class HttpClient {
     // 优先使用自定义拦截器，否则使用默认拦截器
     this.responseInterceptorId = this.instance.interceptors.response.use(
       customInterceptor || defaultInterceptor,
-      customErrorInterceptor || defaultErrorInterceptor
+      customErrorInterceptor || defaultErrorInterceptor,
     )
   }
 
   /** 生成请求唯一标识 */
   private getRequestKey(config: AxiosRequestConfig): RequestKey | undefined {
-    if (!config.url) return undefined
+    if (!config.url) { return undefined }
     return `${config.method?.toUpperCase()}-${config.url}`
   }
 
   /** 设置取消控制器 - 用于取消重复请求或主动取消请求 */
   private setupCancelController(
     config: AxiosRequestConfig,
-    requestKey?: RequestKey
+    requestKey?: RequestKey,
   ): AxiosRequestConfig {
     const key = requestKey || this.getRequestKey(config)
-    if (!key) return config
+    if (!key) { return config }
 
     // 如果已有相同key的请求，先取消它
     this.cancelRequest(key)
@@ -230,7 +226,7 @@ class HttpClient {
 
     return {
       ...config,
-      signal: controller.signal
+      signal: controller.signal,
     }
   }
 
@@ -253,7 +249,7 @@ class HttpClient {
   /** 动态设置请求拦截器 */
   public setRequestInterceptor(
     customInterceptor?: InterceptorsConfig['requestInterceptor'],
-    customErrorInterceptor?: InterceptorsConfig['requestErrorInterceptor']
+    customErrorInterceptor?: InterceptorsConfig['requestErrorInterceptor'],
   ): void {
     this.removeRequestInterceptor()
     this.initRequestInterceptor(customInterceptor, customErrorInterceptor)
@@ -262,7 +258,7 @@ class HttpClient {
   /** 动态设置响应拦截器 */
   public setResponseInterceptor(
     customInterceptor?: InterceptorsConfig['responseInterceptor'],
-    customErrorInterceptor?: InterceptorsConfig['responseErrorInterceptor']
+    customErrorInterceptor?: InterceptorsConfig['responseErrorInterceptor'],
   ): void {
     this.removeResponseInterceptor()
     this.initResponseInterceptor(customInterceptor, customErrorInterceptor)
@@ -314,7 +310,7 @@ class HttpClient {
    * @param ms 毫秒数
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
   /**
@@ -327,7 +323,7 @@ class HttpClient {
   public async request<T = any>(
     method: Method,
     url: string,
-    config?: AxiosRequestConfig & { requestKey?: RequestKey; retry?: RetryConfig }
+    config?: AxiosRequestConfig & { requestKey?: RequestKey, retry?: RetryConfig },
   ): Promise<ResponseData<T>> {
     const { requestKey, retry, ...restConfig } = config || {}
 
@@ -341,7 +337,7 @@ class HttpClient {
       retries: 0,
       retryDelay: 1000,
       retryCondition: defaultRetryCondition,
-      ...retry
+      ...retry,
     }
 
     let lastError: any
@@ -367,14 +363,15 @@ class HttpClient {
         // console.log(`[${method.toUpperCase()}] ${url} 响应:`, response.data);
 
         return response.data
-      } catch (error) {
+      }
+      catch (error) {
         lastError = error
 
         // 如果是最后一次尝试或不满足重试条件或请求被取消，直接抛出错误
         if (
-          attempt === retryConfig.retries ||
-          !retryConfig.retryCondition(error as AxiosError) ||
-          HttpClient.isCancel(error)
+          attempt === retryConfig.retries
+          || !retryConfig.retryCondition(error as AxiosError)
+          || HttpClient.isCancel(error)
         ) {
           break
         }
@@ -403,7 +400,7 @@ class HttpClient {
    */
   public get<T = any>(
     url: string,
-    config?: AxiosRequestConfig & { requestKey?: RequestKey; retry?: RetryConfig }
+    config?: AxiosRequestConfig & { requestKey?: RequestKey, retry?: RetryConfig },
   ): Promise<ResponseData<T>> {
     return this.request<T>('get', url, config)
   }
@@ -418,7 +415,7 @@ class HttpClient {
   public post<T = any>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig & { requestKey?: RequestKey; retry?: RetryConfig }
+    config?: AxiosRequestConfig & { requestKey?: RequestKey, retry?: RetryConfig },
   ): Promise<ResponseData<T>> {
     return this.request<T>('post', url, { ...config, data })
   }
@@ -433,7 +430,7 @@ class HttpClient {
   public put<T = any>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig & { requestKey?: RequestKey; retry?: RetryConfig }
+    config?: AxiosRequestConfig & { requestKey?: RequestKey, retry?: RetryConfig },
   ): Promise<ResponseData<T>> {
     return this.request<T>('put', url, { ...config, data })
   }
@@ -446,7 +443,7 @@ class HttpClient {
    */
   public delete<T = any>(
     url: string,
-    config?: AxiosRequestConfig & { requestKey?: RequestKey; retry?: RetryConfig }
+    config?: AxiosRequestConfig & { requestKey?: RequestKey, retry?: RetryConfig },
   ): Promise<ResponseData<T>> {
     return this.request<T>('delete', url, config)
   }
@@ -461,7 +458,7 @@ class HttpClient {
   public patch<T = any>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig & { requestKey?: RequestKey; retry?: RetryConfig }
+    config?: AxiosRequestConfig & { requestKey?: RequestKey, retry?: RetryConfig },
   ): Promise<ResponseData<T>> {
     return this.request<T>('patch', url, { ...config, data })
   }

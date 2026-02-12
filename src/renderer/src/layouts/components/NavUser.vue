@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-vue-next'
-
 import { Avatar, AvatarFallback, AvatarImage } from '@renderer/src/components/ui/avatar'
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,18 +8,20 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@renderer/src/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
+  useSidebar,
 } from '@renderer/src/components/ui/sidebar'
+import { t } from '@renderer/src/locales'
 import { useUserStore } from '@renderer/src/store'
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
-const props = defineProps<{
+defineProps<{
   user: {
     name: string
     email: string
@@ -31,9 +32,9 @@ const props = defineProps<{
 const { isMobile } = useSidebar()
 const userStore = useUserStore()
 
-const handleLogout = () => {
+function handleLogout() {
   userStore.logout()
-  toast.success('退出成功')
+  toast.success(t('common.message.logoutSuccess'))
 }
 </script>
 
@@ -48,7 +49,9 @@ const handleLogout = () => {
           >
             <Avatar class="h-8 w-8 rounded-lg">
               <AvatarImage :src="user.avatar" :alt="user.name" />
-              <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
+              <AvatarFallback class="rounded-lg">
+                CN
+              </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-medium">{{ user.name }}</span>
@@ -67,7 +70,9 @@ const handleLogout = () => {
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
                 <AvatarImage :src="user.avatar" :alt="user.name" />
-                <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
+                <AvatarFallback class="rounded-lg">
+                  CN
+                </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
                 <span class="truncate font-semibold">{{ user.name }}</span>

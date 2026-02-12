@@ -143,6 +143,7 @@ export default {
     noRequiredParam: 'Missing required parameters {0}',
     errRequiredParam: 'Required parameter {0} format error',
     installing: 'Installing, please refresh later to check...',
+    logoutSuccess: 'Logout successful',
   },
   popup: {
     delete: 'Are you sure you want to delete?',
@@ -155,5 +156,9 @@ export default {
     noSelect: 'Please select a data source',
     complete: 'Load Complete',
     error: 'Load Error',
+  },
+  requestError: {
+    timeout: 'Request timeout, please try again later',
+    network: 'Network error, please check your connection',
   },
 }

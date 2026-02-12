@@ -38,13 +38,26 @@ export function defaultLang(value?: ILangWithoutSystem | 'system'): ILangWithout
 }
 
 export const i18n = createI18n({
-  legacy: false, // 关闭兼容模式
-  locale: defaultLang(), // 默认语言
-  fallbackLocale, // 回退语言
-  messages: importMessages.value, // 语言消息
-  globalInjection: true, // 全局注入
+  legacy: false,
+  locale: defaultLang(),
+  fallbackLocale,
+  messages: importMessages.value,
+  globalInjection: true,
 })
 
 export const t: Composer['t'] = i18n.global.t
+
+export interface I18nTextProps {
+  label?: string
+  i18nKey?: string
+  i18nParams?: Record<string, unknown> | unknown[]
+}
+
+export function resolveI18nText(props: I18nTextProps) {
+  if (props.i18nKey) {
+    return t(props.i18nKey, props.i18nParams as never)
+  }
+  return props.label
+}
 
 export default i18n

@@ -24,12 +24,15 @@ import LoginForm from './components/loginForm.vue'
     <div class="w-full shrink-0 flex flex-col gap-1.5 pb-4 text-muted-foreground text-sm bg-white">
       <div class="px-6 flex items-center justify-center gap-1">
         <Copyright :size="16" class="-mt-0.5" />
-        2026 山西铭方营养科技有限公司
+        {{ $t('login.copyright') }}
       </div>
       <div class="px-6 text-center">
-        使用本软件即表示您同意我们的
-        <a href="#" class="underline hover:text-primary">服务条款</a> 和
-        <a href="#" class="underline hover:text-primary">隐私政策</a>。
+        {{ $t('login.terms') }}
+        <a href="#" class="underline hover:text-primary">
+          {{ $t('login.termsService') }}
+        </a>
+        和
+        <a href="#" class="underline hover:text-primary"> {{ $t('login.privacyPolicy') }} </a>。
       </div>
     </div>
   </div>
