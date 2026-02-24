@@ -817,7 +817,7 @@ export class WindowService {
       width: mainWindowState.width,
       height: mainWindowState.height,
       minWidth: 1000,
-      minHeight: 640,
+      minHeight: 760,
       show: false,
       autoHideMenuBar: true,
       transparent: false,

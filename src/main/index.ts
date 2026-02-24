@@ -1,24 +1,24 @@
 import process from 'node:process'
 
-import { app, crashReporter } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-
 import { loggerService } from '@logger'
 import { registerIpc } from '@main/ipc'
+
 import { appLocale } from '@main/services/AppLocale'
-import { trayService } from '@main/services/TrayService'
-import { menuService } from '@main/services/MenuService'
-import { proxyManager } from '@main/services/ProxyManager'
 import { configManager } from '@main/services/ConfigManager'
+import { menuService } from '@main/services/MenuService'
+import { handleProtocolUrl, setupAppImageDeepLink } from '@main/services/ProtocolClient'
+import { proxyManager } from '@main/services/ProxyManager'
+import { trayService } from '@main/services/TrayService'
 import { windowService } from '@main/services/WindowService'
 import { isDev, isLinux, isMacOS, isWindows } from '@main/utils/systeminfo'
-import { handleProtocolUrl, setupAppImageDeepLink } from '@main/services/ProtocolClient'
-
+import { APP_NAME, APP_NAME_PROTOCOL } from '@shared/config/appinfo'
 import { LOG_MODULE } from '@shared/config/logger'
+
 import { runAsyncFunction } from '@shared/modules/function'
 import { isBoolean, isHttp } from '@shared/modules/validate'
-import { APP_NAME, APP_NAME_PROTOCOL } from '@shared/config/appinfo'
+import { app, crashReporter } from 'electron'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 const logger = loggerService.withContext(LOG_MODULE.MAIN)
 
@@ -26,7 +26,7 @@ const logger = loggerService.withContext(LOG_MODULE.MAIN)
 crashReporter.start({
   productName: APP_NAME,
   submitURL: '',
-  uploadToServer: false
+  uploadToServer: false,
 })
 
 /**
@@ -37,7 +37,7 @@ crashReporter.start({
  *
  * 注意：这里是通用调试/稳定性配置，与视频业务无关
  */
-const setupEnv = () => {
+function setupEnv() {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' // ignore TLS certificate errors
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true' // disable security warnings
 
@@ -67,7 +67,7 @@ const setupEnv = () => {
  * - enable-features 中包含若干视频解码相关开关（HEVC/VA-API 等），这些是底层解码能力，
  *   并不意味着业务层一定有播放器逻辑；如未来完全不再需要可在此处进一步精简
  */
-const setupApp = async () => {
+async function setupApp() {
   // 根据配置选择是否关闭硬件加速
   const dbHardwareAcceleration = configManager.hardwareAcceleration
   const disableHardwareAcceleration = isBoolean(dbHardwareAcceleration)
@@ -119,7 +119,7 @@ const setupApp = async () => {
     'VaapiVideoDecoder', // VA-API 视频解码器
     'UseMultiPlaneFormatForHardwareVideo', // 修复硬件视频帧池相关问题
     'VaapiIgnoreDriverChecks', // 忽略 VA-API 驱动兼容性检查
-    'CanvasOopRasterization' // Canvas OOP 光栅化，提高渲染性能
+    'CanvasOopRasterization', // Canvas OOP 光栅化，提高渲染性能
   ]
   app.commandLine.appendSwitch('enable-features', enableFeatures.join(','))
   // 下列开关用于简化调试与抓包场景：关闭证书校验 / 同源策略 / HTTP 缓存
@@ -138,7 +138,7 @@ const setupApp = async () => {
     'OutOfBlinkCors',
     'SameSiteByDefaultCookies',
     'CookiesWithoutSameSiteMustBeSecure',
-    'BlockInsecurePrivateNetworkRequests'
+    'BlockInsecurePrivateNetworkRequests',
   ]
   app.commandLine.appendSwitch('disable-features', disableFeatures.join(','))
 }
@@ -154,8 +154,9 @@ const setupApp = async () => {
  *
  * 该函数承接 main() 中的基础配置，完成主进程事件的整体 wiring
  */
-const setupReady = () => {
+function setupReady() {
   app.whenReady().then(async () => {
+    await proxyManager.configureProxy(configManager.proxy)
     // [Windows] 设置 App User Model ID，确保系统通知 / 任务栏行为正常
     electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID || 'com.mf.faith')
 
@@ -165,7 +166,7 @@ const setupReady = () => {
       logger.info(`Using secure dns: ${hostResolver}`)
       app.configureHostResolver({
         secureDnsMode: 'secure',
-        secureDnsServers: [hostResolver]
+        secureDnsServers: [hostResolver],
       })
     }
 
@@ -185,25 +186,26 @@ const setupReady = () => {
       // 开发模式下自动安装 Vue Devtools，方便调试渲染进程
       installExtension([VUEJS_DEVTOOLS])
         .then(([...args]) =>
-          logger.info(`Added devtool extensions: ${args.map((arg) => arg.name).join(', ')}`)
+          logger.info(`Added devtool extensions: ${args.map(arg => arg.name).join(', ')}`),
         )
-        .catch((error) => logger.error('An error occurred: ', error))
+        .catch(error => logger.error('An error occurred: ', error))
     }
   })
 
   // [macOS] 应用激活时的行为：没有窗口则重新创建，有则全部显示
-  app.on('activate', function () {
+  app.on('activate', () => {
     const windowNames = windowService.getAllNames()
     if (windowNames.length === 0) {
       windowService.createMainWindow()
-    } else {
+    }
+    else {
       windowService.showAllWindows()
     }
   })
 
   // 所有窗口关闭时：非 macOS 直接退出，macOS 保持常驻（符合原生体验）
   app.on('window-all-closed', () => {
-    if (!isMacOS) app.quit()
+    if (!isMacOS) { app.quit() }
   })
 
   // [macOS] 已运行状态下的协议唤起处理
@@ -218,8 +220,8 @@ const setupReady = () => {
    * @param args 启动参数列表
    */
   const handleOpenUrl = (args: string[]) => {
-    const url = args.find((arg) => arg.startsWith(APP_NAME_PROTOCOL))
-    if (url) handleProtocolUrl(url)
+    const url = args.find(arg => arg.startsWith(APP_NAME_PROTOCOL))
+    if (url) { handleProtocolUrl(url) }
   }
 
   // [Windows/Linux] 进程首次启动时，从命令行参数中处理 deep link URL
@@ -268,17 +270,17 @@ const setupReady = () => {
  * 3. requestSingleInstanceLock：确保应用单实例运行
  * 4. 配置代理、初始化国际化，并调用 setupReady 注册生命周期事件
  */
-const main = async () => {
+async function main() {
   setupEnv()
   setupApp()
 
   if (!app.requestSingleInstanceLock()) {
     app.quit()
     process.exit(0)
-  } else {
+  }
+  else {
     // await fileStorage.initRequireDir()
     // await dbService.init()
-    await proxyManager.configureProxy(configManager.proxy)
     // await fastifyService.start()
 
     appLocale.init()

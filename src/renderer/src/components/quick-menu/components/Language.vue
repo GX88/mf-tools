@@ -13,6 +13,13 @@ import { useSettingStore } from '@renderer/src/store'
 import { Check, Languages } from 'lucide-vue-next'
 import { computed } from 'vue'
 
+defineProps({
+  theme: {
+    type: String,
+    default: 'auto',
+  },
+})
+
 const storeSetting = useSettingStore()
 
 const LANG_OPTIONS = computed(() => [
@@ -33,7 +40,7 @@ async function setLanguage(lang: ILang) {
     <DropdownMenu :modal="true">
       <DropdownMenuTrigger as-child>
         <Button variant="ghost" size="icon">
-          <Languages class="size-4" />
+          <Languages class="size-4" :theme="theme" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent class="w-auto" align="center">

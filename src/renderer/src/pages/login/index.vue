@@ -6,9 +6,10 @@ import LoginForm from './components/loginForm.vue'
 </script>
 
 <template>
-  <div class="flex h-screen w-screen flex-col overflow-hidden bg-muted">
+  <div class="flex h-screen w-screen flex-col overflow-hidden bg-white relative">
+    <!-- 顶部固定标题栏 -->
     <div
-      class="w-full shrink-0 relative h-10 bg-white flex items-center justify-between drag-region pr-2 pl-4"
+      class="w-full shrink-0 relative h-11 bg-[#f0f3f6] backdrop-blur-xl flex items-center justify-between drag-region pr-2 pl-4 border-b border-black/3 z-20"
     >
       <img src="@renderer/src/assets/images/login/logo.png" alt="logo" class="h-5 w-auto">
       <div class="flex">
@@ -16,24 +17,40 @@ import LoginForm from './components/loginForm.vue'
         <SystemControl />
       </div>
     </div>
-    <div class="flex flex-1 flex-col items-center justify-center p-6 md:p-10 bg-white">
-      <div class="w-full max-w-sm md:max-w-4xl max-h-sm md:max-h-5xl">
-        <LoginForm />
-      </div>
-    </div>
-    <div class="w-full shrink-0 flex flex-col gap-1.5 pb-4 text-muted-foreground text-sm bg-white">
-      <div class="px-6 flex items-center justify-center gap-1">
-        <Copyright :size="16" class="-mt-0.5" />
-        {{ $t('login.copyright') }}
-      </div>
-      <div class="px-6 text-center">
-        {{ $t('login.terms') }}
-        <a href="#" class="underline hover:text-primary">
-          {{ $t('login.termsService') }}
-        </a>
-        和
-        <a href="#" class="underline hover:text-primary"> {{ $t('login.privacyPolicy') }} </a>。
+
+    <!-- 可滚动内容区域 -->
+    <div class="flex-1 overflow-y-auto relative z-10">
+      <div class="flex min-h-full flex-col">
+        <div class="flex flex-1 flex-col items-center justify-center py-12 px-6">
+          <div class="w-full max-w-sm">
+            <LoginForm />
+          </div>
+        </div>
+
+        <div
+          class="w-full shrink-0 flex flex-col gap-1.5 pb-8 text-muted-foreground/60 text-[14px] tracking-wide"
+        >
+          <div class="px-6 flex items-center justify-center gap-1">
+            <Copyright :size="14" class="-mt-0.5 opacity-70" />
+            {{ $t('login.copyright') }}
+          </div>
+          <div class="px-6 text-center opacity-70">
+            {{ $t('login.terms') }}
+            <a href="#" class="underline underline-offset-4 hover:text-primary transition-colors">
+              {{ $t('login.termsService') }}
+            </a>
+            和
+            <a href="#" class="underline underline-offset-4 hover:text-primary transition-colors">
+              {{ $t('login.privacyPolicy') }} </a>。
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.flip-vertical {
+  transform: rotate(180deg) scaleX(-1);
+}
+</style>

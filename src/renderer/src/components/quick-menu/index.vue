@@ -10,6 +10,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  theme: {
+    type: String,
+    default: 'auto',
+  },
 })
 
 function isFilter(name: string) {
@@ -19,7 +23,7 @@ function isFilter(name: string) {
 
 <template>
   <div class="quick-menu">
-    <Language v-if="!isFilter('language')" class="system-function" />
+    <Language v-if="!isFilter('language')" class="system-function" :theme="theme" />
   </div>
 </template>
 
