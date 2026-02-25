@@ -6,6 +6,7 @@ import { registerIpc } from '@main/ipc'
 
 import { appLocale } from '@main/services/AppLocale'
 import { configManager } from '@main/services/ConfigManager'
+import { dbService } from '@main/services/DbService'
 import { menuService } from '@main/services/MenuService'
 import { handleProtocolUrl, setupAppImageDeepLink } from '@main/services/ProtocolClient'
 import { proxyManager } from '@main/services/ProxyManager'
@@ -156,7 +157,6 @@ async function setupApp() {
  */
 function setupReady() {
   app.whenReady().then(async () => {
-    await proxyManager.configureProxy(configManager.proxy)
     // [Windows] 设置 App User Model ID，确保系统通知 / 任务栏行为正常
     electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID || 'com.mf.faith')
 
@@ -205,7 +205,9 @@ function setupReady() {
 
   // 所有窗口关闭时：非 macOS 直接退出，macOS 保持常驻（符合原生体验）
   app.on('window-all-closed', () => {
-    if (!isMacOS) { app.quit() }
+    if (!isMacOS) {
+      app.quit()
+    }
   })
 
   // [macOS] 已运行状态下的协议唤起处理
@@ -221,7 +223,9 @@ function setupReady() {
    */
   const handleOpenUrl = (args: string[]) => {
     const url = args.find(arg => arg.startsWith(APP_NAME_PROTOCOL))
-    if (url) { handleProtocolUrl(url) }
+    if (url) {
+      handleProtocolUrl(url)
+    }
   }
 
   // [Windows/Linux] 进程首次启动时，从命令行参数中处理 deep link URL
@@ -280,8 +284,10 @@ async function main() {
   }
   else {
     // await fileStorage.initRequireDir()
-    // await dbService.init()
+    await dbService.init()
     // await fastifyService.start()
+
+    await proxyManager.configureProxy(configManager.proxy)
 
     appLocale.init()
     setupReady()

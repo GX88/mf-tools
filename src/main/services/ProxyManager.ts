@@ -1,10 +1,11 @@
+import type { ProxyConfig } from 'electron'
 import http from 'node:http'
 import https from 'node:https'
 
+import process from 'node:process'
 import { loggerService } from '@logger'
 import { LOG_MODULE } from '@shared/config/logger'
 import axios from 'axios'
-import type { ProxyConfig } from 'electron'
 import { app, session } from 'electron'
 import { socksDispatcher } from 'fetch-socks'
 import * as ipaddr from 'ipaddr.js'
@@ -22,7 +23,7 @@ const enum ProxyBypassRuleType {
   Local = 'local',
   Cidr = 'cidr',
   Ip = 'ip',
-  Domain = 'domain'
+  Domain = 'domain',
 }
 
 interface ParsedProxyBypassRule {
@@ -39,7 +40,7 @@ interface ParsedProxyBypassRule {
 
 let parsedByPassRules: ParsedProxyBypassRule[] = []
 
-const getDefaultPortForProtocol = (protocol: string): string | null => {
+function getDefaultPortForProtocol(protocol: string): string | null {
   switch (protocol.toLowerCase()) {
     case 'http:':
       return '80'
@@ -50,14 +51,14 @@ const getDefaultPortForProtocol = (protocol: string): string | null => {
   }
 }
 
-const buildWildcardRegex = (pattern: string): RegExp => {
+function buildWildcardRegex(pattern: string): RegExp {
   const escapedSegments = pattern
     .split('*')
-    .map((segment) => segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .map(segment => segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
   return new RegExp(`^${escapedSegments.join('.*')}$`, 'i')
 }
 
-const isWildcardIp = (value: string): boolean => {
+function isWildcardIp(value: string): boolean {
   if (!value.includes('*')) {
     return false
   }
@@ -65,7 +66,7 @@ const isWildcardIp = (value: string): boolean => {
   return ipaddr.isValid(replaced)
 }
 
-const matchHostnameRule = (hostname: string, rule: ParsedProxyBypassRule): boolean => {
+function matchHostnameRule(hostname: string, rule: ParsedProxyBypassRule): boolean {
   const normalizedHostname = hostname.toLowerCase()
 
   switch (rule.matchType) {
@@ -85,7 +86,7 @@ const matchHostnameRule = (hostname: string, rule: ParsedProxyBypassRule): boole
   }
 }
 
-const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
+function parseProxyBypassRule(rule: string): ParsedProxyBypassRule | null {
   const trimmedRule = rule.trim()
   if (!trimmedRule) {
     return null
@@ -95,7 +96,7 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
     return {
       type: ProxyBypassRuleType.Local,
       matchType: 'exact',
-      rule: '<local>'
+      rule: '<local>',
     }
   }
 
@@ -116,7 +117,7 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
         matchType: 'exact',
         rule: workingRule,
         scheme,
-        cidr: ipaddr.parseCIDR(cleanedCidr)
+        cidr: ipaddr.parseCIDR(cleanedCidr),
       }
     }
   }
@@ -147,7 +148,7 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
       rule: cleanedHost,
       scheme,
       port,
-      ip: cleanedHost
+      ip: cleanedHost,
     }
   }
 
@@ -159,7 +160,7 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
       rule: cleanedHost,
       scheme,
       port,
-      regex: new RegExp(`^${regexPattern}$`)
+      regex: new RegExp(`^${regexPattern}$`),
     }
   }
 
@@ -171,7 +172,7 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
       rule: workingRule,
       scheme,
       port,
-      domain
+      domain,
     }
   }
 
@@ -183,7 +184,7 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
       rule: workingRule,
       scheme,
       port,
-      domain
+      domain,
     }
   }
 
@@ -194,7 +195,7 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
       rule: workingRule,
       scheme,
       port,
-      regex: buildWildcardRegex(normalizedHost)
+      regex: buildWildcardRegex(normalizedHost),
     }
   }
 
@@ -204,11 +205,11 @@ const parseProxyBypassRule = (rule: string): ParsedProxyBypassRule | null => {
     rule: workingRule,
     scheme,
     port,
-    domain: normalizedHost
+    domain: normalizedHost,
   }
 }
 
-const isLocalHostname = (hostname: string): boolean => {
+function isLocalHostname(hostname: string): boolean {
   const normalized = hostname.toLowerCase()
   if (normalized === 'localhost') {
     return true
@@ -223,7 +224,7 @@ const isLocalHostname = (hostname: string): boolean => {
   return false
 }
 
-export const updateByPassRules = (rules: string[]): void => {
+export function updateByPassRules(rules: string[]): void {
   byPassRules = rules
   parsedByPassRules = []
 
@@ -231,13 +232,14 @@ export const updateByPassRules = (rules: string[]): void => {
     const parsedRule = parseProxyBypassRule(rule)
     if (parsedRule) {
       parsedByPassRules.push(parsedRule)
-    } else {
+    }
+    else {
       logger.warn(`Skipping invalid proxy bypass rule: ${rule}`)
     }
   }
 }
 
-export const isByPass = (url: string) => {
+export function isByPass(url: string) {
   if (parsedByPassRules.length === 0) {
     return false
   }
@@ -286,8 +288,8 @@ export const isByPass = (url: string) => {
             const [cidrAddress, prefixLength] = rule.cidr
             // Ensure IP version matches before comparing
             if (
-              parsedHost.kind() === cidrAddress.kind() &&
-              parsedHost.match([cidrAddress, prefixLength])
+              parsedHost.kind() === cidrAddress.kind()
+              && parsedHost.match([cidrAddress, prefixLength])
             ) {
               return true
             }
@@ -303,7 +305,8 @@ export const isByPass = (url: string) => {
           break
       }
     }
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Failed to check bypass:', error as Error)
     return false
   }
@@ -333,7 +336,8 @@ class SelectiveDispatcher extends Dispatcher {
   async close(): Promise<void> {
     try {
       await this.proxyDispatcher.close()
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Failed to close dispatcher:', error as Error)
       this.proxyDispatcher.destroy()
     }
@@ -342,7 +346,8 @@ class SelectiveDispatcher extends Dispatcher {
   async destroy(): Promise<void> {
     try {
       await this.proxyDispatcher.destroy()
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Failed to destroy dispatcher:', error as Error)
     }
   }
@@ -384,20 +389,20 @@ export class ProxyManager {
     this.systemProxyInterval = setInterval(async () => {
       const currentProxy = await getSystemProxy()
       if (
-        currentProxy?.proxyUrl.toLowerCase() === this.config?.proxyRules &&
-        currentProxy?.noProxy.join(',').toLowerCase() ===
-          this.config?.proxyBypassRules?.toLowerCase()
+        currentProxy?.proxyUrl.toLowerCase() === this.config?.proxyRules
+        && currentProxy?.noProxy.join(',').toLowerCase()
+        === this.config?.proxyBypassRules?.toLowerCase()
       ) {
         return
       }
 
       logger.info(
-        `system proxy changed: ${currentProxy?.proxyUrl}, this.config.proxyRules: ${this.config.proxyRules}, this.config.proxyBypassRules: ${this.config.proxyBypassRules}`
+        `system proxy changed: ${currentProxy?.proxyUrl}, this.config.proxyRules: ${this.config.proxyRules}, this.config.proxyBypassRules: ${this.config.proxyBypassRules}`,
       )
       await this.configureProxy({
         mode: 'system',
         proxyRules: currentProxy?.proxyUrl.toLowerCase(),
-        proxyBypassRules: currentProxy?.noProxy.join(',')
+        proxyBypassRules: currentProxy?.noProxy.join(','),
       })
     }, 1000 * 60)
   }
@@ -424,7 +429,7 @@ export class ProxyManager {
         const currentProxy = await getSystemProxy()
         if (currentProxy) {
           logger.info(
-            `current system proxy: ${currentProxy.proxyUrl}, bypass rules: ${currentProxy.noProxy.join(',')}`
+            `current system proxy: ${currentProxy.proxyUrl}, bypass rules: ${currentProxy.noProxy.join(',')}`,
           )
           config.proxyRules = currentProxy.proxyUrl.toLowerCase()
           config.proxyBypassRules = currentProxy.noProxy.join(',')
@@ -437,8 +442,8 @@ export class ProxyManager {
         const rawRules = config.proxyBypassRules
           ? config.proxyBypassRules
               .split(/[;,]/)
-              .map((rule) => rule.trim())
-              .filter((rule) => rule.length > 0)
+              .map(rule => rule.trim())
+              .filter(rule => rule.length > 0)
           : []
 
         updateByPassRules(rawRules)
@@ -446,10 +451,12 @@ export class ProxyManager {
 
       this.setGlobalProxy(config)
       this.config = config
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Failed to config proxy:', error as Error)
       throw error
-    } finally {
+    }
+    finally {
       this.isSettingProxy = false
     }
   }
@@ -497,7 +504,8 @@ export class ProxyManager {
       https.request = this.originalHttpsRequest
       try {
         this.proxyAgent?.destroy()
-      } catch (error) {
+      }
+      catch (error) {
         logger.error('Failed to destroy proxy agent:', error as Error)
       }
       this.proxyAgent = null
@@ -526,15 +534,17 @@ export class ProxyManager {
         if (typeof args[1] === 'function') {
           options = {}
           callback = args[1]
-        } else {
+        }
+        else {
           options = {
-            ...args[1]
+            ...args[1],
           }
           callback = args[2]
         }
-      } else {
+      }
+      else {
         options = {
-          ...args[0]
+          ...args[0],
         }
         callback = args[1]
       }
@@ -548,8 +558,8 @@ export class ProxyManager {
 
       // for webdav https self-signed certificate
       if (options.agent instanceof https.Agent) {
-        ;(agent as https.Agent).options.rejectUnauthorized =
-          options.agent.options.rejectUnauthorized
+        ;(agent as https.Agent).options.rejectUnauthorized
+          = options.agent.options.rejectUnauthorized
       }
       options.agent = agent
       if (url) {
@@ -578,7 +588,7 @@ export class ProxyManager {
     if (url.protocol === 'http:' || url.protocol === 'https:') {
       this.proxyDispatcher = new SelectiveDispatcher(
         new EnvHttpProxyAgent(),
-        this.originalGlobalDispatcher
+        this.originalGlobalDispatcher,
       )
       setGlobalDispatcher(this.proxyDispatcher)
       return
@@ -590,17 +600,20 @@ export class ProxyManager {
         type: url.protocol === 'socks4:' ? 4 : 5,
         host: url.hostname,
         userId: url.username || undefined,
-        password: url.password || undefined
+        password: url.password || undefined,
       }),
-      this.originalSocksDispatcher
+      this.originalSocksDispatcher,
     )
     // eslint-disable-next-line no-restricted-globals
     global[Symbol.for('undici.globalDispatcher.1')] = this.proxyDispatcher
   }
 
   private async setSessionsProxy(config: ProxyConfig): Promise<void> {
+    if (!app.isReady()) {
+      await app.whenReady()
+    }
     const sessions = [session.defaultSession, session.fromPartition('persist:webview')]
-    await Promise.all(sessions.map((session) => session.setProxy(config)))
+    await Promise.all(sessions.map(session => session.setProxy(config)))
 
     // set proxy for electron
     app.setProxy(config)

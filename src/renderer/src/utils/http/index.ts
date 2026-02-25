@@ -1,4 +1,12 @@
-import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, CustomParamsSerializer, InternalAxiosRequestConfig, Method } from 'axios'
+import type {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  CustomParamsSerializer,
+  InternalAxiosRequestConfig,
+  Method,
+} from 'axios'
 import { t } from '@renderer/src/locales'
 import { useUserStore } from '@renderer/src/store'
 import Axios from 'axios'
@@ -129,7 +137,9 @@ class HttpClient {
     // 默认响应拦截器
     const defaultInterceptor = (response: AxiosResponse<ResponseData<any>>) => {
       const requestKey = this.getRequestKey(response.config)
-      if (requestKey) { this.abortControllers.delete(requestKey) }
+      if (requestKey) {
+        this.abortControllers.delete(requestKey)
+      }
 
       /* 在这里写响应拦截器的默认业务逻辑 */
       // 示例: 处理不同的响应码
@@ -155,7 +165,9 @@ class HttpClient {
     const defaultErrorInterceptor = (error: AxiosError): Promise<any> => {
       if (error.config) {
         const requestKey = this.getRequestKey(error.config)
-        if (requestKey) { this.abortControllers.delete(requestKey) }
+        if (requestKey) {
+          this.abortControllers.delete(requestKey)
+        }
       }
 
       // 处理请求被取消的情况
@@ -206,7 +218,9 @@ class HttpClient {
 
   /** 生成请求唯一标识 */
   private getRequestKey(config: AxiosRequestConfig): RequestKey | undefined {
-    if (!config.url) { return undefined }
+    if (!config.url) {
+      return undefined
+    }
     return `${config.method?.toUpperCase()}-${config.url}`
   }
 
@@ -216,7 +230,9 @@ class HttpClient {
     requestKey?: RequestKey,
   ): AxiosRequestConfig {
     const key = requestKey || this.getRequestKey(config)
-    if (!key) { return config }
+    if (!key) {
+      return config
+    }
 
     // 如果已有相同key的请求，先取消它
     this.cancelRequest(key)
