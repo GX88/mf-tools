@@ -5,28 +5,28 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
+  SidebarInset,
   SidebarProvider,
-  SidebarInset
+  SidebarRail,
 } from '@renderer/src/components/ui/sidebar'
 
+import LayoutContent from './components/LayoutContent.vue'
+import LayoutHeader from './components/LayoutHeader.vue'
 import NavMain from './components/NavMain.vue'
 import NavProjects from './components/NavProjects.vue'
 import NavUser from './components/NavUser.vue'
 import TeamSwitcher from './components/TeamSwitcher.vue'
-import LayoutHeader from './components/LayoutHeader.vue'
-import LayoutContent from './components/LayoutContent.vue'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
-  collapsible: 'icon'
+  collapsible: 'icon',
 })
 
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg'
-  }
+    name: 'Faith',
+    email: 'gxlove_max@163.com',
+    avatar: '/avatars/shadcn.jpg',
+  },
 }
 </script>
 
@@ -52,10 +52,10 @@ const data = {
       <header
         class="flex h-12 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b drag-region"
       >
-        <layout-header />
+        <LayoutHeader />
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4">
-        <layout-content class="min-h-full rounded-md" />
+        <LayoutContent class="min-h-full rounded-md" />
       </div>
     </SidebarInset>
   </SidebarProvider>

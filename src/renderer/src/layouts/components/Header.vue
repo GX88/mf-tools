@@ -16,8 +16,9 @@ const systemControlFilter = ref([])
       <SidebarTrigger class="-ml-1 no-drag-region" />
       <RouterControl class="no-drag-region" />
     </div>
-    <div class="right">
+    <div class="right flex items-center">
       <QuickMenu :filter="systemControlFilter" />
+      <Separator orientation="vertical" class="h-4! mx-2 bg-[#c2c2c2]" />
       <SystemControl :filter="systemControlFilter" />
     </div>
   </div>

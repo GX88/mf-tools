@@ -3,6 +3,7 @@ export default {
   subTitle: 'Sign in to your MingFang account',
   username: 'Account',
   username_placeholder: 'Enter your account number',
+  code_placeholder: 'Enter the verification code',
   password: 'Password',
   password_placeholder: 'Enter your password',
   forgotPassword: 'Forgot password?',

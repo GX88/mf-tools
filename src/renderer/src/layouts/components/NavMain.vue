@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import { ChevronRight } from 'lucide-vue-next'
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { allRoutes } from '@renderer/src/router'
-import * as LucideIcons from 'lucide-vue-next'
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger
+  CollapsibleTrigger,
 } from '@renderer/src/components/ui/collapsible'
 import {
   SidebarGroup,
@@ -17,19 +12,24 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem
+  SidebarMenuSubItem,
 } from '@renderer/src/components/ui/sidebar'
+import { allRoutes } from '@renderer/src/router'
+import { ChevronRight } from 'lucide-vue-next'
+import * as LucideIcons from 'lucide-vue-next'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
-const getIcon = (iconName?: string) => {
-  if (!iconName) return undefined
+function getIcon(iconName?: string) {
+  if (!iconName) { return undefined }
   return (LucideIcons as any)[iconName] || LucideIcons.File
 }
 
 const menuItems = computed(() => {
   const routes = allRoutes || []
-  let menuRoutes: any[] = []
+  const menuRoutes: any[] = []
 
   // 处理 Root 路由，将 children 提升
   routes.forEach((route: any) => {
@@ -37,34 +37,35 @@ const menuItems = computed(() => {
       // 为子路由添加父路径前缀（如果需要）
       // 在这里，Root 的 path 是 /，子路由 path 是 dashboard
       // 最终路径应该是 /dashboard
-      const children = route.children.map((child) => ({
+      const children = route.children.map(child => ({
         ...child,
-        path: child.path.startsWith('/') ? child.path : `/${child.path}`
+        path: child.path.startsWith('/') ? child.path : `/${child.path}`,
       }))
       menuRoutes.push(...children)
-    } else {
+    }
+    else {
       menuRoutes.push(route)
     }
   })
 
   return menuRoutes
     .filter(
-      (route) =>
-        !route.meta?.hidden && route.children && route.children.some((child) => !child.meta?.hidden)
+      route =>
+        !route.meta?.hidden && route.children && route.children.some(child => !child.meta?.hidden),
     )
-    .map((r) => ({
+    .map(r => ({
       title: r.meta?.title || r.name,
       url: r.path,
       icon: getIcon(r.meta?.icon),
       isActive: route.path.startsWith(r.path), // 简单的激活状态判断
       items: r.children
-        ?.filter((child) => !child.meta?.hidden)
-        .map((child) => ({
+        ?.filter(child => !child.meta?.hidden)
+        .map(child => ({
           title: child.meta?.title || child.name,
           url: child.path.startsWith('/')
             ? child.path
-            : `${r.path}/${child.path}`.replace(/\/+/g, '/')
-        }))
+            : `${r.path}/${child.path}`.replace(/\/+/g, '/'),
+        })),
     }))
 })
 </script>
@@ -77,7 +78,11 @@ const menuItems = computed(() => {
         <Collapsible as-child :default-open="item.isActive" class="group/collapsible">
           <SidebarMenuItem>
             <CollapsibleTrigger as-child>
-              <SidebarMenuButton :tooltip="item.title">
+              <SidebarMenuButton
+                :tooltip="item.title"
+                :is-active="item.isActive"
+                :class="item.isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''"
+              >
                 <component :is="item.icon" v-if="item.icon" />
                 <span>{{ item.title }}</span>
                 <ChevronRight
@@ -88,7 +93,15 @@ const menuItems = computed(() => {
             <CollapsibleContent>
               <SidebarMenuSub>
                 <SidebarMenuSubItem v-for="subItem in item.items" :key="subItem.title">
-                  <SidebarMenuSubButton as-child>
+                  <!-- 判断data-active是否为true -->
+                  <SidebarMenuSubButton
+                    as-child
+                    :class="
+                      route.path === subItem.url
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear'
+                        : ''
+                    "
+                  >
                     <RouterLink :to="subItem.url">
                       <span>{{ subItem.title }}</span>
                     </RouterLink>

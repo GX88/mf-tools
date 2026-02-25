@@ -3,6 +3,7 @@ export default {
   subTitle: '登录到您的铭方身份账户',
   username: '账号',
   username_placeholder: '请输入账号',
+  code_placeholder: '请输入短信验证码',
   password: '密码',
   password_placeholder: '请输入密码',
   forgotPassword: '忘记密码？',

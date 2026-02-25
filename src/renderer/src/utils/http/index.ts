@@ -183,11 +183,11 @@ class HttpClient {
           || (error as AxiosError).message?.includes('timeout')
         ) {
           const message = t('common.requestError.timeout')
-          toast.error(message, { position: 'top-center' })
+          toast.error(message, { position: 'bottom-right' })
           return Promise.reject(new Error(message))
         }
         const message = t('common.requestError.network')
-        toast.error(message, { position: 'top-center' })
+        toast.error(message, { position: 'bottom-right' })
         return Promise.reject(new Error(message))
       }
 

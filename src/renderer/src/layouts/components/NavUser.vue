@@ -18,7 +18,7 @@ import {
 } from '@renderer/src/components/ui/sidebar'
 import { t } from '@renderer/src/locales'
 import { useUserStore } from '@renderer/src/store'
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-vue-next'
+import { Bell, ChevronsUpDown, CreditCard, LogOut, Settings2, Sparkles } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
 defineProps<{
@@ -50,7 +50,7 @@ function handleLogout() {
             <Avatar class="h-8 w-8 rounded-lg">
               <AvatarImage :src="user.avatar" :alt="user.name" />
               <AvatarFallback class="rounded-lg">
-                CN
+                白
               </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
@@ -71,7 +71,7 @@ function handleLogout() {
               <Avatar class="h-8 w-8 rounded-lg">
                 <AvatarImage :src="user.avatar" :alt="user.name" />
                 <AvatarFallback class="rounded-lg">
-                  CN
+                  白
                 </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
@@ -89,9 +89,9 @@ function handleLogout() {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
-              Account
+            <DropdownMenuItem @click="() => {}">
+              <Settings2 />
+              设置
             </DropdownMenuItem>
             <DropdownMenuItem>
               <CreditCard />
@@ -103,9 +103,9 @@ function handleLogout() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem class="cursor-pointer" @click="handleLogout">
+          <DropdownMenuItem @click="handleLogout">
             <LogOut />
-            Log out
+            登出
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
