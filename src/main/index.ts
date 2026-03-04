@@ -7,6 +7,8 @@ import { registerIpc } from '@main/ipc'
 import { appLocale } from '@main/services/AppLocale'
 import { configManager } from '@main/services/ConfigManager'
 import { dbService } from '@main/services/DbService'
+import { fastifyService } from '@main/services/FastifyService'
+import { fileStorage } from '@main/services/FileStorage'
 import { menuService } from '@main/services/MenuService'
 import { handleProtocolUrl, setupAppImageDeepLink } from '@main/services/ProtocolClient'
 import { proxyManager } from '@main/services/ProxyManager'
@@ -283,11 +285,10 @@ async function main() {
     process.exit(0)
   }
   else {
-    // await fileStorage.initRequireDir()
+    await fileStorage.initRequireDir()
     await dbService.init()
-    // await fastifyService.start()
-
     await proxyManager.configureProxy(configManager.proxy)
+    await fastifyService.start()
 
     appLocale.init()
     setupReady()
