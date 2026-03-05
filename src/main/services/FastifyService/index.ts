@@ -5,6 +5,7 @@ import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import type { FastifyBaseLogger, FastifyInstance } from 'fastify'
 import fastifyCors from '@fastify/cors'
 import fastifyMultipart from '@fastify/multipart'
+import { fastifySchedule } from '@fastify/schedule'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { loggerService } from '@logger'
@@ -17,12 +18,13 @@ import { CacheService } from '@shared/modules/cache'
 import fastify from 'fastify'
 import StatusCodes from 'http-status-codes'
 import qs from 'qs'
-
 import {
   HttpErrorResponseSchema,
   HttpRedirectResponseSchema,
   HttpSuccessResponseSchema,
 } from './schemas/base'
+
+import { registerCoreTasks } from './task'
 
 const logger = loggerService.withContext(LOG_MODULE.FASTIFY)
 
@@ -43,7 +45,9 @@ export class FastifyService {
   }
 
   public async start(): Promise<boolean> {
-    if (this.server) { return true }
+    if (this.server) {
+      return true
+    }
 
     try {
       this.server = fastify({
@@ -78,8 +82,11 @@ export class FastifyService {
       // await this.registerRoutes();
 
       await this.server!.ready() // Finalize server setup
+      await this.registerSchedules()
 
-      if (isDev || configManager.debug) { this.server!.swagger() } // swagger documentation
+      if (isDev || configManager.debug) {
+        this.server!.swagger()
+      } // swagger documentation
       await this.server!.listen({ port: this.PORT, host: '0.0.0.0' })
     }
     catch (error) {
@@ -115,7 +122,9 @@ export class FastifyService {
    * @returns {Promise<boolean>} 如果服务已重启则返回 true，否则返回 false
    */
   public async restart(): Promise<boolean> {
-    if (this.server) { return true }
+    if (this.server) {
+      return true
+    }
 
     try {
       await this.stop()
@@ -195,6 +204,9 @@ export class FastifyService {
     // Register multipart
     await this.server!.register(fastifyMultipart)
 
+    // Register schedule
+    await this.server!.register(fastifySchedule)
+
     // Register cache
     this.server!.decorate('cache', CacheService)
 
@@ -268,6 +280,15 @@ export class FastifyService {
       child: () => this.customLogger(),
       level: 'info',
     }
+  }
+
+  /**
+   * 注册定时任务
+   */
+  private async registerSchedules(): Promise<void> {
+    if (!this.server) { return }
+
+    registerCoreTasks(this.server)
   }
 }
 

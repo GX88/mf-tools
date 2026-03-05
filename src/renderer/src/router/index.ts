@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { createRouter, createWebHashHistory } from 'vue-router'
 import { useUserStore } from '@renderer/src/store/modules/user'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 // 导入homepage相关固定路由
 const homepageModules = import.meta.glob('./modules/**/homepage.ts', { eager: true })
@@ -15,9 +15,29 @@ const defaultRouterList: Array<any> = [
       title: '登录',
       icon: 'login',
       single: true,
-      hidden: true
-    }
-  }
+      hidden: true,
+    },
+  },
+  {
+    path: '/legal/terms',
+    name: 'terms-of-service',
+    component: () => import('@renderer/src/pages/legal/TermsOfService.vue'),
+    meta: {
+      title: '服务条款',
+      single: true,
+      hidden: true,
+    },
+  },
+  {
+    path: '/legal/privacy',
+    name: 'privacy-policy',
+    component: () => import('@renderer/src/pages/legal/PrivacyPolicy.vue'),
+    meta: {
+      title: '隐私政策',
+      single: true,
+      hidden: true,
+    },
+  },
 ]
 
 // 存放固定路由
@@ -38,7 +58,43 @@ export function mapModuleRouterList(modules: Record<string, unknown>): Array<Rou
   return routerList
 }
 
-export const getActive = (maxLevel: number = 4): string => {
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: allRoutes,
+  scrollBehavior() {
+    return {
+      el: '#app',
+      top: 0,
+      behavior: 'smooth',
+    }
+  },
+})
+
+const whiteList = ['/login', '/legal/terms', '/legal/privacy']
+
+router.beforeEach(async (to, _, next) => {
+  const userStore = useUserStore()
+  const hasToken = userStore.token
+
+  if (hasToken) {
+    if (to.path === '/login') {
+      next({ path: '/' })
+    }
+    else {
+      next()
+    }
+  }
+  else {
+    if (whiteList.includes(to.path)) {
+      next()
+    }
+    else {
+      next(`/login?redirect=${to.path}`)
+    }
+  }
+})
+
+export function getActive(maxLevel: number = 4): string {
   // 非组件内调用必须通过Router实例获取当前路由
   const route = router.currentRoute.value
 
@@ -52,38 +108,5 @@ export const getActive = (maxLevel: number = 4): string => {
     .map((item: string) => `/${item}`)
     .join('')
 }
-
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes: allRoutes,
-  scrollBehavior() {
-    return {
-      el: '#app',
-      top: 0,
-      behavior: 'smooth'
-    }
-  }
-})
-
-const whiteList = ['/login']
-
-router.beforeEach(async (to, _, next) => {
-  const userStore = useUserStore()
-  const hasToken = userStore.token
-
-  if (hasToken) {
-    if (to.path === '/login') {
-      next({ path: '/' })
-    } else {
-      next()
-    }
-  } else {
-    if (whiteList.indexOf(to.path) !== -1) {
-      next()
-    } else {
-      next(`/login?redirect=${to.path}`)
-    }
-  }
-})
 
 export default router
