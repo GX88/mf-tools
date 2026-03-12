@@ -1,9 +1,10 @@
+import { computed, type App, watch } from 'vue'
+
+import { cloneDeep } from 'es-toolkit'
+import { createI18n } from 'vue-i18n'
 import type { ILangWithoutSystem } from '@shared/locales'
-import type { Composer } from 'vue-i18n'
 import { defaultLocale, fallbackLocale, lang, langCode, messages } from '@shared/locales'
 import { usePreferredLanguages } from '@vueuse/core'
-import { computed } from 'vue'
-import { createI18n } from 'vue-i18n'
 
 const importMessages = computed(() => messages())
 
@@ -21,7 +22,7 @@ export function defaultLang(value?: ILangWithoutSystem | 'system'): ILangWithout
         lang = parsed.lang
       }
     }
-    catch {}
+    catch { }
   }
 
   if (!lang || lang === 'system') {
@@ -37,27 +38,59 @@ export function defaultLang(value?: ILangWithoutSystem | 'system'): ILangWithout
   return lang as ILangWithoutSystem
 }
 
-export const i18n = createI18n({
+const i18n = createI18n({
   legacy: false,
-  locale: defaultLang(),
+  flatJson: true,
   fallbackLocale,
   messages: importMessages.value,
-  globalInjection: true,
+  missingWarn: false,
+  fallbackWarn: false,
 })
 
-export const t: Composer['t'] = i18n.global.t
-
-export interface I18nTextProps {
-  label?: string
-  i18nKey?: string
-  i18nParams?: Record<string, unknown> | unknown[]
+function install(app: App) {
+  const settingsStore = useSettingsStore()
+  i18n.global.locale.value = settingsStore.lang
+  watch(
+    () => settingsStore.lang,
+    (val) => {
+      i18n.global.locale.value = val
+    },
+  )
+  app.use(i18n)
 }
 
-export function resolveI18nText(props: I18nTextProps) {
-  if (props.i18nKey) {
-    return t(props.i18nKey, props.i18nParams as never)
+function getLocales() {
+  return cloneDeep(messages())
+}
+
+const localesName: Record<string, any> = {}
+const allMessages = messages()
+for (const key in allMessages) {
+  switch (key) {
+    case 'zh-CN':
+      localesName[key] = '中文(简体)'
+      break
+    case 'zh-TW':
+      localesName[key] = '中文(繁體)'
+      break
+    case 'en-US':
+      localesName[key] = 'English'
+      break
+    default:
+      localesName[key] = key
   }
-  return props.label
 }
 
-export default i18n
+// 用于路由 meta 配置，方便在 VSCode I18n Ally 插件进行显示，无实际作用
+function $t(key: string) {
+  return key
+}
+
+export default { install }
+
+export {
+  $t,
+  getLocales,
+  i18n,
+  localesName,
+}

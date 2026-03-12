@@ -418,7 +418,7 @@ export class WindowService {
     // Dangerous API
     if (isDev) {
       // mainWindow.webContents.on('will-attach-webview', (_, webPreferences) => {
-      //   webPreferences.preload = join(import.meta.dirname, '../preload/index.js');
+      //   webPreferences.preload = join(import.meta.dirname, '../preload/index.mjs');
       // });
     }
   }
@@ -762,7 +762,7 @@ export class WindowService {
             backgroundThrottling: false,
             contextIsolation: true,
             nodeIntegration: false,
-            preload: join(import.meta.dirname, '../preload/index.js'),
+            preload: join(import.meta.dirname, '../preload/index.mjs'),
             sandbox: false,
             spellcheck: false,
             webSecurity: false,
