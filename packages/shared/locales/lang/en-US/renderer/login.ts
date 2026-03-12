@@ -24,4 +24,10 @@ export default {
     success: 'Login successful',
     smsSent: 'SMS verification code sent',
   },
+  error: {
+    usernameRequired: 'Please enter your account',
+    passwordRequired: 'Please enter your password',
+    codeRequired: 'Please enter the verification code',
+    codeInvalid: 'Verification code must be 6 digits',
+  },
 }

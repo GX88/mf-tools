@@ -1,0 +1,8 @@
+export default {
+  route: {
+    undefined: '[ 無標題 ]',
+    reload: '重新加載中...',
+    home: '主頁',
+    login: '登錄',
+  },
+}

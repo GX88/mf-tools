@@ -3,7 +3,12 @@ import type { InitOptions } from 'i18next'
 import { loggerService } from '@logger'
 import { configManager } from '@main/services/ConfigManager'
 import { LOG_MODULE } from '@shared/config/logger'
-import { defaultLocale, fallbackLocale, langCode, messages } from '@shared/locales'
+import {
+  defaultLocale,
+  fallbackLocale,
+  langCode,
+  messages,
+} from '@shared/locales'
 import { app } from 'electron'
 import i18n, { changeLanguage, init as createI18n } from 'i18next'
 
@@ -60,7 +65,11 @@ export class AppLocale {
         escapeValue: false,
       },
       saveMissing: true,
-      missingKeyHandler: (_lngs: readonly string[], _ns: string, key: string) => {
+      missingKeyHandler: (
+        _lngs: readonly string[],
+        _ns: string,
+        key: string,
+      ) => {
         logger.warn(`Missing key: ${key}`)
       },
     })

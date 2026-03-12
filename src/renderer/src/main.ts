@@ -1,12 +1,18 @@
-import { createApp } from 'vue'
 import App from './App.vue'
-
-import i18n from './locales'
 import router from './router'
-import { store } from './store'
+import pinia from './store'
+import i18n from './locales'
+import uiProvider from './ui/provider'
 
-import './assets/style/global.css'
-import './assets/style/index.less'
-import 'vue-sonner/style.css'
+// UnoCSS
+import '@unocss/reset/tailwind-compat.css'
+import 'virtual:uno.css'
+// 全局样式
+import '@renderer/assets/styles/globals.css'
 
-createApp(App).use(store).use(router).use(i18n).mount('#app').$nextTick(window.removeLoading)
+const app = createApp(App)
+app.use(pinia)
+app.use(router)
+app.use(i18n)
+app.use(uiProvider)
+app.mount('#app')

@@ -20,7 +20,6 @@ declare global {
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentScope: typeof import('vue').getCurrentScope
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
-  const getSettingStore: typeof import('../store/modules/setting').getSettingStore
   const h: typeof import('vue').h
   const inject: typeof import('vue').inject
   const isProxy: typeof import('vue').isProxy
@@ -69,19 +68,32 @@ declare global {
   const triggerRef: typeof import('vue').triggerRef
   const unref: typeof import('vue').unref
   const useAttrs: typeof import('vue').useAttrs
+  const useAuth: typeof import('../utils/composables/useAuth').default
+  const useConfetti: typeof import('../utils/composables/useConfetti').default
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
-  const useHospitalStore: typeof import('../store/modules/hospital').useHospitalStore
+  const useFavoritesStore: typeof import('../store/modules/favorites').useFavoritesStore
+  const useGlobalProperties: typeof import('../utils/composables/useGlobalProperties').default
   const useI18n: typeof import('vue-i18n').useI18n
   const useId: typeof import('vue').useId
+  const useIframeStore: typeof import('../store/modules/iframe').useIframeStore
+  const useKeepAliveStore: typeof import('../store/modules/keepAlive').useKeepAliveStore
   const useLink: typeof import('vue-router').useLink
+  const useMainPage: typeof import('../utils/composables/useMainPage').default
+  const useMenu: typeof import('../utils/composables/useMenu').default
+  const useMenuStore: typeof import('../store/modules/menu').useMenuStore
   const useModel: typeof import('vue').useModel
+  const usePagination: typeof import('../utils/composables/usePagination').default
   const useRoute: typeof import('vue-router').useRoute
+  const useRouteStore: typeof import('../store/modules/route').useRouteStore
   const useRouter: typeof import('vue-router').useRouter
-  const useSettingStore: typeof import('../store/modules/setting').useSettingStore
+  const useSettingsStore: typeof import('../store/modules/settings').useSettingsStore
   const useSlots: typeof import('vue').useSlots
+  const useTabbar: typeof import('../utils/composables/useTabbar').default
+  const useTabbarStore: typeof import('../store/modules/tabbar').useTabbarStore
   const useTemplateRef: typeof import('vue').useTemplateRef
   const useUserStore: typeof import('../store/modules/user').useUserStore
+  const useWatermarkStore: typeof import('../store/modules/watermark').useWatermarkStore
   const watch: typeof import('vue').watch
   const watchEffect: typeof import('vue').watchEffect
   const watchPostEffect: typeof import('vue').watchPostEffect
@@ -90,24 +102,6 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type {
-    Component,
-    Slot,
-    Slots,
-    ComponentPublicInstance,
-    ComputedRef,
-    DirectiveBinding,
-    ExtractDefaultPropTypes,
-    ExtractPropTypes,
-    ExtractPublicPropTypes,
-    InjectionKey,
-    PropType,
-    Ref,
-    ShallowRef,
-    MaybeRef,
-    MaybeRefOrGetter,
-    VNode,
-    WritableComputedRef
-  } from 'vue'
+  export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
 }

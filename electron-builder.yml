@@ -15,71 +15,71 @@ protocols:
     schemes:
       - mftool
 files:
-  - '**/*'
+  - "**/*"
 
   # Exclusion IDE
-  - '!**/{.vscode,.idea,.cursor,.codebuddy,.trae,.qwen,.gemini,.claude}/*'
-  - '!**/{.editorconfig,.jekyll-metadata}'
+  - "!**/{.vscode,.idea,.cursor,.codebuddy,.trae,.qwen,.gemini,.claude}/*"
+  - "!**/{.editorconfig,.jekyll-metadata}"
 
   # Exclusion build and configuration files
-  - '!electron.vite.config.{js,ts,mjs,cjs}'
-  - '!dev-app-update.yml'
-  - '!**/{tsconfig.json,tsconfig.tsbuildinfo,tsconfig.node.json,tsconfig.web.json}'
+  - "!electron.vite.config.{js,ts,mjs,cjs}"
+  - "!dev-app-update.yml"
+  - "!**/{tsconfig.json,tsconfig.tsbuildinfo,tsconfig.node.json,tsconfig.web.json}"
 
   # Exclusion code quality and formatting tool configurations
-  - '!**/{.eslintignore,.eslintrc.js,.eslintrc.json,.eslintrc.cjs,.eslintcache,root.eslint.config.js,eslint.config.js,.eslint.config.mjs}'
-  - '!**/{.prettierignore,.prettierrc.yaml,.prettierrc.yml,.prettierrc.js}'
-  - '!**/{.stylelintignore,stylelint.config.js,.stylelintrc.yaml,.stylelintrc.yml}'
-  - '!commitlintrc.{json,yml,yaml,js,cjs,mjs,ts,mts,cts}'
-  - '!commitlint.config.{js,cjs,mjs,ts,mts,cts}'
+  - "!**/{.eslintignore,.eslintrc.js,.eslintrc.json,.eslintrc.cjs,.eslintcache,root.eslint.config.js,eslint.config.js,.eslint.config.mjs}"
+  - "!**/{.prettierignore,.prettierrc.yaml,.prettierrc.yml,.prettierrc.js}"
+  - "!**/{.stylelintignore,stylelint.config.js,.stylelintrc.yaml,.stylelintrc.yml}"
+  - "!commitlintrc.{json,yml,yaml,js,cjs,mjs,ts,mts,cts}"
+  - "!commitlint.config.{js,cjs,mjs,ts,mts,cts}"
 
   # Exclusion package managers
-  - '!{.nvmrc,.npmrc,pnpm-lock.yaml,yarn.lock,package-lock.json}'
-  - '!{.yarnclean,.yarnrc.yml}'
+  - "!{.nvmrc,.npmrc,pnpm-lock.yaml,yarn.lock,package-lock.json}"
+  - "!{.yarnclean,.yarnrc.yml}"
 
   # Exclusion environment variable files
-  - '!{.env,.env.*}'
+  - "!{.env,.env.*}"
 
   # Exclusion source code/documentation/design
-  - '!src'
-  - '!script'
-  - '!scripts'
-  - '!docs'
-  - '!packages'
-  - '!patches'
-  - '!design/*.sketch'
+  - "!src"
+  - "!script"
+  - "!scripts"
+  - "!docs"
+  - "!packages"
+  - "!patches"
+  - "!design/*.sketch"
 
   # Exclusion python
-  - '!**/.venv'
-  - '!**/venv'
-  - '!**/__pycache__'
-  - '!**/*.pyc'
-  - '!**/uv.lock'
+  - "!**/.venv"
+  - "!**/venv"
+  - "!**/__pycache__"
+  - "!**/*.pyc"
+  - "!**/uv.lock"
 
   # Exclusion version control
-  - '!**/{.git.gitignore,.gitattributes,.git-blame-ignore-revs,.hg,.svn,CVS,RCS,SCCS,}'
-  - '!**/.DS_Store'
-  - '!._*'
+  - "!**/{.git.gitignore,.gitattributes,.git-blame-ignore-revs,.hg,.svn,CVS,RCS,SCCS,}"
+  - "!**/.DS_Store"
+  - "!._*"
 
   # Exclusion tests/examples
-  - '!**/{test,tests,__tests__,powered-test,coverage}/**'
-  - '!**/{example,examples}/**'
-  - '!**/*.{spec,test}.{js,jsx,ts,tsx}'
+  - "!**/{test,tests,__tests__,powered-test,coverage}/**"
+  - "!**/{example,examples}/**"
+  - "!**/*.{spec,test}.{js,jsx,ts,tsx}"
 
   # Exclusion native build files
-  - '!**/node_modules/**/*.cpp'
-  - '!**/node_modules/node-addon-api/**'
-  - '!**/node_modules/prebuild-install/**'
-  - '!**/*.{h,iobj,ipdb,tlog,recipe,vcxproj,vcxproj.filters,Makefile,*.Makefile}' # filter .node build files
+  - "!**/node_modules/**/*.cpp"
+  - "!**/node_modules/node-addon-api/**"
+  - "!**/node_modules/prebuild-install/**"
+  - "!**/*.{h,iobj,ipdb,tlog,recipe,vcxproj,vcxproj.filters,Makefile,*.Makefile}" # filter .node build files
 
   # Exclusion others
-  - '!.swc'
-  - '!.bin'
-  - '!**/*.min.*.map'
-  - '!**/*.d.ts'
-  - '!*.log'
-  - '!**/{LICENSE,LICENSE.txt,ThirdPartyNotices.txt,NOTICE.txt,README.md,RELEASE.md,CHANGELOG.md}'
-  - '!node_modules/rollup-plugin-visualizer'
+  - "!.swc"
+  - "!.bin"
+  - "!**/*.min.*.map"
+  - "!**/*.d.ts"
+  - "!*.log"
+  - "!**/{LICENSE,LICENSE.txt,ThirdPartyNotices.txt,NOTICE.txt,README.md,RELEASE.md,CHANGELOG.md}"
+  - "!node_modules/rollup-plugin-visualizer"
 asar: true
 asarUnpack:
   - resources/**
@@ -143,12 +143,12 @@ linux:
 rpm:
   # Workaround for electron build issue on rpm package:
   # https://github.com/electron/forge/issues/3594
-  fpm: ['--rpm-rpmbuild-define=_build_id_links none']
+  fpm: ["--rpm-rpmbuild-define=_build_id_links none"]
 npmRebuild: true
 publish:
   provider: github
-  owner: 'GX88'
-  repo: 'mf-tools'
+  owner: "GX88"
+  repo: "mf-tools"
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
 beforePack: scripts/before-pack.js

@@ -2,8 +2,9 @@
   "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
   "include": [
     "src/renderer/src/**/*",
+    "src/renderer/vite/**/*",
     "src/preload/**/*",
-    "packages/shared/**/*",
+    "packages/shared/**/*"
   ],
   "compilerOptions": {
     "composite": true,
@@ -12,7 +13,8 @@
       "@/*": ["./src/renderer/src/*"],
       "@main/*": ["./src/main/*"],
       "@preload/*": ["./src/preload/*"],
-      "@renderer/*": ["./src/renderer/*"],
+      "@renderer/*": ["./src/renderer/src/*"],
+      "#/*": ["./src/renderer/src/types/*"],
       "@shared/*": ["./packages/shared/*"],
       "@logger": ["./src/main/services/LoggerService"],
       "@pkg": ["./package.json"]

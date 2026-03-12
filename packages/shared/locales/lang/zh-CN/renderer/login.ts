@@ -24,4 +24,10 @@ export default {
     success: '登录成功',
     smsSent: '短信验证码已发送',
   },
+  error: {
+    usernameRequired: '请输入账号',
+    passwordRequired: '请输入密码',
+    codeRequired: '请输入短信验证码',
+    codeInvalid: '验证码必须为6位数字',
+  },
 }

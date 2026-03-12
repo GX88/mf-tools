@@ -24,4 +24,10 @@ export default {
     success: '登錄成功',
     smsSent: '短信驗證碼已發送',
   },
+  error: {
+    usernameRequired: '請輸入賬號',
+    passwordRequired: '請輸入密碼',
+    codeRequired: '請輸入短信驗證碼',
+    codeInvalid: '驗證碼必須為6位數字',
+  },
 }
