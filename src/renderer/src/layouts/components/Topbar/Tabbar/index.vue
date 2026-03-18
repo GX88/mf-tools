@@ -47,6 +47,10 @@ defineOptions({
 const route = useRoute()
 const router = useRouter()
 
+defineProps<{
+  dragEnabled?: boolean
+}>()
+
 const settingsStore = useSettingsStore()
 const tabbarStore = useTabbarStore()
 
@@ -397,7 +401,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="tabbar">
+  <div :class="[dragEnabled && 'drag-region', 'tabbar']">
     <component :is="useSlots('tabbar-start')" />
     <div class="tabbar-container">
       <FaScrollArea
@@ -431,7 +435,7 @@ onUnmounted(() => {
             "
             ref="tabRef"
             :data-index="index"
-            class="tab"
+            class="tab no-drag-region"
             :class="{
               'tab-ontop': settingsStore.settings.topbar.switchTabbarAndToolbar,
               'actived': element.tabId === activedTabId,
@@ -519,7 +523,7 @@ onUnmounted(() => {
           </div>
         </TransitionGroup>
       </FaScrollArea>
-      <div class="flex-center flex-shrink-0 gap-2 whitespace-nowrap p-2">
+      <div class="no-drag-region flex-center flex-shrink-0 gap-2 whitespace-nowrap p-2">
         <MoreAction v-if="isShowMoreAction" />
       </div>
     </div>

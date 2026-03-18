@@ -9,6 +9,18 @@ defineOptions({
 
 const settingsStore = useSettingsStore()
 
+const hasHeader = computed(() => {
+  return settingsStore.mode === 'pc'
+    && ['head', 'only-head', 'head-panel'].includes(settingsStore.settings.menu.mode)
+    && !settingsStore.mainPageMaximizeStatus
+})
+
+const enableTopbarDrag = computed(() => {
+  return settingsStore.mode === 'pc'
+    && !hasHeader.value
+    && !settingsStore.mainPageMaximizeStatus
+})
+
 const enableToolbar = computed(() => {
   return settingsStore.settings.toolbar.enable && settingsStore.settings.toolbar.layout.some((item) => {
     if (item !== '->') {
@@ -51,8 +63,8 @@ watch(scrollTop, (val, oldVal) => {
         'switch-tabbar-toolbar': settingsStore.settings.topbar.switchTabbarAndToolbar,
       }"
     >
-      <Tabbar v-if="settingsStore.settings.tabbar.enable" />
-      <Toolbar v-if="enableToolbar" />
+      <Tabbar v-if="settingsStore.settings.tabbar.enable" :drag-enabled="enableTopbarDrag" />
+      <Toolbar v-if="enableToolbar" :drag-enabled="enableTopbarDrag" />
     </div>
   </FaSmartFixedBlock>
 </template>
