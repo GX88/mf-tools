@@ -11,22 +11,20 @@ defineOptions({
 
 <template>
   <div
-    class="login-page-bg relative h-screen w-screen flex flex-col overflow-hidden bg-white"
-  >
+    class="login-page-bg relative h-screen w-screen flex flex-col overflow-hidden bg-white">
     <div
-      class="drag-region relative z-20 h-11 w-full flex shrink-0 items-center justify-between bg-[#f0f0f0]/80 pl-4 pr-2"
-    >
+      class="drag-region relative z-20 h-11 w-full flex shrink-0 items-center justify-between bg-[#f0f0f0]/80 pl-4 pr-2">
       <div>
         <img
-          v-if="isMacOS"
+          v-if="!isMacOS"
           src="@renderer/assets/images/logo.svg"
           alt="logo"
-          class="h-5 w-auto"
-        >
+          class="h-5 w-auto">
       </div>
       <div class="flex items-center">
         <QuickMenu />
-        <Separator orientation="vertical" class="mx-2 bg-[#c2c2c2] h-4!" />
+        <Separator orientation="vertical"
+          class="mx-2 bg-[#c2c2c2] h-4!" />
         <SystemControl />
       </div>
     </div>

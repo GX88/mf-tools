@@ -53,7 +53,9 @@ function iconName(isActive: boolean, icon?: string, activeIcon?: string) {
       v-if="['side', 'only-side', 'side-panel'].includes(settingsStore.settings.menu.mode) || (settingsStore.mode === 'mobile' && settingsStore.settings.menu.mode !== 'single')"
       class="main-sidebar-container">
       <component :is="useSlots('main-sidebar-top')" />
-      <Logo :show-title="false" class="sidebar-logo" />
+      <div class="sidebar-header drag-region">
+        <Logo :show-title="false" class="sidebar-logo no-drag-region" />
+      </div>
       <component :is="useSlots('main-sidebar-after-logo')" />
       <FaScrollArea :scrollbar="false" mask
         gradient-color="var(--g-main-sidebar-bg)"
@@ -149,6 +151,11 @@ function iconName(isActive: boolean, icon?: string, activeIcon?: string) {
   .sidebar-logo {
     background-color: var(--g-main-sidebar-bg);
     transition: background-color 0.3s;
+  }
+
+  .sidebar-header {
+    flex-shrink: 0;
+    background-color: var(--g-main-sidebar-bg);
   }
 
   .menu {

@@ -83,6 +83,7 @@ declare global {
   const useMenu: typeof import('../utils/composables/useMenu').default
   const useMenuStore: typeof import('../store/modules/menu').useMenuStore
   const useModel: typeof import('vue').useModel
+  const useNotificationStore: typeof import('../store/modules/notification').useNotificationStore
   const usePagination: typeof import('../utils/composables/usePagination').default
   const useRoute: typeof import('vue-router').useRoute
   const useRouteStore: typeof import('../store/modules/route').useRouteStore

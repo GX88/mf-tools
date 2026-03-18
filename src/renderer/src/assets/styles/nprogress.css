@@ -32,7 +32,7 @@
 
   .spinner {
     position: fixed;
-    top: 11px;
+    bottom: 14px;
     right: 14px;
     z-index: 2000;
     display: block;

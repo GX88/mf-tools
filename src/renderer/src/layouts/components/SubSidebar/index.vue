@@ -64,12 +64,15 @@ watch(() => menuStore.actived, (val, oldVal) => {
         'is-collapse': isCollapse,
       }">
       <component :is="useSlots('sub-sidebar-top')" />
-      <Logo
+      <div
         v-if="['side', 'single'].includes(settingsStore.settings.menu.mode)"
-        :show-logo="settingsStore.settings.menu.mode === 'single'"
-        class="sidebar-logo" :class="{
-          single: settingsStore.settings.menu.mode === 'single',
-        }" />
+        class="sidebar-header drag-region">
+        <Logo
+          :show-logo="settingsStore.settings.menu.mode === 'single'"
+          class="sidebar-logo no-drag-region" :class="{
+            single: settingsStore.settings.menu.mode === 'single',
+          }" />
+      </div>
       <component :is="useSlots('sub-sidebar-after-logo')" />
       <FaScrollArea :scrollbar="false" mask
         gradient-color="var(--g-sub-sidebar-bg)"
@@ -159,6 +162,11 @@ watch(() => menuStore.actived, (val, oldVal) => {
 
   .menu {
     width: 100%;
+  }
+
+  .sidebar-header {
+    flex-shrink: 0;
+    background-color: var(--g-sub-sidebar-bg);
   }
 }
 

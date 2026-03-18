@@ -1,7 +1,8 @@
 import type { Router } from 'vue-router'
-import { useNProgress } from '@vueuse/integrations/useNProgress'
+// import { useNProgress } from '@vueuse/integrations/useNProgress'
 import { asyncRoutes, asyncRoutesByFilesystem } from './routes'
 import '@renderer/assets/styles/nprogress.css'
+import { createBuildWatcherLoading } from '@renderer/utils/build-watcher'
 
 function setupRoutes(router: Router) {
   router.beforeEach(async (to) => {
@@ -138,17 +139,33 @@ function setupMaximize(router: Router) {
 
 // 进度条
 function setupProgress(router: Router) {
-  const { isLoading } = useNProgress()
+  // 原型 nprogress 加载环（已注释）
+  // const { isLoading } = useNProgress()
+  // router.beforeEach(() => {
+  //   const settingsStore = useSettingsStore()
+  //   if (settingsStore.settings.app.enableProgress) {
+  //     isLoading.value = true
+  //   }
+  // })
+  // router.afterEach(() => {
+  //   const settingsStore = useSettingsStore()
+  //   if (settingsStore.settings.app.enableProgress) {
+  //     isLoading.value = false
+  //   }
+  // })
+
+  // 移植的加载三角
+  const buildWatcherLoading = createBuildWatcherLoading()
   router.beforeEach(() => {
     const settingsStore = useSettingsStore()
     if (settingsStore.settings.app.enableProgress) {
-      isLoading.value = true
+      buildWatcherLoading.show()
     }
   })
   router.afterEach(() => {
     const settingsStore = useSettingsStore()
     if (settingsStore.settings.app.enableProgress) {
-      isLoading.value = false
+      buildWatcherLoading.hide()
     }
   })
 }

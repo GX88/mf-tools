@@ -1,6 +1,15 @@
+@font-face {
+  font-family: 'MiSans VF';
+  src: url('../font/MiSansVF.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 /* 页面布局 CSS 变量 */
 :root {
   color-scheme: light;
+  --font-family-sans: 'MiSans VF', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   /* 仅页宽模式为 center 时生效，会跟随页宽模式作用范围而变化 */
   --g-app-width: 1400px;
@@ -78,6 +87,7 @@
 html,
 body {
   height: 100%;
+  font-family: var(--font-family-sans);
 }
 
 body {

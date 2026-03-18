@@ -14,7 +14,17 @@ import {
 import { presetAnimations } from 'unocss-preset-animations'
 import themes from './src/renderer/themes'
 
-export default defineConfig<Theme>({
+type AppTheme = Theme & {
+  fontFamily?: {
+    sans?: string
+  }
+}
+
+type ThemeCollection = typeof themes
+type ThemeName = keyof ThemeCollection
+type ColorScheme = keyof ThemeCollection[ThemeName]
+
+export default defineConfig<AppTheme>({
   content: {
     pipeline: {
       include: [
@@ -62,9 +72,9 @@ export default defineConfig<Theme>({
         {
           getCSS: () => {
             const returnCss: string[] = []
-            Object.keys(themes).forEach((themeName) => {
-              Object.keys(themes[themeName]).forEach((colorScheme) => {
-                const css = entriesToCss(Object.entries(themes[themeName][colorScheme] as Record<string, string>))
+            ;(Object.entries(themes) as [ThemeName, ThemeCollection[ThemeName]][]).forEach(([themeName, themeConfig]) => {
+              ;(Object.entries(themeConfig) as [ColorScheme, ThemeCollection[ThemeName][ColorScheme]][]).forEach(([colorScheme, schemeVars]) => {
+                const css = entriesToCss(Object.entries(schemeVars))
                 const roots = toArray(
                   colorScheme === 'light'
                     ? `[data-theme="${themeName}"]`
@@ -74,17 +84,17 @@ export default defineConfig<Theme>({
               })
             })
             return `
-${returnCss.join('\n')}
+              ${returnCss.join('\n')}
 
-* {
-  border-color: hsl(var(--border));
-}
+              * {
+                border-color: hsl(var(--border));
+              }
 
-body {
-  color: hsl(var(--foreground));
-  background: hsl(var(--background));
-}
-`
+              body {
+                color: hsl(var(--foreground));
+                background: hsl(var(--background));
+              }
+              `
           },
         },
       ],
@@ -129,6 +139,9 @@ body {
           lg: 'var(--radius)',
           md: 'calc(var(--radius) - 2px)',
           sm: 'calc(var(--radius) - 4px)',
+        },
+        fontFamily: {
+          sans: 'var(--font-family-sans)',
         },
       },
     },
