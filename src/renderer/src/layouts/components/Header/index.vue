@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSlots } from '@renderer/slots'
+import SystemControl from '@renderer/components/SystemControl/index.vue'
 import Logo from '../Logo/index.vue'
 import Menu from '../Menu/index.vue'
 import MenuPanel from '../MenuPanel/index.vue'
@@ -160,6 +161,7 @@ function iconName(isActive: boolean, icon?: string, activeIcon?: string) {
           />
         </div>
         <component :is="useSlots('header-end')" />
+        <SystemControl class="no-drag" />
       </div>
     </header>
   </Transition>

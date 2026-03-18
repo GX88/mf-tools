@@ -34,6 +34,7 @@ en:
 <script setup lang="ts">
 import type { Tabbar } from '#/global'
 import { useSlots } from '@renderer/slots'
+import SystemControl from '@renderer/components/SystemControl/index.vue'
 import { useMagicKeys } from '@vueuse/core'
 import hotkeys from 'hotkeys-js'
 import Sortable from 'sortablejs'
@@ -49,6 +50,7 @@ const router = useRouter()
 
 defineProps<{
   dragEnabled?: boolean
+  showSystemControl?: boolean
 }>()
 
 const settingsStore = useSettingsStore()
@@ -525,6 +527,7 @@ onUnmounted(() => {
       </FaScrollArea>
       <div class="no-drag-region flex-center flex-shrink-0 gap-2 whitespace-nowrap p-2">
         <MoreAction v-if="isShowMoreAction" />
+        <SystemControl v-if="showSystemControl" />
       </div>
     </div>
     <component :is="useSlots('tabbar-end')" />

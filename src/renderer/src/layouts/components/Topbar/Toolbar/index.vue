@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SystemControl from '@renderer/components/SystemControl/index.vue'
 import LeftSide from './leftSide.vue'
 import RightSide from './rightSide.vue'
 
@@ -8,6 +9,7 @@ defineOptions({
 
 defineProps<{
   dragEnabled?: boolean
+  showSystemControl?: boolean
 }>()
 </script>
 
@@ -18,6 +20,7 @@ defineProps<{
     </div>
     <div class="no-drag-region h-full flex flex-shrink-0 items-center justify-end px-2">
       <RightSide />
+      <SystemControl v-if="showSystemControl" />
     </div>
   </div>
 </template>

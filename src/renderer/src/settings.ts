@@ -4,7 +4,15 @@ import settingsDefault from '@renderer/settings.default'
 import { merge } from '@renderer/utils/object'
 
 const globalSettings: Settings.all = {
-  // 请在此处编写或粘贴配置代码
+  "menu": {
+    "mode": "head",
+    "style": "line",
+    "subMenuCollapse": true,
+    "subMenuAutoCollapse": true
+  },
+  "topbar": {
+    "mode": "fixed"
+  }
 }
 
 export default merge(globalSettings, cloneDeep(settingsDefault)) as RecursiveRequired<Settings.all>

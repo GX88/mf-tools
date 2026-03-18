@@ -36,6 +36,26 @@ const enableToolbar = computed(() => {
 const scrollTop = ref(0)
 const scrollOnHide = ref(false)
 
+const showSystemControlOnToolbar = computed(() => {
+  if (hasHeader.value || settingsStore.mode !== 'pc')
+    return false
+  if (enableToolbar.value && settingsStore.settings.topbar.switchTabbarAndToolbar)
+    return true
+  if (!settingsStore.settings.tabbar.enable && enableToolbar.value)
+    return true
+  return false
+})
+
+const showSystemControlOnTabbar = computed(() => {
+  if (hasHeader.value || settingsStore.mode !== 'pc')
+    return false
+  if (settingsStore.settings.tabbar.enable && !settingsStore.settings.topbar.switchTabbarAndToolbar)
+    return true
+  if (settingsStore.settings.tabbar.enable && !enableToolbar.value)
+    return true
+  return false
+})
+
 const topbarRef = useTemplateRef('topbarRef')
 const { height: topbarHeight } = useElementSize(topbarRef)
 
@@ -63,8 +83,16 @@ watch(scrollTop, (val, oldVal) => {
         'switch-tabbar-toolbar': settingsStore.settings.topbar.switchTabbarAndToolbar,
       }"
     >
-      <Tabbar v-if="settingsStore.settings.tabbar.enable" :drag-enabled="enableTopbarDrag" />
-      <Toolbar v-if="enableToolbar" :drag-enabled="enableTopbarDrag" />
+      <Tabbar
+        v-if="settingsStore.settings.tabbar.enable"
+        :drag-enabled="enableTopbarDrag"
+        :show-system-control="showSystemControlOnTabbar"
+      />
+      <Toolbar
+        v-if="enableToolbar"
+        :drag-enabled="enableTopbarDrag"
+        :show-system-control="showSystemControlOnToolbar"
+      />
     </div>
   </FaSmartFixedBlock>
 </template>

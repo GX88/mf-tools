@@ -124,7 +124,7 @@ function attachMaximizeListener() {
         style="transform: scaleX(-1)"
         class="control-button control-button__close no-drag-region"
         @click="handleCloseWindow">
-        <X class="size-5" />
+        <X class="size-4" />
       </FaButton>
     </template>
   </div>
@@ -133,9 +133,14 @@ function attachMaximizeListener() {
 <style lang="less" scoped>
 .system-controls {
   .control-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+
     &.control-button__close {
       &:hover {
-        color: var(--destructive-foreground) !important;
+        background-color: hsl(var(--destructive));
+        color: hsl(var(--destructive-foreground)) !important;
       }
     }
   }
